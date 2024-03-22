@@ -1,0 +1,9 @@
+.idea
+migrations
+TheBilling/clients/migrations
+TheBilling/.env
+TheBilling/db.sqlite3
+TheBilling/clients/__pycache__/
+TheBilling/TheBilling/__pycache__/
+
+/.venv/
