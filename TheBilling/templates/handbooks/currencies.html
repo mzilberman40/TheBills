@@ -1,19 +1,38 @@
 {% extends 'base/base.html' %}
 
-{% block page_title %}User-Info{% endblock %}
+{% block page_title %} {{ title }}{% endblock %}
 
-{% block page_header %}UserInfo - {{request.user.userprofile.full_name}}{% endblock %}
+{% block page_header %}{{ title }}:{% endblock %}
 
 
 {% block content %}
 
-    <div class="row justify-content-md-center">
-        <div class="col-4">
-            <form method="POST">
-            {% csrf_token %}
-                {{form.as_p}}
-                <button class="" type="submit">Submit!</button>
-            </form>
-        </div>
-    </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    {% for field in fields %}
+                        <th scope="col">{{ field }}</th>
+                    {% endfor %}
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in objects %}
+
+                    <tr>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.code }}</td>
+                        <td>{{ obj.numeric }}</td>
+                        <td>{{ obj.countries|truncatewords:7 }}</td>
+
+                        {% if view_button %}
+                            <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-info">View </a>
+                        {% endif %}
+
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 {% endblock %}

@@ -25,7 +25,9 @@ from TheBilling import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace="core")),
-    path('', include('users.urls', namespace="users")),
+    path('users/', include('users.urls', namespace="users")),
+    path('handbooks/', include('handbooks.urls', namespace="handbooks")),
+
 ]
 
 if settings.DEBUG:
