@@ -1,0 +1,55 @@
+{% extends base_app_template %}
+
+{% block title %}
+ {{title}} -- {{block.super}}
+{% endblock %}
+
+{% block admin-panel %}
+    <a href="{{ admin_object.do_update }}" class="btn btn-light edit" style="{% if details %} display: block; {% endif %}"> Edit </a>
+    <a href="{{ admin_object.do_delete }}" class="btn btn-danger delete" style="{% if details %} display: block; {% endif %}"> Delete </a>{% endblock %}
+
+
+{% block content %}
+ <div class="card">
+  <div class="card-header">
+      <table class="table table-borderless">
+          <tbody>
+              <tr>
+                  {% for k, v in header_dict.items %}
+                      <td>
+                        <b> {{ k }}: </b> {{ v }}
+                      </td>
+                  {% endfor %}
+              </tr>
+          </tbody>
+      </table>
+  </div>
+  <div class="card-body">
+    <h5 class="card-title"> {{ top_main }} </h5>
+      <p class="card-text">
+
+      {% for k, v in main_dict.items %}
+          {% if v %}
+            <b> {{ k }}: </b> {{ v }} <br>
+          {% endif %}
+
+      {% endfor %}
+</p>
+    <a href="#" class="btn btn-primary">Go somewhere</a>
+  </div>
+  <div class="card-footer text-muted">
+      <table class="table table-borderless">
+          <tbody>
+              <tr>
+                  {% for k, v in footer_dict.items %}
+                    {% if v %}
+                      <td>
+                        <b> {{ k }}: </b> {{ v }}
+                      </td>
+                    {% endif %}
+                  {% endfor %}
+              </tr>
+          </tbody>
+      </table>  </div>
+</div>
+{% endblock %}
