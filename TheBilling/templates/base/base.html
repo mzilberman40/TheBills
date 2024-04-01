@@ -24,60 +24,74 @@
     </head>
 
     <body>
+
         <header>
           <nav class="navbar navbar-expand-lg bg-body-tertiary">
-          <div class="container">
-            <a class="navbar-brand" href="{% url 'core:home'%}">SilveBilling</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'core:home'%}">SilveBilling</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Handbooks
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Handbooks
+                            </a>
+
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="{% url 'handbooks:currencies' %}">Currencies</a></li>
-                        </ul>
-                    </li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:legal_forms_list_url' %}">LegalForms</a></li>
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Auth(<b>{{ request.user }}</b>)
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            {% if request.user.is_authenticated %}
-                                <li><a class="dropdown-item" href="{% url 'users:account' %}">Account</a></li>
-                                <li><a class="dropdown-item" href="{% url 'users:user-info' %}">UserInfo</a></li>
-                                <li><a class="dropdown-item" href="{% url 'users:sign-out' %}">Logout</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item btn-danger" href="/admin">Admin</a></li>
-                            {% else %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'users:sign-in' %}">Sign-In</a></li>
-                                <li><a class="dropdown-item" href="{% url 'users:sign-up' %}">Sign-Up</a></li>
-                            {% endif %}
-                        </ul>
-                    </li>
-                </ul>
+                            </ul>
 
-            {% if counter %}
-            <span class="navbar-text d-flex me-auto">
-                Total elements: {{ counter }}
-            </span>
-            {% endif %}
+                        </li>
 
-            {% if show_query %}
-              <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-              </form>
-            {% endif %}
-            </div>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Auth(<b>{{ request.user }}</b>)
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                {% if request.user.is_authenticated %}
+                                    <li><a class="dropdown-item" href="{% url 'users:account' %}">Account</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'users:user-info' %}">UserInfo</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'users:sign-out' %}">Logout</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item btn-danger" href="/admin">Admin</a></li>
+                                {% else %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'users:sign-in' %}">Sign-In</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'users:sign-up' %}">Sign-Up</a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    </ul>
 
-          </div>
+                    {% if counter %}
+                    <span class="navbar-text d-flex me-auto">
+                        Total elements: {{ counter }}
+                    </span>
+                    {% endif %}
+
+                    {% if show_query %}
+
+                      <form class="d-flex" role="search">
+                        <input class="form-control me-1" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                      </form>
+                    {% endif %}
+
+                    {% if nav_custom_button.show %}
+                      <div class="d-lg-flex col-lg-3 justify-content-lg-end">
+                          <a href="{% url create_function %}" class="btn btn-primary">{{ nav_custom_button.name }} </a>
+                      </div>
+                    {% endif %}
+
+
+                </div>
+
+              </div>
           </nav>
         </header>
 
@@ -93,8 +107,6 @@
             </div>
 
         </main>
-
-
 
         <footer>
 

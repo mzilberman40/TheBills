@@ -44,6 +44,7 @@ class ObjectsListMixin(Objects):
     edit_button = False
     delete_button = False
     view_button = True
+    nav_custom_button = {'name': None, 'show': False}
 
     def get(self, request):
         show_query = len(self.query_fields)
@@ -88,10 +89,12 @@ class ObjectsListMixin(Objects):
             'delete_button': self.delete_button,
             'edit_button': self.edit_button,
             'view_button': self.view_button,
+            'nav_custom_button': self.nav_custom_button
 
         }
 
         context.update(self.additional_context)
+        # print(context)
 
         return render(request, self.template_name, context=context)
 
@@ -134,6 +137,7 @@ class ObjectCreateMixin(Objects):
     fields_to_fill = []
 
     def get(self, request):
+        print("CREATE!!!")
         form = self.form_model()
         if self.fields_to_fill:
             form.fields = {key: value for key, value in form.fields.items() if key in self.fields_to_fill}
