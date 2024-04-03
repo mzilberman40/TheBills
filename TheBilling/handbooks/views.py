@@ -27,8 +27,8 @@ def show_currencies(request):
     return render(request, template_name=template_name, context=data)
 
 
-# class Handbooks(LoginRequiredMixin):
-class Handbooks:
+class Handbooks(LoginRequiredMixin):
+# class Handbooks:
 
     # base_app_template = 'handbooks/base_handbooks.html'
     raise_exception = True
@@ -55,8 +55,10 @@ class LegalFormsList(LegalForms, ObjectsListMixin, View):
 
 
 class LegalFormDetails(LegalForms, ObjectDetailsMixin, View):
-    title = "Legal Form Details"
-    template_name = 'obj_list.html'
+    title = f"Legal Form"
+    fields_to_header = ['id', 'short_name', 'full_name', 'slug']
+    fields_to_main = ['description']
+    fields_to_footer = ['time_create', 'time_update', 'owner']
 
 
 class LegalFormCreate(LegalForms, ObjectCreateMixin, View):

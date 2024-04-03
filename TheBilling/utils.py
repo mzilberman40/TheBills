@@ -33,6 +33,10 @@ class Objects:
     title = 'No title'
     comments = ''
     additional_context = {}
+    edit_button = True
+    delete_button = True
+    view_button = True
+    nav_custom_button = {'name': None, 'show': False}
 
 
 class ObjectsListMixin(Objects):
@@ -41,10 +45,6 @@ class ObjectsListMixin(Objects):
     fields_toshow = []     # fields to show in list
     template_name = 'obj_list.html'
     order_by = None     # List of fields for ordering
-    edit_button = False
-    delete_button = False
-    view_button = True
-    nav_custom_button = {'name': None, 'show': False}
 
     def get(self, request):
         show_query = len(self.query_fields)
@@ -63,14 +63,10 @@ class ObjectsListMixin(Objects):
             self.fields_toshow = [f.name for f in self.model._meta.get_fields()]
         #
         objects = [inject_values(o, self.fields_toshow) for o in objects]
-        # print("objects.count:", objects.count())
-
         page_number = request.GET.get('page', 1)
         paginator = Paginator(objects, self.objects_per_page)
         page_object = paginator.get_page(page_number)
         is_paginated = page_object.has_other_pages()
-        # print(page_object.object_list)
-        # print(type(page_object.object_list[0]))
 
         context = {
             'title': self.title,
@@ -90,11 +86,8 @@ class ObjectsListMixin(Objects):
             'edit_button': self.edit_button,
             'view_button': self.view_button,
             'nav_custom_button': self.nav_custom_button
-
         }
-
         context.update(self.additional_context)
-        # print(context)
 
         return render(request, self.template_name, context=context)
 
@@ -102,7 +95,7 @@ class ObjectsListMixin(Objects):
 class ObjectDetailsMixin(Objects):
     template_name = 'obj_details.html'
     fields_to_header = []
-    field_to_top_main = None
+    card_title = None
     fields_to_main = []
     fields_to_footer = []
 
@@ -114,17 +107,23 @@ class ObjectDetailsMixin(Objects):
         footer_dict = {k: getattr(obj, k, None) for k in self.fields_to_footer}
 
         context = {
-            'title': self.title,
+            'title': f'{self.title}: {obj} ',
             f'{self.model.__name__.lower()}': obj,
             'model_name': f'{self.model.__name__.lower()}',
             'object': obj,
             'admin_object': obj,
             'header_dict': header_dict,
-            'top_main': getattr(obj, self.field_to_top_main, None),
+            'card_title': self.card_title,
             'main_dict': main_dict,
             'footer_dict': footer_dict,
             'details': True,
-            'base_app_template': self.base_app_template,
+            'list_function': self.list_function_name,
+            # 'delete_function': self.delete_function_name,
+            # 'update_function': self.update_function_name,
+            'delete_button': self.delete_button,
+            'edit_button': self.edit_button,
+            'nav_custom_button': self.nav_custom_button
+            # 'base_app_template': self.base_app_template,
         }
         # print(context)
         context.update(self.additional_context)
@@ -137,7 +136,6 @@ class ObjectCreateMixin(Objects):
     fields_to_fill = []
 
     def get(self, request):
-        print("CREATE!!!")
         form = self.form_model()
         if self.fields_to_fill:
             form.fields = {key: value for key, value in form.fields.items() if key in self.fields_to_fill}

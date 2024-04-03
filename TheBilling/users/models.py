@@ -7,7 +7,7 @@ from operator import itemgetter
 # these are model abstracts from django extensions
 from django_extensions.db.models import (
     TimeStampedModel,
-    ActivatorModel
+    ActivatorModel,
     )
 
 country_list = sorted([(country.name, country.name) for country in list(pycountry.countries)], key=itemgetter(0))

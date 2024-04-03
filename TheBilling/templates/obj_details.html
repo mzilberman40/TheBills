@@ -1,16 +1,12 @@
 {% extends 'base/base.html' %}
 
-{% block title %}
- {{title}} -- {{block.super}}
-{% endblock %}
+{% block page_title %} {{ title|striptags }}{% endblock %}
 
-{% block admin-panel %}
-    <a href="{{ admin_object.do_update }}" class="btn btn-light edit" style="{% if details %} display: block; {% endif %}"> Edit </a>
-    <a href="{{ admin_object.do_delete }}" class="btn btn-danger delete" style="{% if details %} display: block; {% endif %}"> Delete </a>{% endblock %}
-
+{% block page_header %} {{ title }} {% endblock %}
 
 {% block content %}
- <div class="card">
+
+<div class="card text-center">
   <div class="card-header">
       <table class="table table-borderless">
           <tbody>
@@ -23,22 +19,32 @@
               </tr>
           </tbody>
       </table>
+
   </div>
   <div class="card-body">
-    <h5 class="card-title"> {{ top_main }} </h5>
-      <p class="card-text">
+    {% if card_title %}<h5 class="card-title">{{ card_title }}</h5> {% endif %}
+    <br>
+    <i>
+        <p class="card-text">
+              {% for k, v in main_dict.items %}
+              {% if v %}
+                <b> {{ k }}: </b> {{ v }} <br>
+              {% endif %}
+          {% endfor %}
+        </p>
+    <br>
+    </i>
+    <a href="{% url list_function %}" class="btn btn-light">Back to the list</a>
+    {% if edit_button %}
+        <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
+    {% endif %}
+    {% if delete_button %}
+         <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
+    {% endif %}
 
-      {% for k, v in main_dict.items %}
-          {% if v %}
-            <b> {{ k }}: </b> {{ v }} <br>
-          {% endif %}
-
-      {% endfor %}
-</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
   </div>
-  <div class="card-footer text-muted">
-      <table class="table table-borderless">
+  <div class="card-footer text-body-secondary">
+     <table class="table table-borderless">
           <tbody>
               <tr>
                   {% for k, v in footer_dict.items %}
@@ -50,6 +56,8 @@
                   {% endfor %}
               </tr>
           </tbody>
-      </table>  </div>
+      </table>
+  </div>
 </div>
+
 {% endblock %}
