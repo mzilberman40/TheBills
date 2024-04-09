@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 
 
 from TheBilling import settings
-# from clients.views import index
+# from commerce.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),

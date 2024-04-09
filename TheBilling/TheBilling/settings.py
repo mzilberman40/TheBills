@@ -44,10 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'djmoney',
+    # 'cities',
     'djmoney.contrib.exchange',
     'core.apps.CoreConfig',
     'users.apps.UsersConfig',
-    'clients.apps.ClientsConfig',
+    'commerce.apps.CommerceConfig',
     'handbooks.apps.HandbooksConfig',
 
 ]

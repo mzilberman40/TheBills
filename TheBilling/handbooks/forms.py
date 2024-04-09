@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from handbooks.models import LegalForm
 
@@ -28,3 +29,4 @@ class LegalFormForm(forms.ModelForm):
 
     def clean_full_name(self):
         return ' '.join([word.capitalize() for word in self.cleaned_data['full_name'].split()])
+
