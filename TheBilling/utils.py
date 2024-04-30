@@ -49,10 +49,14 @@ class ObjectsListMixin(Objects):
     def get(self, request):
         show_query = len(self.query_fields)
         search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
+        print(request.GET.get('query', ''), show_query, search_query, self.redirect_to)
         if search_query and self.redirect_to:
             z = [Q((f'{qq}__icontains', search_query)) for qq in self.query_fields]
+            print(z)
             q = functools.reduce(lambda a, b: a | b, z)
+            print(q)
             objects = self.model.objects.filter(q)
+            print(objects)
         else:
             objects = self.model.objects.all()
 

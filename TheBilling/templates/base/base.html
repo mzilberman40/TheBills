@@ -75,11 +75,11 @@
                     {% endif %}
 
                     {% if show_query %}
-
-                      <form class="d-flex" role="search">
-                        <input class="form-control me-1" type="search" placeholder="Search" aria-label="Search">
+                    <form action="{% url redirect_to %}" class="d-flex me-auto mt-2">
+                        <input class="form-control me-2 " value="{{search_query}}" type="search" placeholder="Search"
+                        aria-label="Search" name="query">
                         <button class="btn btn-outline-success" type="submit">Search</button>
-                      </form>
+                    </form>
                     {% endif %}
 
                     {% if nav_custom_button.show %}
