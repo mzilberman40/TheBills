@@ -66,7 +66,7 @@ def AccountView(request):
         form = UserProfileForm(instance=up, data=request.POST, files=request.FILES)
         if form.is_valid:
             form.save()
-            return redirect('/account/')
+            return redirect('users:account')
     else:
         return render(request, 'users/account.html', context)
 

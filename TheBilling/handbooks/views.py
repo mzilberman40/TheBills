@@ -11,8 +11,6 @@ from utils import ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin, Obje
 
 
 def show_currencies(request):
-    search_query = slugify(request.GET.get('query', None), allow_unicode=True)
-    print(search_query)
     template_name = "handbooks/currencies.html"
     currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
     fields = ['name', 'code', 'numeric', 'countries']
@@ -20,17 +18,14 @@ def show_currencies(request):
         'objects': currencies,
         'counter': len(currencies),
         'fields': fields,
-        'show_query': True,
-        'title': 'Currencies'
+        'title': 'Currencies',
+        'redirect_to': 'handbooks:currencies'
     }
 
     return render(request, template_name=template_name, context=data)
 
 
 class Handbooks(LoginRequiredMixin):
-# class Handbooks:
-
-    # base_app_template = 'handbooks/base_handbooks.html'
     raise_exception = True
     objects_per_page = 8
 

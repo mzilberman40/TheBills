@@ -20,8 +20,7 @@ class UserProfile(TimeStampedModel, ActivatorModel, models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     telephone = models.CharField(verbose_name="Contact telephone number", max_length=255, null=True, blank=True)
     address = models.CharField(verbose_name="Address", max_length=100, null=True, blank=True)
-    avatar = models.ImageField(default='default_avatar.jpg', upload_to='avatar', null=True,
-                               blank=True)  # this is our new avatar filed
+    avatar = models.ImageField(default='default_avatar.jpg', upload_to='avatar', null=True, blank=True)
 
     def full_name(self):
         """
