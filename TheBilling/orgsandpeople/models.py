@@ -1,15 +1,9 @@
-import moneyed
 from django.db import models
-from djmoney.models.fields import MoneyField
 from django.db.models import Q
 from django.urls import reverse
-from django.contrib.auth.models import User
-from pytils.translit import slugify as ru_slugify
-from django_extensions.db.fields import AutoSlugField
-from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedModel, ActivatorModel
-#
-#
-# class BusinessUnit(TimeStampedModel, models.Model):
+
+
+# class BusinessUnit(models.Model):
 #     """
 #     inn - is a pk of this model.
 #     But not all BU have inn.
@@ -19,7 +13,7 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 #     For all which inn unknown or doesn't exist:
 #         15 digits starting with 999.
 #     """
-#     special_status = models.BooleanField(default=False)
+#     special_status = models.BooleanField(default=False)  # is in an intimate relationship ))
 #     inn = models.SlugField(max_length=15, unique=True, null=True, blank=True)
 #     ogrn = models.SlugField(max_length=20, null=True, blank=True, unique=True)
 #     first_name = models.CharField(max_length=32, blank=True)
@@ -35,9 +29,8 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 #     legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT, null=True, blank=True)
 #     address = models.TextField(max_length=256, blank=True)
 #     address_data = models.JSONField(blank=True, null=True)
+#     date_updated = models.DateTimeField(blank=True, auto_now=True)
 #     notes = models.CharField(max_length=512, blank=True)
-#     slug = AutoSlugField(populate_from=['full_name'], unique=True, db_index=True, slugify_function=ru_slugify)
-#     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 #
 #     class Meta:
 #         verbose_name = "BusinessUnit"
@@ -61,7 +54,7 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 #
 #     def do_delete(self):
 #         return reverse('business_unit_delete_url', kwargs={'pk': self.pk})
-#
+
 #
 # class Email(models.Model):
 #     email = models.EmailField(unique=True)
@@ -84,14 +77,16 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 #         return reverse('email_delete_url', kwargs={'pk': self.pk})
 #
 #
-# class Account(ActivatorModel, TimeStampedModel, models.Model):
-#     business_unit = models.ForeignKey('commerce.BusinessUnit', on_delete=models.PROTECT)
+# class Account(models.Model):
+#     business_unit = models.ForeignKey('orgsandpeople.BusinessUnit', on_delete=models.PROTECT)
 #     bank = models.ForeignKey('handbooks.Bank', on_delete=models.PROTECT)
 #     number = models.SlugField(max_length=32)
-#     balance = MoneyField(max_digits=14, decimal_places=2, default_currency='USD')
+#     currency = models.ForeignKey('handbooks.Currency', on_delete=models.PROTECT)
+#     starting_balance = models.FloatField(default=0)
 #     starting_date = models.DateField(blank=True)
+#     date_added = models.DateField(blank=True, auto_now_add=True)
+#     date_updated = models.DateField(blank=True, auto_now=True)
 #     notes = models.CharField(max_length=512, blank=True)
-#     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 #
 #     class Meta:
 #         verbose_name = "Account"

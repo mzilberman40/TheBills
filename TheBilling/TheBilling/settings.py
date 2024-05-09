@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'commerce.apps.CommerceConfig',
     'handbooks.apps.HandbooksConfig',
+    'orgsandpeople.apps.OrgsandpeopleConfig',
 
 ]
 

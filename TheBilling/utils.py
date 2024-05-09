@@ -156,7 +156,11 @@ class ObjectCreateMixin(Objects):
         return render(request, self.template_name, context=context)
 
     def post(self, request):
-        bound_form = self.form_model(request.POST)
+        # print(request, request.user, dir(request))
+        # print(request.POST)
+        data = dict(request.POST)
+        data['owner'] = request.user
+        bound_form = self.form_model(data)
         if bound_form.is_valid():
             bound_form.save()
             return redirect(self.redirect_to)
@@ -191,8 +195,10 @@ class ObjectUpdateMixin(Objects):
 
     def post(self, request, pk):
         obj = get_object_or_404(self.model, pk=pk)
-        new_dict = request.POST
-        bound_form = self.form_model(new_dict, instance=obj)
+        new_data = dict(request.POST)
+        new_data['owner'] = request.user
+
+        bound_form = self.form_model(new_data, instance=obj)
         if bound_form.is_valid():
             upd_obj = bound_form.save()
             return redirect(self.redirect_to)
