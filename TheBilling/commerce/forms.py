@@ -4,20 +4,6 @@ from commerce.models import *
 from django.utils.text import slugify
 
 
-class EmailForm(ModelForm):
-    class Meta:
-        model = Email
-        fields = '__all__'
-        widgets = {
-            'email': EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Email',
-            }),
-            'owner': Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Owner',
-            }),
-        }
 
 
 class BusinessUnitForm(ModelForm):

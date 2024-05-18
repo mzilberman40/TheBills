@@ -16,6 +16,10 @@ urlpatterns = [
     path('countries/', hview.CountriesList.as_view(), name='countries_list_url'),
     path('countries/create/', hview.CountryCreate.as_view(), name='country_create_url'),
     path('countries/<int:pk>/', hview.CountryDetails.as_view(), name='country_details_url'),
-    path('countries/<int:pk>/update/', hview.CountryUpdate.as_view(), name='country_update_url'),
     path('countries/<int:pk>/delete/', hview.CountryDelete.as_view(), name='country_delete_url'),
+
+    path('banks/', hview.BanksList.as_view(), name='banks_list_url'),
+    path('banks/create/', hview.BankCreate.as_view(), name='bank_create_url'),
+    path('banks/<int:pk>/', hview.BankDetails.as_view(), name='bank_details_url'),
+    path('banks/<int:pk>/delete/', hview.BankDelete.as_view(), name='bank_delete_url'),
 ]
