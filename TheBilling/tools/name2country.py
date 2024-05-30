@@ -2,11 +2,11 @@ from collections import defaultdict
 import tools.from_dadata as da
 import tools.from_pycountry as fp
 import tools.mydecorators as md
-from transliterate import translit, detect_language
-
+from transliterate import detect_language
 
 
 DEBUG = 0
+
 
 @md.tracer(DEBUG=DEBUG)
 def name2country(name: str) -> dict:
