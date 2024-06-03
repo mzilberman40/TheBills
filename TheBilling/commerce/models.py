@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from pytils.translit import slugify as ru_slugify
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedModel, ActivatorModel
-#
-#
+
+
 # class BusinessUnit(TimeStampedModel, models.Model):
 #     """
 #     inn - is a pk of this model.
@@ -33,8 +33,8 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 #     # payment_name is unique name for BU. Not necessary if INN exists
 #     payment_name = models.CharField(max_length=128, unique=True, null=True, blank=True)
 #     legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT, null=True, blank=True)
-#     address = models.TextField(max_length=256, blank=True)
-#     address_data = models.JSONField(blank=True, null=True)
+#     # address = models.TextField(max_length=256, blank=True)
+#     # address_data = models.JSONField(blank=True, null=True)
 #     notes = models.CharField(max_length=512, blank=True)
 #     slug = AutoSlugField(populate_from=['full_name'], unique=True, db_index=True, slugify_function=ru_slugify)
 #     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
@@ -61,7 +61,7 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 #
 #     def do_delete(self):
 #         return reverse('business_unit_delete_url', kwargs={'pk': self.pk})
-#
+
 #
 # class Email(models.Model):
 #     email = models.EmailField(unique=True)

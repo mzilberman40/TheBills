@@ -5,5 +5,11 @@ TheBilling/.env
 TheBilling/db.sqlite3
 TheBilling/commerce/__pycache__/
 TheBilling/TheBilling/__pycache__/
-
+TheBilling/__pycache__/
+TheBilling/core/__pycache__/
+TheBilling/handbooks/__pycache__/
+TheBilling/orgsandpeople/__pycache__/
+TheBilling/tools/__pycache__/
+TheBilling/users/__pycache__/
+.gitignore
 /.venv/
