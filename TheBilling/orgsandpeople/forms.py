@@ -34,7 +34,6 @@ class BusinessUnitForm(ModelForm):
         }
 
 
-
 class EmailForm(ModelForm):
     class Meta:
         model = Email
