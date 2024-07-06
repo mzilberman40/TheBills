@@ -26,7 +26,7 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
     For all which inn unknown or doesn't exist:
         15 digits starting with 999.
     """
-    inn = models.SlugField(max_length=15, unique=True, null=True, blank=True)
+    inn = models.SlugField(max_length=15, unique=True, null=True, blank=True, verbose_name='INN')
     ogrn = models.SlugField(max_length=20, null=True, blank=True, unique=True)
     first_name = models.CharField(max_length=32, blank=True)
     middle_name = models.CharField(max_length=32, blank=True)
@@ -35,12 +35,14 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
                                  help_text="For organization input it's name hear without legal-form. "
                                            "For person it can be filled automatically")
     short_name = models.CharField(max_length=128, unique=True)
-    special_status = models.BooleanField(default=False)  # is in an intimate relationship ))
+    # is in an intimate relationship ))
+    special_status = models.BooleanField(default=False, verbose_name="Special Status")
     # payment_name is unique name for BU. Not necessary if INN exists
     payment_name = models.CharField(max_length=128, unique=True, null=True, blank=True)
     slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
 
-    legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT, null=True, blank=True)
+    legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT,
+                                   null=True, blank=True, verbose_name='Legal Form')
     notes = models.CharField(max_length=512, blank=True)
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
