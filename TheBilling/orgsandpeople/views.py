@@ -1,8 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 
-from orgsandpeople.forms import BusinessUnitForm
-from orgsandpeople.models import Email, BusinessUnit
+from orgsandpeople.forms import BankForm, BusinessUnitForm
+from orgsandpeople.models import Bank, BusinessUnit
 from utils import ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin
 
 
@@ -40,6 +40,44 @@ class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin, View):
 
 class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin, View):
     title = "Deleting BusinessUnit"
+
+
+class Banks(OrgsAndPeople):
+    model = Bank
+    form_model = BankForm
+    title = "Banks"
+    create_function_name = 'orgsandpeople:bank_create_url'
+    update_function_name = 'orgsandpeople:bank_update_url'
+    delete_function_name = 'orgsandpeople:bank_delete_url'
+    list_function_name = 'orgsandpeople:bank_list_url'
+    redirect_to = list_function_name
+
+
+class BankList(Banks, ObjectsListMixin, View):
+    fields_toshow = ['short_name', 'bik']
+    query_fields = ['short_name', 'name', 'bik', 'swift']
+    order_by = 'short_name'
+    template_name = 'obj_list.html'
+    nav_custom_button = {'name': 'NewItem', 'show': True}
+
+
+class BankDetails(Banks, ObjectDetailsMixin, View):
+    title = f"Bank Details"
+    fields_to_header = ['id', 'short_name', 'name', 'slug']
+    fields_to_main = ['notes']
+    fields_to_footer = ['created', 'modified', 'user']
+
+
+class BankCreate(Banks, ObjectCreateMixin, View):
+    title = "Create Bank"
+
+
+class BankUpdate(Banks, ObjectUpdateMixin, View):
+    title = "Updating Bank"
+
+
+class BankDelete(Banks, ObjectDeleteMixin, View):
+    title = "Deleting Bank"
 
 
 # class Emails(OrgsAndPeople):

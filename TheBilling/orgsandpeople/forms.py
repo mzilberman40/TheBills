@@ -1,10 +1,61 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from commerce.models import *
 from django.utils.text import slugify
+# import tools.from_pycountry as fp
+from orgsandpeople.models import Email, BusinessUnit, Bank
+from handbooks.models import LegalForm, Country
 
-from orgsandpeople.models import Email, BusinessUnit
-from handbooks.models import LegalForm
+
+class BankForm(forms.ModelForm):
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(),
+        empty_label='Choose Country if you want',
+        label='Country',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(BankForm, self).__init__(*args, **kwargs)
+        print(kwargs)
+        if 'user' in kwargs:
+            self.fields['user'].initial = kwargs['user']
+
+    class Meta:
+        model = Bank
+        # fields = '__all__'
+        fields = ['name', 'short_name', 'bik', 'corr_account', 'swift', 'notes', 'country']
+
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'name',
+            }),
+            'short_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'short_name',
+            }),
+            'bik': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'National Bank Identification Code',
+            }),
+            'corr_account': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Corr account',
+            }),
+            'swift': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'swift',
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'notes',
+            }),
+            'country': forms.Select(
+                attrs={'class': 'form-control',
+                       'empty_label': 'Choose Country if you want',
+                       'label': 'Choose Country if you want',
+                       }
+            ),
+        }
 
 
 class BusinessUnitForm(forms.ModelForm):

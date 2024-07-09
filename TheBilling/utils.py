@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.http.request import QueryDict, MultiValueDict
 from django.core.paginator import Paginator
 from django.utils.text import slugify
 import functools
@@ -89,7 +90,8 @@ class ObjectsListMixin(Objects):
             'delete_button': self.delete_button,
             'edit_button': self.edit_button,
             'view_button': self.view_button,
-            'nav_custom_button': self.nav_custom_button
+            'nav_custom_button': self.nav_custom_button,
+
         }
         context.update(self.additional_context)
 
@@ -109,6 +111,7 @@ class ObjectDetailsMixin(Objects):
         header_dict = {k: getattr(obj, k, None) for k in self.fields_to_header}
         main_dict = {k: getattr(obj, k, None) for k in self.fields_to_main}
         footer_dict = {k: getattr(obj, k, None) for k in self.fields_to_footer}
+        # print(main_dict, footer_dict)
 
         context = {
             'title': f'{self.title}: {obj} ',
@@ -122,8 +125,9 @@ class ObjectDetailsMixin(Objects):
             'footer_dict': footer_dict,
             'details': True,
             'list_function': self.list_function_name,
-            # 'delete_function': self.delete_function_name,
-            # 'update_function': self.update_function_name,
+            'delete_function': self.delete_function_name,
+            'update_function': self.update_function_name,
+            'object_update_url': self.update_function_name,
             'delete_button': self.delete_button,
             'edit_button': self.edit_button,
             'nav_custom_button': self.nav_custom_button
@@ -156,11 +160,10 @@ class ObjectCreateMixin(Objects):
         return render(request, self.template_name, context=context)
 
     def post(self, request):
-        # print(request, request.user, dir(request))
-        # print(request.POST)
-        data = dict(request.POST)
-        data['owner'] = request.user
+        data = request.POST.copy()  # Make a mutable copy of POST data
+        data['user'] = request.user  # Probably user is necessary for model
         bound_form = self.form_model(data)
+
         if bound_form.is_valid():
             bound_form.save()
             return redirect(self.redirect_to)
@@ -172,6 +175,7 @@ class ObjectCreateMixin(Objects):
             'object_create_url': self.create_function_name
         }
         context.update(self.additional_context)
+        # print(context)
 
         return render(request, self.template_name, context=context)
 
@@ -195,12 +199,11 @@ class ObjectUpdateMixin(Objects):
 
     def post(self, request, pk):
         obj = get_object_or_404(self.model, pk=pk)
-        new_data = dict(request.POST)
-        new_data['owner'] = request.user
-
+        new_data = request.POST.copy()  # Make a mutable copy of POST data
+        new_data['user'] = request.user  # Probably user is necessary for model
         bound_form = self.form_model(new_data, instance=obj)
         if bound_form.is_valid():
-            upd_obj = bound_form.save()
+            bound_form.save()
             return redirect(self.redirect_to)
         context = {
             'form': bound_form,

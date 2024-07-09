@@ -8,7 +8,8 @@
   {% for e in form.non_field_errors %}
     <div class="alert alert-danger"> {{ e }} </div>
   {% endfor %}
-  <form class="" action="{% url object_create_url %}" method="post" enctype="multipart/form-data">
+    <form class="" action="{% url object_create_url %}" method="post" enctype="multipart/form-data">
+
       {% csrf_token %}
       {% for field in form %}
       <div class="form-group">

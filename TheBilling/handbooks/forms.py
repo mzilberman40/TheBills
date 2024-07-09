@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from handbooks.models import LegalForm, Country, Bank
+from handbooks.models import LegalForm, Country
 from tools.texts import clear_text
 import tools.from_pycountry as fp
 
@@ -32,12 +32,6 @@ class LegalFormForm(forms.ModelForm):
     def clean_full_name(self):
         return ' '.join([word.capitalize() for word in self.cleaned_data['full_name'].split()])
 
-
-# class CountryForm(forms.Form):
-#     eng_name = forms.CharField(
-#         widget=forms.Select(choices=[(c.name, c.name) for c in fp.get_all_countries()]),
-#     )
-#
 
 class CountryForm(forms.ModelForm):
     class Meta:
@@ -98,50 +92,3 @@ class CountryForm(forms.ModelForm):
 #     def clean_iso3166(self):
 #         return self.cleaned_data['iso3166']
 
-
-class BankForm(forms.ModelForm):
-    class Meta:
-        model = Bank
-        fields = '__all__'
-
-        widgets = {
-            'name': forms.Select(choices=[(c.name, c.name) for c in fp.get_all_countries()],
-                                     attrs={
-                                         'class': 'form-control',
-                                            }),
-            'bik': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'National Bank Identification Code',
-            }),
-            'short_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'short_name',
-            }),
-            'corr_account': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Corr. Account',
-            }),
-            'rus_name_short': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Russian name short',
-            }),
-            'rus_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Russian name',
-            }),
-
-            # 'eng_name': forms.TextInput(attrs={
-            #     'class': 'form-control',
-            #     'placeholder': 'English name',
-            # }),
-
-            'eng_name_official': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'English name official',
-            }),
-
-            'rus_name_official': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Official Russian name',
-            }),
-        }

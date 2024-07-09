@@ -6,8 +6,8 @@ from django.views import View
 
 import config
 from tools.name2country import name2country
-from handbooks.forms import LegalFormForm, CountryForm, BankForm
-from handbooks.models import LegalForm, Country, Bank
+from handbooks.forms import LegalFormForm, CountryForm
+from handbooks.models import LegalForm, Country
 from utils import ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin
 
 
@@ -124,11 +124,8 @@ class CountryCreate(Countries, ObjectCreateMixin, View):
     def post(self, request):
         data = dict(request.POST)
         eng_name = request.POST['eng_name']
-
-        # d = name2country(rus_name)
         data.update(name2country(eng_name))
         data['owner'] = request.user
-        print(data)
         bound_form = self.form_model(data)
 
         if bound_form.is_valid():
@@ -150,41 +147,41 @@ class CountryDelete(Countries, ObjectDeleteMixin, View):
     pass
 
 
-class Banks(Handbooks):
-    objects_per_page = 6
-    model = Bank
-    form_model = BankForm
-    title = "Banks"
-    create_function_name = 'bank_create_url'
-    update_function_name = 'bank_update_url'
-    delete_function_name = 'bank_delete_url'
-    list_function_name = 'banks_list_url'
-    redirect_to = list_function_name
-    # additional_context = {'handbooks': HANDBOOKS, 'banks_refresh_function': 'banks_refresh_url'}
-
-
-class BanksList(Banks, ObjectsListMixin, View):
-    fields_toshow = ['name', 'short_name', 'city', 'bik', 'swift', 'status']
-    query_fields = ['name', 'short_name', 'bik', 'swift']
-    order_by = 'name'
-    # template_name = 'handbooks/banks.html'
-    # template_name = 'obj_list.html'
-    edit_button = True
-    delete_button = False
-
-
-class BankDetails(Banks, ObjectDetailsMixin, View):
-    title = "Bank"
-
-
-class BankCreate(Banks, ObjectCreateMixin, View):
-    title = "Creating Bank"
-
-
-class BankUpdate(Banks, ObjectUpdateMixin, View):
-    title = "Updating bank"
-
-
-class BankDelete(Banks, ObjectDeleteMixin, View):
-    pass
-
+# class Banks(Handbooks):
+#     objects_per_page = 6
+#     model = Bank
+#     form_model = BankForm
+#     title = "Banks"
+#     create_function_name = 'bank_create_url'
+#     update_function_name = 'bank_update_url'
+#     delete_function_name = 'bank_delete_url'
+#     list_function_name = 'banks_list_url'
+#     redirect_to = list_function_name
+#     # additional_context = {'handbooks': HANDBOOKS, 'banks_refresh_function': 'banks_refresh_url'}
+#
+#
+# class BanksList(Banks, ObjectsListMixin, View):
+#     fields_toshow = ['name', 'short_name', 'city', 'bik', 'swift', 'status']
+#     query_fields = ['name', 'short_name', 'bik', 'swift']
+#     order_by = 'name'
+#     # template_name = 'handbooks/banks.html'
+#     # template_name = 'obj_list.html'
+#     edit_button = True
+#     delete_button = False
+#
+#
+# class BankDetails(Banks, ObjectDetailsMixin, View):
+#     title = "Bank"
+#
+#
+# class BankCreate(Banks, ObjectCreateMixin, View):
+#     title = "Creating Bank"
+#
+#
+# class BankUpdate(Banks, ObjectUpdateMixin, View):
+#     title = "Updating bank"
+#
+#
+# class BankDelete(Banks, ObjectDeleteMixin, View):
+#     pass
+#

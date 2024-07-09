@@ -1,5 +1,3 @@
-import uuid
-
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -70,34 +68,3 @@ class Country(TimeStampedModel, models.Model):
         return reverse('handbooks:country_delete_url', kwargs={'pk': self.pk})
 
 
-class Bank(ActivatorModel, TimeStampedModel, models.Model):
-    bik = models.SlugField(unique=True, max_length=9, null=True, blank=True)
-    corr_account = models.CharField(max_length=20, unique=False, blank=True, null=True)
-    name = models.CharField(max_length=256, blank=False)
-    short_name = models.CharField(max_length=128, blank=False, unique=True)
-    slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
-    address = models.CharField(max_length=256, blank=True)
-    swift = models.SlugField(max_length=32, blank=True, null=True, unique=True)
-    status = models.CharField(max_length=16,blank=True)
-    registration_date = models.DateField(blank=True, null=True)
-    liquidation_date = models.DateField(blank=True, null=True)
-    notes = models.TextField(max_length=512, blank=True)
-
-    class Meta:
-        verbose_name = "Bank"
-        verbose_name_plural = "Banks"
-
-    def __repr__(self):
-        return f"{self.short_name}: BIK: {self.bik}, SWIFT: {self.swift}"
-
-    def __str__(self):
-        return f"{self.short_name}"
-
-    def get_absolute_url(self):
-        return reverse('bank_details_url', kwargs={'pk': self.pk})
-
-    def do_update(self):
-        return reverse('bank_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('bank_delete_url', kwargs={'pk': self.pk})
