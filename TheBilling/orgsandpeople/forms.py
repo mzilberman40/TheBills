@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms import inlineformset_factory
 from django.utils.text import slugify
 # import tools.from_pycountry as fp
 from orgsandpeople.models import Email, BusinessUnit, Bank
@@ -9,13 +10,12 @@ from handbooks.models import LegalForm, Country
 class BankForm(forms.ModelForm):
     country = forms.ModelChoiceField(
         queryset=Country.objects.all(),
-        empty_label='Choose Country if you want',
+        empty_label='Choose Country',
         label='Country',
     )
 
     def __init__(self, *args, **kwargs):
         super(BankForm, self).__init__(*args, **kwargs)
-        print(kwargs)
         if 'user' in kwargs:
             self.fields['user'].initial = kwargs['user']
 
@@ -49,58 +49,95 @@ class BankForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'notes',
             }),
-            'country': forms.Select(
-                attrs={'class': 'form-control',
-                       'empty_label': 'Choose Country if you want',
-                       'label': 'Choose Country if you want',
-                       }
-            ),
+            # 'country': forms.Select(
+            #     attrs={'class': 'form-control',
+            #            'empty_label': 'Choose Country',
+            #            'label': 'Choose Country',
+            #            }
+            # ),
         }
+
+
+# class EmailForm(forms.ModelForm):
+#     class Meta:
+#         model = Email
+#         fields = ['email']
+#         widgets = {
+#             'email': forms.EmailInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Email',
+#             }),
+#         }
 
 
 class BusinessUnitForm(forms.ModelForm):
     legal_form = forms.ModelChoiceField(
         queryset=LegalForm.objects.all(),
-        empty_label='Form not choosen',
+        empty_label='Choose Legal Form',
         label='Legal Form',
     )
 
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(),
+        empty_label='Choose Country',
+        label='Country',
+    )
+
+    emails = forms.CharField(
+        help_text="Enter email addresses separated by commas.",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Emails'}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(BusinessUnitForm, self).__init__(*args, **kwargs)
+        if 'user' in kwargs:
+            self.fields['user'].initial = kwargs['user']
+
+    # def _get_or_create_email_objs(self, emails):
+    #     """Handle get or creating obj which has FK relation with tournament if needed"""
+    #     auth_user = self.context['request'].user
+    #     for email in emails:
+    #         Email.objects.get_or_create(
+    #             user=auth_user,
+    #             email=email,
+    #             business_unit=BusinessUnit.objects.get_or_create()
+    #         )
+
     class Meta:
         model = BusinessUnit
-        # fields = '__all__'
         fields = ['legal_form', 'inn', 'ogrn',
                   'first_name', 'middle_name', 'last_name',
                   'full_name', 'short_name', 'payment_name',
-                  'special_status', 'notes']
-        # widgets = {
-        #     'legal_form': Select(attrs={'class': 'form-control', 'placeholder': 'Legal Form'}),
-        #     'inn': TextInput(attrs={'class': 'form-control', 'placeholder': 'INN'}),
-        #     'ogrn': TextInput(attrs={'class': 'form-control', 'placeholder': 'OGRN'}),
-        #     'first_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
-        #     'middle_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Middle Name'}),
-        #     'last_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
-        #     'full_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
-        #     'short_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Short Name'}),
-        #     'payment_name': TextInput(attrs={'class': 'form-control', 'placeholder': 'Payment Name'}),
-        #     'special_status': CheckboxInput(attrs={
-        #         'placeholder': 'Payment Name',
-        #         'class': "form-control, form-check form-switch form-check-input",
-        #         'type': 'checkbox',
-        #         'role': 'switch',
-        #         'id': "flexSwitchCheckDefault"
-        #     }),
-        #     'notes': Textarea(attrs={'class': 'form-control', 'placeholder': 'Notes'}),
-        # }
+                  'special_status', 'notes', 'emails', 'country']
+        widgets = {
+            'country': forms.Select(
+                attrs={'class': 'form-control',
+                       'empty_label': 'Choose Country',
+                       'label': 'Choose Country'}),
+            'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'INN'}),
+            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'OGRN'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
+            'middle_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Middle Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
+            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
+            'short_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Short Name'}),
+            'payment_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Payment Name'}),
+            'special_status': forms.CheckboxInput(attrs={
+                'placeholder': 'Payment Name',
+                'class': "form-control, form-check form-switch form-check-input",
+                'type': 'checkbox',
+                'role': 'switch',
+                'id': "flexSwitchCheckDefault"
+            }),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Notes'}),
+            'emails': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Emails'}),
+
+        }
 
 
-# class EmailForm(ModelForm):
-#     class Meta:
-#         model = Email
-#         fields = ['email']
-#         widgets = {
-#             'email': EmailInput(attrs={
-#                 'class': 'form-control',
-#                 'placeholder': 'Email',
-#             }),
-#         }
+# EmailFormSet = inlineformset_factory(BusinessUnit, Email, fields=['email'], extra=3)
 

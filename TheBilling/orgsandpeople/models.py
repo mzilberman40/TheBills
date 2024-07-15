@@ -68,18 +68,21 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
     first_name = models.CharField(max_length=32, blank=True)
     middle_name = models.CharField(max_length=32, blank=True)
     last_name = models.CharField(max_length=32, blank=True)
-    full_name = models.CharField(max_length=256,
-                                 help_text="For organization input it's name hear without legal-form. "
-                                           "For person it can be filled automatically")
+    full_name = models.CharField(
+        max_length=256,
+        help_text="For organization input it's name hear without legal-form. "
+                  "For person it can be filled automatically")
     short_name = models.CharField(max_length=128, unique=True)
     # is in an intimate relationship ))
     special_status = models.BooleanField(default=False, verbose_name="Special Status")
     # payment_name is unique name for BU. Not necessary if INN exists
     payment_name = models.CharField(max_length=128, unique=True, null=True, blank=True)
-    slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
-
+    slug = AutoSlugField(populate_from=['short_name'], unique=True,
+                         db_index=True, slugify_function=ru_slugify)
     legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT,
-                                   null=True, blank=True, verbose_name='Legal Form')
+                                   verbose_name='Legal Form')
+    country = models.ForeignKey('handbooks.Country', on_delete=models.PROTECT,
+                                verbose_name='Country')
     notes = models.CharField(max_length=512, blank=True)
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
@@ -95,21 +98,21 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
         ]
 
     def __str__(self):
-        return f"{self.short_name}"
+        return f"{self.payment_name}"
 
     def get_absolute_url(self):
-        return reverse('business_unit_details_url', kwargs={'pk': self.pk})
+        return reverse('orgsandpeople:bu_details_url', kwargs={'pk': self.pk})
 
     def do_update(self):
-        return reverse('business_unit_update_url', kwargs={'pk': self.pk})
+        return reverse('orgsandpeople:bu_update_url', kwargs={'pk': self.pk})
 
     def do_delete(self):
-        return reverse('business_unit_delete_url', kwargs={'pk': self.pk})
+        return reverse('orgsandpeople:bu_delete_url', kwargs={'pk': self.pk})
 
 
 class Email(TimeStampedModel, models.Model):
     email = models.EmailField(unique=True)
-    owner = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT)
+    owner = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT, related_name='emails')
 
     class Meta:
         verbose_name = "Email"

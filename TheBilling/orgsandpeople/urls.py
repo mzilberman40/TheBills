@@ -20,5 +20,6 @@ urlpatterns = [
     path('BU/create/', oview.BusinessUnitCreate.as_view(), name='bu_create_url'),
     path('BU/<int:pk>/update/', oview.BusinessUnitUpdate.as_view(), name='bu_update_url'),
     path('BU/<int:pk>/delete/', oview.BusinessUnitDelete.as_view(), name='bu_delete_url'),
+    path('BU/<int:pk>/', oview.BusinessUnitDetails.as_view(), name='bu_details_url'),
 
 ]

@@ -1,9 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
 from orgsandpeople.forms import BankForm, BusinessUnitForm
-from orgsandpeople.models import Bank, BusinessUnit
-from utils import ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin
+from orgsandpeople.models import Bank, BusinessUnit, Email
+from utils import (ObjectDetailsMixin, ObjectCreateMixin,
+                   ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin)
 
 
 class OrgsAndPeople(LoginRequiredMixin):
@@ -17,9 +19,12 @@ class BusinessUnits(OrgsAndPeople):
     title = "Business Units"
     create_function_name = 'orgsandpeople:bu_create_url'
     update_function_name = 'orgsandpeople:bu_update_url'
+    details_function_name = 'orgsandpeople:bu_details_url'
     delete_function_name = 'orgsandpeople:bu_delete_url'
     list_function_name = 'orgsandpeople:bu_list_url'
     redirect_to = list_function_name
+    special_fields = ['emails']
+    # form_template = 'orgsandpeople/bu_form.html'
 
 
 class BusinessUnitList(BusinessUnits, ObjectsListMixin, View):
@@ -32,14 +37,77 @@ class BusinessUnitList(BusinessUnits, ObjectsListMixin, View):
 
 class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin, View):
     title = "Create BusinessUnit"
+    # fields_to_fill = ['inn', 'ogrn', 'first_name', 'middle_name', 'last_name',
+    #                   'full_name', 'short_name', 'emails', 'special_status',
+    #                   'payment_name', 'legal_form', 'notes']
+
+    def post(self, request):
+        data = request.POST.copy()
+        data['user'] = request.user
+        form = self.form_model(data)
+        if form.is_valid():
+            bu = form.save(commit=False)
+            bu.save()
+            emails = form.cleaned_data['emails']
+            email_list = [email.strip() for email in emails.split(',')]
+            for email in email_list:
+                Email.objects.get_or_create(owner=bu, email=email)
+            return redirect(self.redirect_to)
+
+        context = {
+            'title': self.title,
+            'form': form,
+            'base_app_template': self.base_app_template,
+            'object_create_url': self.create_function_name
+        }
+
+        return render(request, 'obj_create.html', context)
 
 
 class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin, View):
     title = "Updating BusinessUnit"
+    template_name = 'obj_update.html'
+
+    def get(self, request, pk):
+        bu = get_object_or_404(BusinessUnit, pk=pk)
+        emails = ', '.join(bu.emails.values_list('email', flat=True))
+        form = BusinessUnitForm(instance=bu, initial={'emails': emails})
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, pk):
+        bu_obj = get_object_or_404(self.model, pk=pk)
+        data = request.POST.copy()
+        data['user'] = request.user
+        form = self.form_model(data, instance=bu_obj)
+        if form.is_valid():
+            bu = form.save(commit=False)
+            bu.save()
+            emails = form.cleaned_data['emails']
+            email_list = [email.strip() for email in emails.split(',')]
+            for email in email_list:
+                Email.objects.get_or_create(owner=bu, email=email)
+            return redirect(self.redirect_to)
+
+        context = {
+            'title': self.title,
+            'form': form,
+            'base_app_template': self.base_app_template,
+            'object_create_url': self.create_function_name
+        }
+
+        return render(request, self.template_name, context)
 
 
 class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin, View):
     title = "Deleting BusinessUnit"
+
+
+class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin, View):
+    title = f"Business Unit Details"
+    fields_to_header = ['id', 'inn', 'slug', 'payment_name', 'special_status']
+    fields_to_main = ['first_name', 'middle_name', 'last_name', 'full_name',
+                      'short_name', 'country', 'notes', 'emails']
+    fields_to_footer = ['created', 'modified', 'user']
 
 
 class Banks(OrgsAndPeople):
@@ -64,7 +132,7 @@ class BankList(Banks, ObjectsListMixin, View):
 class BankDetails(Banks, ObjectDetailsMixin, View):
     title = f"Bank Details"
     fields_to_header = ['id', 'short_name', 'name', 'slug']
-    fields_to_main = ['notes']
+    fields_to_main = ['bik', 'corr_account', 'swift', 'country', 'notes']
     fields_to_footer = ['created', 'modified', 'user']
 
 

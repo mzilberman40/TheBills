@@ -16,6 +16,8 @@ class LegalForm(TimeStampedModel, models.Model):
     class Meta:
         verbose_name = "LegalForm"
         verbose_name_plural = "LegalForms"
+        ordering = ('short_name',)
+
 
     def __str__(self):
         return f"{self.short_name}"
@@ -54,6 +56,8 @@ class Country(TimeStampedModel, models.Model):
     class Meta:
         verbose_name = "Country"
         verbose_name_plural = "Countries"
+        ordering = ('eng_name',)
+
 
     def __str__(self):
         return f"{self.eng_name}"
@@ -66,5 +70,3 @@ class Country(TimeStampedModel, models.Model):
 
     def do_delete(self):
         return reverse('handbooks:country_delete_url', kwargs={'pk': self.pk})
-
-

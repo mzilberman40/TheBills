@@ -107,11 +107,9 @@ class ObjectDetailsMixin(Objects):
 
     def get(self, request, pk):
         obj = get_object_or_404(self.model, pk=pk)
-        # print(content.get(self.field_to_top_main))
         header_dict = {k: getattr(obj, k, None) for k in self.fields_to_header}
         main_dict = {k: getattr(obj, k, None) for k in self.fields_to_main}
         footer_dict = {k: getattr(obj, k, None) for k in self.fields_to_footer}
-        # print(main_dict, footer_dict)
 
         context = {
             'title': f'{self.title}: {obj} ',
@@ -147,7 +145,7 @@ class ObjectCreateMixin(Objects):
         form = self.form_model()
         if self.fields_to_fill:
             form.fields = {key: value for key, value in form.fields.items() if key in self.fields_to_fill}
-
+        # print(form.fields.keys())
         context = {
             'title': self.title,
             'form': form,
