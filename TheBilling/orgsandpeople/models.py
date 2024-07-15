@@ -10,6 +10,7 @@ import moneyed
 from pytils.translit import slugify as ru_slugify
 
 import config
+from library.my_model import MyModel
 from handbooks.models import Country
 
 
@@ -18,7 +19,7 @@ def get_currencies():
     return {c.code: c.name for c in currencies}
 
 
-class Bank(TimeStampedModel, models.Model):
+class Bank(MyModel, TimeStampedModel, models.Model):
     bik = models.SlugField(unique=True, max_length=9, null=True, blank=True)
     corr_account = models.CharField(max_length=20, unique=False, blank=True, null=True)
     name = models.CharField(max_length=256, blank=False)
@@ -33,6 +34,10 @@ class Bank(TimeStampedModel, models.Model):
     notes = models.TextField(max_length=512, blank=True)
     user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE, default=1)
 
+    details_url = 'orgsandpeople:bank_details_url'
+    update_url = 'orgsandpeople:bank_update_url'
+    delete_url = 'orgsandpeople:bank_delete_url'
+
     class Meta:
         verbose_name = "Bank"
         verbose_name_plural = "Banks"
@@ -43,17 +48,8 @@ class Bank(TimeStampedModel, models.Model):
     def __str__(self):
         return f"{self.short_name}"
 
-    def get_absolute_url(self):
-        return reverse('orgsandpeople:bank_details_url', kwargs={'pk': self.pk})
 
-    def do_update(self):
-        return reverse('orgsandpeople:bank_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('orgsandpeople:bank_delete_url', kwargs={'pk': self.pk})
-
-
-class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
+class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     """
     inn - is a pk of this model.
     But not all BU have inn.
@@ -86,6 +82,11 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
     notes = models.CharField(max_length=512, blank=True)
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
+
+    details_url = 'orgsandpeople:bu_details_url'
+    update_url = 'orgsandpeople:bu_update_url'
+    delete_url = 'orgsandpeople:bu_delete_url'
+
     class Meta:
         verbose_name = "BusinessUnit"
         verbose_name_plural = "BusinessUnits"
@@ -100,38 +101,25 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, models.Model):
     def __str__(self):
         return f"{self.payment_name}"
 
-    def get_absolute_url(self):
-        return reverse('orgsandpeople:bu_details_url', kwargs={'pk': self.pk})
-
-    def do_update(self):
-        return reverse('orgsandpeople:bu_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('orgsandpeople:bu_delete_url', kwargs={'pk': self.pk})
-
 
 class Email(TimeStampedModel, models.Model):
     email = models.EmailField(unique=True)
-    owner = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT, related_name='emails')
+    bu = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT, related_name='emails')
+    email_type = models.CharField(max_length=10, null=True, blank=True)
+
+    # details_url = 'emails_list_url'
+    # update_url = 'email_update_url'
+    # delete_url = 'email_delete_url'
 
     class Meta:
         verbose_name = "Email"
         verbose_name_plural = "Emails"
 
     def __str__(self):
-        return f"{self.email}"
-
-    def get_absolute_url(self):
-        return reverse('emails_list_url', kwargs={'pk': self.pk})
-
-    def do_update(self):
-        return reverse('email_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('email_delete_url', kwargs={'pk': self.pk})
+        return f"{self.email} ({self.email_type})" if self.email_type else self.email
 
 
-class Address(TimeStampedModel, models.Model):
+class Address(MyModel, TimeStampedModel, models.Model):
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
     address_data = models.JSONField(blank=True, null=True)
     owner = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT)
@@ -143,15 +131,6 @@ class Address(TimeStampedModel, models.Model):
     def __str__(self):
         return f"{self.country} {self.address_data}"
 
-    def get_absolute_url(self):
-        return reverse('address_list_url', kwargs={'pk': self.pk})
-
-    def do_update(self):
-        return reverse('address_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('address_delete_url', kwargs={'pk': self.pk})
-
 
 class Account(TimeStampedModel, ActivatorModel, models.Model):
     business_unit = models.ForeignKey('orgsandpeople.BusinessUnit', on_delete=models.PROTECT)
@@ -162,6 +141,10 @@ class Account(TimeStampedModel, ActivatorModel, models.Model):
     starting_date = models.DateField(blank=True)
     notes = models.CharField(max_length=512, blank=True)
 
+    details_url = 'commerce:account_details_url'
+    update_url = 'commerce:account_update_url'
+    delete_url = 'commerce:account_delete_url'
+
     class Meta:
         verbose_name = "Account"
         verbose_name_plural = "Accounts"
@@ -169,12 +152,3 @@ class Account(TimeStampedModel, ActivatorModel, models.Model):
 
     def __str__(self):
         return f"{self.business_unit}: rs{self.number} in {self.bank}, currency: {self.currency}"
-
-    def get_absolute_url(self):
-        return reverse('account_details_url', kwargs={'pk': self.pk})
-
-    def do_update(self):
-        return reverse('account_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('account_delete_url', kwargs={'pk': self.pk})

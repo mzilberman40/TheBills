@@ -5,34 +5,30 @@ from django_extensions.db.models import ActivatorModel, TimeStampedModel
 from pytils.translit import slugify as ru_slugify
 from django_extensions.db.fields import AutoSlugField
 
+from library.my_model import MyModel
 
-class LegalForm(TimeStampedModel, models.Model):
+
+class LegalForm(MyModel, TimeStampedModel, models.Model):
     short_name = models.SlugField(max_length=32, unique=True, allow_unicode=True)
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
     slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
+    details_url = 'handbooks:legal_form_details_url'
+    update_url = 'handbooks:legal_form_update_url'
+    delete_url = 'handbooks:legal_form_delete_url'
+
     class Meta:
         verbose_name = "LegalForm"
         verbose_name_plural = "LegalForms"
         ordering = ('short_name',)
 
-
     def __str__(self):
         return f"{self.short_name}"
 
-    def get_absolute_url(self):
-        return reverse('handbooks:legal_form_details_url', kwargs={'pk': self.pk})
 
-    def do_update(self):
-        return reverse('handbooks:legal_form_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('handbooks:legal_form_delete_url', kwargs={'pk': self.pk})
-
-
-class Country(TimeStampedModel, models.Model):
+class Country(MyModel, TimeStampedModel, models.Model):
     """
     Format dadata:
     value	Значение одной строкой (как показывается в списке подсказок)
@@ -53,20 +49,14 @@ class Country(TimeStampedModel, models.Model):
     rus_name_official = models.CharField(max_length=64, unique=True)    # value
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
+    details_url = 'handbooks:country_details_url'
+    update_url = 'handbooks:country_update_url'
+    delete_url = 'handbooks:country_delete_url'
+
     class Meta:
         verbose_name = "Country"
         verbose_name_plural = "Countries"
         ordering = ('eng_name',)
 
-
     def __str__(self):
         return f"{self.eng_name}"
-
-    def get_absolute_url(self):
-        return reverse('handbooks:country_details_url', kwargs={'pk': self.pk})
-
-    def do_update(self):
-        return reverse('handbooks:country_update_url', kwargs={'pk': self.pk})
-
-    def do_delete(self):
-        return reverse('handbooks:country_delete_url', kwargs={'pk': self.pk})

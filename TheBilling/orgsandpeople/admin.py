@@ -1,3 +1,7 @@
 from django.contrib import admin
+from orgsandpeople.models import *
 
-# Register your models here.
+tables = [Bank, BusinessUnit, Email, Address, Account]
+
+for table in tables:
+    admin.site.register(table)

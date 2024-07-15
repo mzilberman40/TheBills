@@ -50,8 +50,8 @@ class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin, View):
             bu.save()
             emails = form.cleaned_data['emails']
             email_list = [email.strip() for email in emails.split(',')]
-            for email in email_list:
-                Email.objects.get_or_create(owner=bu, email=email)
+            for email, email_type in email_list:
+                Email.objects.get_or_create(owner=bu, email=email, email_type=email_type)
             return redirect(self.redirect_to)
 
         context = {
@@ -70,32 +70,58 @@ class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin, View):
 
     def get(self, request, pk):
         bu = get_object_or_404(BusinessUnit, pk=pk)
-        emails = ', '.join(bu.emails.values_list('email', flat=True))
-        form = BusinessUnitForm(instance=bu, initial={'emails': emails})
+        initial_emails = ', '.join([f"{email.email}:{email.email_type}"
+                                    if email.email_type else email.email
+                                    for email in bu.emails.all()])
+
+        form = BusinessUnitForm(instance=bu, initial={'emails': initial_emails})
         return render(request, self.template_name, {'form': form})
+
+    # def get(self, request, pk):
+    #     person = get_object_or_404(Person, pk=pk)
+    #     initial_emails = ', '.join([f"{email.email}:{email.email_type}" if email.email_type else email.email for email in person.email_addresses.all()])
+    #     initial_data = {
+    #         'name': person.name,
+    #         'emails': initial_emails
+    #     }
+    #     form = PersonForm(initial=initial_data)
+    #     return render(request, 'person_form.html', {'form': form})
 
     def post(self, request, pk):
         bu_obj = get_object_or_404(self.model, pk=pk)
-        data = request.POST.copy()
-        data['user'] = request.user
-        form = self.form_model(data, instance=bu_obj)
+        new_data = request.POST.copy()
+        new_data['user'] = request.user
+        form = self.form_model(new_data, instance=bu_obj)
         if form.is_valid():
-            bu = form.save(commit=False)
-            bu.save()
+            bu = form.save()
+            bu.emails.all().delete()
             emails = form.cleaned_data['emails']
-            email_list = [email.strip() for email in emails.split(',')]
-            for email in email_list:
-                Email.objects.get_or_create(owner=bu, email=email)
+            for email, email_type in emails:
+                Email.objects.get_or_create(bu=bu, email=email, email_type=email_type)
+
             return redirect(self.redirect_to)
 
         context = {
             'title': self.title,
             'form': form,
             'base_app_template': self.base_app_template,
-            'object_create_url': self.create_function_name
+            # 'object_create_url': self.create_function_name
         }
 
         return render(request, self.template_name, context)
+
+    # def post(self, request, pk):
+    #     person = get_object_or_404(Person, pk=pk)
+    #     form = PersonForm(request.POST)
+    #     if form.is_valid():
+    #         person.name = form.cleaned_data['name']
+    #         person.save()
+    #         person.email_addresses.all().delete()
+    #         emails = form.cleaned_data['emails']
+    #         for email, email_type in emails:
+    #             EmailAddress.objects.create(person=person, email=email, email_type=email_type)
+    #         return redirect('person-list')
+    #     return render(request, 'person_form.html', {'form': form})
 
 
 class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin, View):
@@ -106,8 +132,40 @@ class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin, View):
     title = f"Business Unit Details"
     fields_to_header = ['id', 'inn', 'slug', 'payment_name', 'special_status']
     fields_to_main = ['first_name', 'middle_name', 'last_name', 'full_name',
-                      'short_name', 'country', 'notes', 'emails']
+                      'short_name', 'country', 'notes', 'e_mails']
     fields_to_footer = ['created', 'modified', 'user']
+
+    def get(self, request, pk):
+        obj = get_object_or_404(self.model, pk=pk)
+        emails = ', '.join(obj.emails.values_list('email', flat=True))
+        setattr(obj, 'e_mails', emails)
+        header_dict = {k: getattr(obj, k, None) for k in self.fields_to_header}
+        main_dict = {k: getattr(obj, k, None) for k in self.fields_to_main}
+        footer_dict = {k: getattr(obj, k, None) for k in self.fields_to_footer}
+
+        context = {
+            'title': f'{self.title}: {obj} ',
+            f'{self.model.__name__.lower()}': obj,
+            'model_name': f'{self.model.__name__.lower()}',
+            'object': obj,
+            'admin_object': obj,
+            'header_dict': header_dict,
+            'card_title': self.card_title,
+            'main_dict': main_dict,
+            'footer_dict': footer_dict,
+            'details': True,
+            'list_function': self.list_function_name,
+            'delete_function': self.delete_function_name,
+            'update_function': self.update_function_name,
+            'object_update_url': self.update_function_name,
+            'delete_button': self.delete_button,
+            'edit_button': self.edit_button,
+            'nav_custom_button': self.nav_custom_button
+        }
+        # print(context)
+        context.update(self.additional_context)
+
+        return render(request, self.template_name, context=context)
 
 
 class Banks(OrgsAndPeople):
@@ -146,34 +204,3 @@ class BankUpdate(Banks, ObjectUpdateMixin, View):
 
 class BankDelete(Banks, ObjectDeleteMixin, View):
     title = "Deleting Bank"
-
-
-# class Emails(OrgsAndPeople):
-#     model = Email
-#     form_model = EmailForm
-#     title = "Legal Forms"
-#     create_function_name = 'orgsandpeople:email_create_url'
-#     update_function_name = 'orgsandpeople:email_update_url'
-#     delete_function_name = 'orgsandpeople:email_delete_url'
-#     list_function_name = 'orgsandpeople:emails_list_url'
-#     redirect_to = list_function_name
-#
-#
-# class EmailsList(Emails, ObjectsListMixin, View):
-#     fields_toshow = ['email',]
-#     query_fields = ['email',]
-#     order_by = 'email'
-#     template_name = 'obj_list.html'
-#     nav_custom_button = {'name': 'NewItem', 'show': True}
-#
-#
-# class EmailCreate(Emails, ObjectCreateMixin, View):
-#     title = "Email Create"
-#
-#
-# class EmailUpdate(Emails, ObjectUpdateMixin, View):
-#     title = "Updating email"
-#
-#
-# class EmailDelete(Emails, ObjectDeleteMixin, View):
-#     title = "Deleting email"

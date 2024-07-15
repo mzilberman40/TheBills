@@ -58,18 +58,6 @@ class BankForm(forms.ModelForm):
         }
 
 
-# class EmailForm(forms.ModelForm):
-#     class Meta:
-#         model = Email
-#         fields = ['email']
-#         widgets = {
-#             'email': forms.EmailInput(attrs={
-#                 'class': 'form-control',
-#                 'placeholder': 'Email',
-#             }),
-#         }
-
-
 class BusinessUnitForm(forms.ModelForm):
     legal_form = forms.ModelChoiceField(
         queryset=LegalForm.objects.all(),
@@ -83,27 +71,25 @@ class BusinessUnitForm(forms.ModelForm):
         label='Country',
     )
 
+    # emails = forms.CharField(
+    #     widget=forms.Textarea,
+    #     required=False,
+    #     help_text='Enter emails with optional types in the format: email1:type1, email2:type2, ...'
+    # )
+
     emails = forms.CharField(
-        help_text="Enter email addresses separated by commas.",
+        help_text='Enter emails with optional types in the format: '
+                  'email1:type1, email2:type2, ...',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Emails'}),
+            'placeholder': 'Enter emails with optional types in the format: '
+                           'email1:type1, email2:type2, ...'}),
     )
 
     def __init__(self, *args, **kwargs):
         super(BusinessUnitForm, self).__init__(*args, **kwargs)
         if 'user' in kwargs:
             self.fields['user'].initial = kwargs['user']
-
-    # def _get_or_create_email_objs(self, emails):
-    #     """Handle get or creating obj which has FK relation with tournament if needed"""
-    #     auth_user = self.context['request'].user
-    #     for email in emails:
-    #         Email.objects.get_or_create(
-    #             user=auth_user,
-    #             email=email,
-    #             business_unit=BusinessUnit.objects.get_or_create()
-    #         )
 
     class Meta:
         model = BusinessUnit
@@ -134,10 +120,23 @@ class BusinessUnitForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Notes'}),
             'emails': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Emails'}),
-
+                'placeholder': 'Enter emails with types in the format: '
+                               'email1:type1, email2:type2, ...'}),
         }
 
+    def clean_emails(self):
+        emails = self.cleaned_data['emails']
+        email_list = []
+        for email_entry in emails.split(','):
+            email_entry = email_entry.strip()
+            if ':' in email_entry:
+                email, email_type = email_entry.split(':', 1)
+                email = email.strip()
+                email_type = email_type.strip()
+            else:
+                email = email_entry
+                email_type = None
 
-# EmailFormSet = inlineformset_factory(BusinessUnit, Email, fields=['email'], extra=3)
-
+            forms.EmailField().clean(email)  # Validate email
+            email_list.append((email, email_type))
+        return email_list
