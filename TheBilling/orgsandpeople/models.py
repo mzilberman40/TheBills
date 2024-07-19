@@ -11,15 +11,15 @@ from pytils.translit import slugify as ru_slugify
 
 import config
 from library.my_model import MyModel
-from handbooks.models import Country
+from handbooks.models import Country, Currency
 
 
-def get_currencies():
-    currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
-    return {c.code: c.name for c in currencies}
+# def get_currencies():
+#     currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
+#     return {c.code: c.name for c in currencies}
 
 
-class Bank(MyModel, TimeStampedModel, models.Model):
+class Bank(MyModel, models.Model):
     bik = models.SlugField(unique=True, max_length=9, null=True, blank=True)
     corr_account = models.CharField(max_length=20, unique=False, blank=True, null=True)
     name = models.CharField(max_length=256, blank=False)
@@ -82,7 +82,6 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     notes = models.CharField(max_length=512, blank=True)
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
-
     details_url = 'orgsandpeople:bu_details_url'
     update_url = 'orgsandpeople:bu_update_url'
     delete_url = 'orgsandpeople:bu_delete_url'
@@ -102,9 +101,9 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
         return f"{self.payment_name}"
 
 
-class Email(TimeStampedModel, models.Model):
+class Email(models.Model):
     email = models.EmailField(unique=True)
-    bu = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT, related_name='emails')
+    bu = models.ForeignKey('BusinessUnit', on_delete=models.CASCADE, related_name='emails')
     email_type = models.CharField(max_length=10, null=True, blank=True)
 
     # details_url = 'emails_list_url'
@@ -119,7 +118,7 @@ class Email(TimeStampedModel, models.Model):
         return f"{self.email} ({self.email_type})" if self.email_type else self.email
 
 
-class Address(MyModel, TimeStampedModel, models.Model):
+class Address(MyModel, models.Model):
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
     address_data = models.JSONField(blank=True, null=True)
     owner = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT)
@@ -133,22 +132,28 @@ class Address(MyModel, TimeStampedModel, models.Model):
 
 
 class Account(TimeStampedModel, ActivatorModel, models.Model):
-    business_unit = models.ForeignKey('orgsandpeople.BusinessUnit', on_delete=models.PROTECT)
-    bank = models.ForeignKey('orgsandpeople.Bank', on_delete=models.PROTECT)
-    number = models.SlugField(max_length=64)
-    currency = models.CharField(max_length=3, choices=get_currencies)
-    starting_balance = models.FloatField(default=0)
-    starting_date = models.DateField(blank=True)
+    business_unit = models.ForeignKey('orgsandpeople.BusinessUnit', on_delete=models.CASCADE)
+    bank = models.ForeignKey('orgsandpeople.Bank', on_delete=models.CASCADE)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    account_number = models.CharField(max_length=20)
+    starting_balance = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.CharField(max_length=512, blank=True)
 
-    details_url = 'commerce:account_details_url'
-    update_url = 'commerce:account_update_url'
-    delete_url = 'commerce:account_delete_url'
-
-    class Meta:
-        verbose_name = "Account"
-        verbose_name_plural = "Accounts"
-        unique_together = ['bank', 'number']
+    details_url = 'orgsandpeople:account_details_url'
+    update_url = 'orgsandpeople:account_update_url'
+    delete_url = 'orgsandpeople:account_delete_url'
 
     def __str__(self):
-        return f"{self.business_unit}: rs{self.number} in {self.bank}, currency: {self.currency}"
+        return (f"{self.account_number} - {self.bank.name} - {self.currency.code}"
+                f" - {'Active' if self.is_active else 'Inactive'}")
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['bank', 'account_number'],
+                name='unique_bank_account_number'
+            )
+        ]
+        verbose_name = "Account"
+        verbose_name_plural = "Accounts"
+        unique_together = ['bank', 'account_number']

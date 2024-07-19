@@ -99,43 +99,43 @@ from django.utils.text import slugify
 #     def clean_notes(self):
 #         return self.cleaned_data['notes']
 #
-
-class AccountForm(ModelForm):
-    class Meta:
-        model = Account
-        fields = '__all__'
-        widgets = {
-            'bank': Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Bank',
-            }),
-            'number': NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': "Payment's number"
-            }),
-            'currency': Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'Currency',
-            }),
-            'business_unit': Select(attrs={
-                'class': 'form-control',
-                'placeholder': 'BusinessUnit',
-            }),
-            'starting_date': DateInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Starting Date',
-            }),
-            'starting_balance': NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Starting Balance',
-            }),
-            'notes': TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Notes'
-            })
-        }
-
-    def clean_number(self):
-        # if len(str(self.cleaned_data['number'])) > 20:
-        #     raise ValidationError("Account's number too long!")
-        return self.cleaned_data['number']
+#
+# class AccountForm(ModelForm):
+#     class Meta:
+#         model = Account
+#         fields = '__all__'
+#         widgets = {
+#             'bank': Select(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Bank',
+#             }),
+#             'number': NumberInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': "Payment's number"
+#             }),
+#             'currency': Select(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Currency',
+#             }),
+#             'business_unit': Select(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'BusinessUnit',
+#             }),
+#             'starting_date': DateInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Starting Date',
+#             }),
+#             'starting_balance': NumberInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Starting Balance',
+#             }),
+#             'notes': TextInput(attrs={
+#                 'class': 'form-control',
+#                 'placeholder': 'Notes'
+#             })
+#         }
+#
+#     def clean_number(self):
+#         # if len(str(self.cleaned_data['number'])) > 20:
+#         #     raise ValidationError("Account's number too long!")
+#         return self.cleaned_data['number']

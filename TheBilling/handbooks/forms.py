@@ -1,8 +1,9 @@
 from django import forms
-from django.core.exceptions import ValidationError
+import moneyed
+# from django.core.exceptions import ValidationError
 
-from handbooks.models import LegalForm, Country
-from tools.texts import clear_text
+from handbooks.models import LegalForm, Country, Currency
+# from tools.texts import clear_text
 import tools.from_pycountry as fp
 
 
@@ -92,3 +93,24 @@ class CountryForm(forms.ModelForm):
 #     def clean_iso3166(self):
 #         return self.cleaned_data['iso3166']
 
+
+class CurrencyForm(forms.ModelForm):
+
+    class Meta:
+        model = Currency
+        fields = '__all__'
+
+        widgets = {
+            'name': forms.Select(
+                choices=[(c.code, c.name) for c in moneyed.list_all_currencies()],
+                attrs={'class': 'form-control'}
+            ),
+            'numeric': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Numeric currency code',
+            }),
+            'code': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '3-char currency code',
+            }),
+        }

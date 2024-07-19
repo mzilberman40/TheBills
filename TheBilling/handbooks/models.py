@@ -8,7 +8,7 @@ from django_extensions.db.fields import AutoSlugField
 from library.my_model import MyModel
 
 
-class LegalForm(MyModel, TimeStampedModel, models.Model):
+class LegalForm(MyModel, models.Model):
     short_name = models.SlugField(max_length=32, unique=True, allow_unicode=True)
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
@@ -28,7 +28,7 @@ class LegalForm(MyModel, TimeStampedModel, models.Model):
         return f"{self.short_name}"
 
 
-class Country(MyModel, TimeStampedModel, models.Model):
+class Country(MyModel, models.Model):
     """
     Format dadata:
     value	Значение одной строкой (как показывается в списке подсказок)
@@ -47,7 +47,6 @@ class Country(MyModel, TimeStampedModel, models.Model):
     rus_name_short = models.CharField(max_length=64, unique=True)  # data.name_short
     rus_name = models.CharField(max_length=64, unique=True)     # data.name
     rus_name_official = models.CharField(max_length=64, unique=True)    # value
-    owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
     details_url = 'handbooks:country_details_url'
     update_url = 'handbooks:country_update_url'
@@ -60,3 +59,22 @@ class Country(MyModel, TimeStampedModel, models.Model):
 
     def __str__(self):
         return f"{self.eng_name}"
+
+
+class Currency(MyModel, models.Model):
+    numeric = models.PositiveSmallIntegerField(primary_key=True)
+    name = models.CharField(max_length=64, unique=True)
+    code = models.CharField(max_length=3, unique=True)
+
+    details_url = 'handbooks:currency_details_url'
+    update_url = 'handbooks:currency_update_url'
+    delete_url = 'handbooks:currency_delete_url'
+
+    class Meta:
+        verbose_name = "Currency"
+        verbose_name_plural = "Currencies"
+        ordering = ('name',)
+
+    def __str__(self):
+        return f"{self.name}"
+

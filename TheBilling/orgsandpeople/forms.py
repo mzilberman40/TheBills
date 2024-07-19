@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.forms import inlineformset_factory
 from django.utils.text import slugify
 # import tools.from_pycountry as fp
-from orgsandpeople.models import Email, BusinessUnit, Bank
+from orgsandpeople.models import Email, BusinessUnit, Bank, Account
 from handbooks.models import LegalForm, Country
 
 
@@ -49,13 +49,13 @@ class BankForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'notes',
             }),
-            # 'country': forms.Select(
-            #     attrs={'class': 'form-control',
-            #            'empty_label': 'Choose Country',
-            #            'label': 'Choose Country',
-            #            }
-            # ),
         }
+
+
+class EmailForm(forms.ModelForm):
+    class Meta:
+        model = Email
+        fields = ['email', 'email_type']
 
 
 class BusinessUnitForm(forms.ModelForm):
@@ -70,12 +70,6 @@ class BusinessUnitForm(forms.ModelForm):
         empty_label='Choose Country',
         label='Country',
     )
-
-    # emails = forms.CharField(
-    #     widget=forms.Textarea,
-    #     required=False,
-    #     help_text='Enter emails with optional types in the format: email1:type1, email2:type2, ...'
-    # )
 
     emails = forms.CharField(
         help_text='Enter emails with optional types in the format: '
@@ -140,3 +134,10 @@ class BusinessUnitForm(forms.ModelForm):
             forms.EmailField().clean(email)  # Validate email
             email_list.append((email, email_type))
         return email_list
+
+
+class AccountForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = ['bank', 'currency', 'account_number', 'starting_balance',
+                  'status', 'notes']

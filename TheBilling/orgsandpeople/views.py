@@ -2,7 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
-from orgsandpeople.forms import BankForm, BusinessUnitForm
+from orgsandpeople.forms import BankForm, BusinessUnitForm, AccountForm
 from orgsandpeople.models import Bank, BusinessUnit, Email
 from utils import (ObjectDetailsMixin, ObjectCreateMixin,
                    ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin)
@@ -46,12 +46,11 @@ class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin, View):
         data['user'] = request.user
         form = self.form_model(data)
         if form.is_valid():
-            bu = form.save(commit=False)
-            bu.save()
-            emails = form.cleaned_data['emails']
-            email_list = [email.strip() for email in emails.split(',')]
+            bu = form.save()
+            # bu.save()
+            email_list = form.cleaned_data['emails']
             for email, email_type in email_list:
-                Email.objects.get_or_create(owner=bu, email=email, email_type=email_type)
+                Email.objects.get_or_create(bu=bu, email=email, email_type=email_type)
             return redirect(self.redirect_to)
 
         context = {
@@ -67,6 +66,7 @@ class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin, View):
 class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin, View):
     title = "Updating BusinessUnit"
     template_name = 'obj_update.html'
+    # redirect_to = 'orgsandpeople:bu_details_url'
 
     def get(self, request, pk):
         bu = get_object_or_404(BusinessUnit, pk=pk)
@@ -77,51 +77,35 @@ class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin, View):
         form = BusinessUnitForm(instance=bu, initial={'emails': initial_emails})
         return render(request, self.template_name, {'form': form})
 
-    # def get(self, request, pk):
-    #     person = get_object_or_404(Person, pk=pk)
-    #     initial_emails = ', '.join([f"{email.email}:{email.email_type}" if email.email_type else email.email for email in person.email_addresses.all()])
-    #     initial_data = {
-    #         'name': person.name,
-    #         'emails': initial_emails
-    #     }
-    #     form = PersonForm(initial=initial_data)
-    #     return render(request, 'person_form.html', {'form': form})
-
     def post(self, request, pk):
         bu_obj = get_object_or_404(self.model, pk=pk)
         new_data = request.POST.copy()
         new_data['user'] = request.user
-        form = self.form_model(new_data, instance=bu_obj)
-        if form.is_valid():
-            bu = form.save()
-            bu.emails.all().delete()
-            emails = form.cleaned_data['emails']
+        bound_form = self.form_model(new_data, instance=bu_obj)
+        if bound_form.is_valid():
+            bu_obj.save()
+            bu_obj.emails.all().delete()
+            emails = bound_form.cleaned_data['emails']
+            # print(emails)
             for email, email_type in emails:
-                Email.objects.get_or_create(bu=bu, email=email, email_type=email_type)
+                print(f"email={email}")
+                email_obj = Email.objects.filter(email=email).first()
+                print(email_obj)
+                if email_obj is None:
+                    print(bu_obj, email, email_type)
+                    Email.objects.create(bu=bu_obj, email=email, email_type=email_type)
+                else:
+                    raise ValueError("Email already exists and belongs to other business unit")
 
             return redirect(self.redirect_to)
 
         context = {
             'title': self.title,
-            'form': form,
+            'form': bound_form,
             'base_app_template': self.base_app_template,
-            # 'object_create_url': self.create_function_name
         }
 
         return render(request, self.template_name, context)
-
-    # def post(self, request, pk):
-    #     person = get_object_or_404(Person, pk=pk)
-    #     form = PersonForm(request.POST)
-    #     if form.is_valid():
-    #         person.name = form.cleaned_data['name']
-    #         person.save()
-    #         person.email_addresses.all().delete()
-    #         emails = form.cleaned_data['emails']
-    #         for email, email_type in emails:
-    #             EmailAddress.objects.create(person=person, email=email, email_type=email_type)
-    #         return redirect('person-list')
-    #     return render(request, 'person_form.html', {'form': form})
 
 
 class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin, View):
@@ -132,8 +116,9 @@ class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin, View):
     title = f"Business Unit Details"
     fields_to_header = ['id', 'inn', 'slug', 'payment_name', 'special_status']
     fields_to_main = ['first_name', 'middle_name', 'last_name', 'full_name',
-                      'short_name', 'country', 'notes', 'e_mails']
-    fields_to_footer = ['created', 'modified', 'user']
+                      'short_name', 'notes', 'e_mails']
+    fields_to_footer = ['country', 'created', 'modified', 'user']
+    account_form = AccountForm()
 
     def get(self, request, pk):
         obj = get_object_or_404(self.model, pk=pk)
@@ -160,12 +145,23 @@ class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin, View):
             'object_update_url': self.update_function_name,
             'delete_button': self.delete_button,
             'edit_button': self.edit_button,
-            'nav_custom_button': self.nav_custom_button
+            'nav_custom_button': self.nav_custom_button,
+            'account_form': self.account_form
         }
-        # print(context)
-        context.update(self.additional_context)
 
         return render(request, self.template_name, context=context)
+
+    # def post(self, request, pk):
+    #     bu = get_object_or_404(BusinessUnit, pk=pk)
+    #     if self.account_form.is_valid():
+    #         account = self.account_form.save(commit=False)
+    #         account.bu = bu
+    #         account.save()
+    #         return redirect(self.redirect_to, pk=bu.pk)
+    #     context = {
+    #
+    #     }
+    #     return render(request, self.template_name, context)
 
 
 class Banks(OrgsAndPeople):
