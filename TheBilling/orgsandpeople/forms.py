@@ -1,7 +1,7 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.forms import inlineformset_factory
-from django.utils.text import slugify
+# from django.core.exceptions import ValidationError
+# from django.forms import inlineformset_factory
+# from django.utils.text import slugify
 # import tools.from_pycountry as fp
 from orgsandpeople.models import Email, BusinessUnit, Bank, Account
 from handbooks.models import LegalForm, Country
@@ -56,6 +56,51 @@ class EmailForm(forms.ModelForm):
     class Meta:
         model = Email
         fields = ['email', 'email_type']
+
+
+class AccountForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = ['name', 'business_unit', 'bank', 'currency', 'account_number', 'starting_balance',
+                  'status', 'notes']
+
+        widgets = {
+            'name': forms.TextInput(
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'name',
+                }),
+            'business_unit': forms.Select(
+                attrs={'class': 'form-control',
+                       'empty_label': 'Choose Business Unit',
+                       'label': 'Choose Business Unit'}),
+            'bank': forms.Select(
+                attrs={'class': 'form-control',
+                       'empty_label': 'Choose Bank',
+                       'label': 'Choose Bank'}),
+            'currency': forms.Select(
+                attrs={'class': 'form-control',
+                       'empty_label': 'Choose Currency',
+                       'label': 'Choose Currency'}),
+            'account_number': forms.TextInput(
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'Account Number',
+                }),
+            'starting_balance': forms.TextInput(
+                attrs={
+                    'class': 'form-control',
+                    'placeholder': 'Starting balance',
+                }),
+            'status': forms.Select(
+                attrs={
+                    'class': 'form-control',
+                }),
+            'notes': forms.Textarea(
+                attrs={'class': 'form-control',
+                       'placeholder': 'notes',
+                       }),
+        }
 
 
 class BusinessUnitForm(forms.ModelForm):
@@ -136,8 +181,3 @@ class BusinessUnitForm(forms.ModelForm):
         return email_list
 
 
-class AccountForm(forms.ModelForm):
-    class Meta:
-        model = Account
-        fields = ['bank', 'currency', 'account_number', 'starting_balance',
-                  'status', 'notes']

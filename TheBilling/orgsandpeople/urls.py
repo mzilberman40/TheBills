@@ -22,4 +22,15 @@ urlpatterns = [
     path('BU/<int:pk>/delete/', oview.BusinessUnitDelete.as_view(), name='bu_delete_url'),
     path('BU/<int:pk>/', oview.BusinessUnitDetails.as_view(), name='bu_details_url'),
 
+    path('BU/<int:bu_pk>/accounts/', oview.BUAccountList.as_view(), name='bu_accounts_url'),
+    path('BU/<int:bu_pk>/accounts/create/', oview.BUAccountCreate.as_view(), name='bu_account_create_url'),
+    path('BU/<int:bu_pk>/accounts/update/<int:pk>/', oview.BUAccountUpdate.as_view(), name='bu_account_update_url'),
+    path('BU/<int:bu_pk>/accounts/delete/<int:pk>/', oview.BUAccountDelete.as_view(), name='bu_account_delete_url'),
+    path('BU/<int:bu_pk>/accounts/<int:pk>/', oview.BUAccountDetail.as_view(), name='bu_account_detail_url'),
+
+    # path('Accounts/', oview.AccountList.as_view(), name='account_list_url'),
+    # path('Account/create/', oview.AccountCreate.as_view(), name='account_create_url'),
+    # path('Account/<int:pk>/update/', oview.AccountUpdate.as_view(), name='account_update_url'),
+    # path('Account/<int:pk>/delete/', oview.AccountDelete.as_view(), name='account_delete_url'),
+    # path('Account/<int:pk>/', oview.AccountDetails.as_view(), name='account_details_url'),
 ]

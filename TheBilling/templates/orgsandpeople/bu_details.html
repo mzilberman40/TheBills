@@ -34,13 +34,11 @@
         </p>
     <br>
     </i>
-    <a href="{% if redirect_param %}{% url list_function redirect_param %}{% else %}{% url list_function %}{% endif %}" class="btn btn-light">Back to the list</a>
-    {% if edit_button %}
+        <a href="{% url 'orgsandpeople:bu_accounts_url' businessunit.pk %}" class="btn btn-info">View & edit Accounts</a>
+
+        <a href="{% url list_function %}" class="btn btn-light">Back to the list</a>
         <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
-    {% endif %}
-    {% if delete_button %}
-         <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
-    {% endif %}
+        <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
 
   </div>
   <div class="card-footer text-body-secondary">

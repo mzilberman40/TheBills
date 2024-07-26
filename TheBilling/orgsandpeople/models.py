@@ -24,7 +24,8 @@ class Bank(MyModel, models.Model):
     corr_account = models.CharField(max_length=20, unique=False, blank=True, null=True)
     name = models.CharField(max_length=256, blank=False)
     short_name = models.CharField(max_length=128, blank=False, unique=True)
-    slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
+    slug = AutoSlugField(populate_from=['short_name'], unique=True,
+                         db_index=True, slugify_function=ru_slugify)
     country = models.ForeignKey(Country, null=True, blank=True, on_delete=models.SET_NULL)
     # address = models.CharField(max_length=256, blank=True)
     swift = models.SlugField(max_length=32, blank=True, null=True, unique=True)
@@ -100,15 +101,17 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     def __str__(self):
         return f"{self.payment_name}"
 
+    @property
+    def e_mails(self):
+        return ', '.join([f"{email.email}:{email.email_type}"
+                          if email.email_type else email.email
+                          for email in self.emails.all()])
+
 
 class Email(models.Model):
     email = models.EmailField(unique=True)
     bu = models.ForeignKey('BusinessUnit', on_delete=models.CASCADE, related_name='emails')
     email_type = models.CharField(max_length=10, null=True, blank=True)
-
-    # details_url = 'emails_list_url'
-    # update_url = 'email_update_url'
-    # delete_url = 'email_delete_url'
 
     class Meta:
         verbose_name = "Email"
@@ -131,21 +134,43 @@ class Address(MyModel, models.Model):
         return f"{self.country} {self.address_data}"
 
 
-class Account(TimeStampedModel, ActivatorModel, models.Model):
-    business_unit = models.ForeignKey('orgsandpeople.BusinessUnit', on_delete=models.CASCADE)
+class Account(ActivatorModel, models.Model):
+    name = models.CharField(max_length=32)
+    business_unit = models.ForeignKey('orgsandpeople.BusinessUnit',
+                                      on_delete=models.CASCADE,
+                                      related_name='accounts')
     bank = models.ForeignKey('orgsandpeople.Bank', on_delete=models.CASCADE)
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=20)
     starting_balance = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.CharField(max_length=512, blank=True)
 
-    details_url = 'orgsandpeople:account_details_url'
-    update_url = 'orgsandpeople:account_update_url'
-    delete_url = 'orgsandpeople:account_delete_url'
+    details_url = 'orgsandpeople:bu_account_detail_url'
+    update_url = 'orgsandpeople:bu_account_update_url'
+    delete_url = 'orgsandpeople:bu_account_delete_url'
 
     def __str__(self):
-        return (f"{self.account_number} - {self.bank.name} - {self.currency.code}"
-                f" - {'Active' if self.is_active else 'Inactive'}")
+        # return (f"{self.name}: {self.account_number} - {self.bank.name} - {self.currency.code}"
+        #         f" - {'Active' if self.status else 'Inactive'}")
+        return self.name
+
+    def get_absolute_url(self, *args, **kwargs):
+        if self.details_url:
+            return reverse(self.details_url, kwargs={'bu_pk': self.business_unit.pk, 'pk': self.pk })
+        raise NotImplementedError
+
+    def do_delete(self, *args, **kwargs):
+        if self.delete_url:
+            return reverse(self.delete_url, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
+        raise NotImplementedError
+
+    def do_update(self, *args, **kwargs):
+        # print("Update", kwargs)
+        if self.update_url:
+            print(self.update_url)
+
+            return reverse(self.update_url, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
+        raise NotImplementedError
 
     class Meta:
         constraints = [
@@ -156,4 +181,3 @@ class Account(TimeStampedModel, ActivatorModel, models.Model):
         ]
         verbose_name = "Account"
         verbose_name_plural = "Accounts"
-        unique_together = ['bank', 'account_number']

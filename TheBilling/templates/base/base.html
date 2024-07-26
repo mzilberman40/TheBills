@@ -98,9 +98,12 @@
                     </form>
                     {% endif %}
 
-                    {% if nav_custom_button.show %}
+                    {% if nav_custom_button.show and nav_custom_button.func %}
                       <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-                          <a href="{% url create_function %}" class="btn btn-primary">{{ nav_custom_button.name }} </a>
+                          <a href="{% if nav_custom_button.params %}{% url nav_custom_button.func nav_custom_button.params %}{% else %}{% url nav_custom_button.func %}{% endif %}"
+                             class="btn btn-primary">
+                              {{ nav_custom_button.name }}
+                          </a>
                       </div>
                     {% endif %}
 

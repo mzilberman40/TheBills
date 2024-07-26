@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block content %}
-  <form action="{{ object.get_delete_url }}" method="post">
+  <form action="{{ object.do_delete }}" method="post">
       {% csrf_token %}
       <h3> You are deleting <b>"
           {{object_name}}"</b> {{class_name}}..... </h3> <br>
       <h2> Are you sure ????? </h2> <br>
-      <a href="{% url object_redirect_url %}" class="btn btn-success"> No. I'm not sure </a> <br><br>
+      <a href="{% if redirect_param %}{% url object_redirect_url redirect_param %}{% else %}{% url object_redirect_url%}{% endif %}" class="btn btn-success"> No. I'm not sure </a> <br><br>
       <button type="submit" name="button" class="btn btn-danger"> Yes! I'm sure !</button>
     </form>
 
