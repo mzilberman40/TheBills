@@ -42,19 +42,18 @@ class BusinessUnitList(BusinessUnits, ObjectsListMixin, View):
     }
 
 
-class BusinessUnitCreate(BusinessUnits, View):
+class BusinessUnitCreate(BusinessUnits,ObjectCreateMixin, View):
     title = "Create BusinessUnit"
     # fields_to_fill = ['inn', 'ogrn', 'first_name', 'middle_name', 'last_name',
     #                   'full_name', 'short_name', 'emails', 'special_status',
     #                   'payment_name', 'legal_form', 'notes']
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         data = request.POST.copy()
         data['user'] = request.user
         form = self.form_model(data)
         if form.is_valid():
             bu = form.save()
-            # bu.save()
             email_list = form.cleaned_data['emails']
             for email, email_type in email_list:
                 Email.objects.get_or_create(bu=bu, email=email, email_type=email_type)
@@ -127,7 +126,7 @@ class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin, View):
     template_name = 'orgsandpeople/bu_details.html'
     title = f"Business Unit Details"
     fields_to_header = ['id', 'inn', 'slug', 'payment_name', 'special_status']
-    fields_to_main = ['first_name', 'middle_name', 'last_name', 'full_name',
+    fields_to_main = ['legal_form', 'first_name', 'middle_name', 'last_name', 'full_name',
                       'short_name', 'notes', 'e_mails']
     fields_to_footer = ['country', 'created', 'modified', 'user']
 

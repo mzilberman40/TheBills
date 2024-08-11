@@ -12,7 +12,7 @@ class LegalForm(MyModel, models.Model):
     short_name = models.SlugField(max_length=32, unique=True, allow_unicode=True)
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
-    slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
+    # slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
     owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
     details_url = 'handbooks:legal_form_details_url'
@@ -77,4 +77,22 @@ class Currency(MyModel, models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class ResourceGroup(models.Model):
+    name = models.CharField(max_length=120)
+    description = models.CharField(max_length=1024, blank=True)
+
+    details_url = 'handbooks:res_group_details_url'
+    update_url = 'handbooks:res_group_update_url'
+    delete_url = 'handbooks:res_group_delete_url'
+
+    class Meta:
+        verbose_name = "Resource Group"
+        verbose_name_plural = "Resource Groups"
+        ordering = ('name',)
+
+    def __str__(self):
+        return f"{self.name}"
+
 

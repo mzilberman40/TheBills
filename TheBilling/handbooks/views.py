@@ -102,28 +102,10 @@ class CountryDetails(Countries, ObjectDetailsMixin, View):
 
 
 class CountryCreate(Countries, ObjectCreateMixin, View):
-
     title = "Create country"
     fields_to_fill = ['eng_name']
 
-    def get(self, request):
-        form = self.form_model()
-        if self.fields_to_fill:
-            form.fields = {key: value for key, value in form.fields.items()
-                           if key in self.fields_to_fill}
-
-        context = {
-            'title': self.title,
-            'form': form,
-            'base_app_template': self.base_app_template,
-            'class_name': self.model.__name__.lower(),
-            'object_create_url': self.create_function_name
-        }
-        context.update(self.additional_context)
-
-        return render(request, self.template_name, context=context)
-
-    def post(self, request):
+    def post(self, request, **kwargs):
         data = request.POST.copy()
         eng_name = data['eng_name']
         data.update(name2country(eng_name))
@@ -182,25 +164,9 @@ class CurrencyDetails(Currencies, ObjectDetailsMixin, View):
 class CurrencyCreate(Currencies, ObjectCreateMixin, View):
     title = "Create currency"
     fields_to_fill = ['name']
+    template_name = 'obj_create.html'
 
-    def get(self, request):
-        form = self.form_model()
-        if self.fields_to_fill:
-            form.fields = {key: value for key, value in form.fields.items()
-                           if key in self.fields_to_fill}
-
-        context = {
-            'title': self.title,
-            'form': form,
-            'base_app_template': self.base_app_template,
-            'class_name': self.model.__name__.lower(),
-            'object_create_url': self.create_function_name
-        }
-        context.update(self.additional_context)
-
-        return render(request, self.template_name, context=context)
-
-    def post(self, request):
+    def post(self, request, **kwargs):
         data = request.POST.copy()
         name = request.POST['name']
         data.update(name2currency(name))
@@ -213,10 +179,8 @@ class CurrencyCreate(Currencies, ObjectCreateMixin, View):
         context = {
             'title': self.title,
             'form': bound_form,
-            'base_app_template': self.base_app_template,
             'object_create_url': self.create_function_name
         }
-        context.update(self.additional_context)
 
         return render(request, self.template_name, context=context)
 

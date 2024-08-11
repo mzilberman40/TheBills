@@ -11,7 +11,7 @@ from pytils.translit import slugify as ru_slugify
 
 import config
 from library.my_model import MyModel
-from handbooks.models import Country, Currency
+from handbooks.models import Country, Currency, ResourceGroup
 
 
 # def get_currencies():
@@ -181,3 +181,4 @@ class Account(ActivatorModel, models.Model):
         ]
         verbose_name = "Account"
         verbose_name_plural = "Accounts"
+
