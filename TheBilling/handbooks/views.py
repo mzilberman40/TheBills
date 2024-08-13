@@ -6,8 +6,8 @@ from django.views import View
 import config
 from tools.from_moneyed import name2currency
 from tools.name2country import name2country
-from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm
-from handbooks.models import LegalForm, Country, Currency
+from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup
 from utils import (ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin,
                    ObjectDeleteMixin, ObjectsListMixin)
 
@@ -53,7 +53,7 @@ class LegalFormsList(LegalForms, ObjectsListMixin, View):
 
 class LegalFormDetails(LegalForms, ObjectDetailsMixin, View):
     title = f"Legal Form"
-    fields_to_header = ['id', 'short_name', 'full_name', 'slug']
+    fields_to_header = ['id', 'short_name', 'full_name']
     fields_to_main = ['description']
     fields_to_footer = ['time_create', 'time_update', 'owner']
 
@@ -68,6 +68,43 @@ class LegalFormUpdate(LegalForms, ObjectUpdateMixin, View):
 
 class LegalFormDelete(LegalForms, ObjectDeleteMixin, View):
     title = "Deleting legal form"
+
+
+class ResourceGroups(Handbooks):
+    model = ResourceGroup
+    form_model = ResourceGroupForm
+    title = "Resource Group"
+    create_function_name = 'handbooks:res_group_create_url'
+    update_function_name = 'handbooks:res_group_update_url'
+    delete_function_name = 'handbooks:res_group_delete_url'
+    list_function_name = 'handbooks:res_group_list_url'
+    redirect_to = list_function_name
+
+
+class ResourceGroupList(ResourceGroups, ObjectsListMixin, View):
+    fields_toshow = ['name']
+    query_fields = ['name', 'description']
+    order_by = 'name'
+    # template_name = 'obj_list.html'
+    nav_custom_button = {'name': 'NewItem', 'show': True}
+
+
+class ResourceGroupDetails(ResourceGroups, ObjectDetailsMixin, View):
+    fields_to_header = ['id', 'name',]
+    fields_to_main = ['description']
+    fields_to_footer = ['time_create', 'time_update', 'owner']
+
+
+class ResourceGroupCreate(ResourceGroups, ObjectCreateMixin, View):
+    title = "Resource Group Create"
+
+
+class ResourceGroupUpdate(ResourceGroups, ObjectUpdateMixin, View):
+    title = "Updating Resource Group"
+
+
+class ResourceGroupDelete(ResourceGroups, ObjectDeleteMixin, View):
+    title = "Deleting Resource Group"
 
 
 class Countries(Handbooks):

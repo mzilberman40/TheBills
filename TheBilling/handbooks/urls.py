@@ -22,9 +22,10 @@ urlpatterns = [
     path('countries/create/', hview.CountryCreate.as_view(), name='country_create_url'),
     path('countries/<int:pk>/', hview.CountryDetails.as_view(), name='country_details_url'),
     path('countries/<int:pk>/delete/', hview.CountryDelete.as_view(), name='country_delete_url'),
-    #
-    # path('res_groups/', hview.ResourceGroupsList.as_view(), name='res_groups_list_url'),
-    # path('res_groups/create/', hview.ResourceGroupCreate.as_view(), name='res_group_create_url'),
-    # path('res_groups/<int:pk>/', hview.ResourceGroupDetails.as_view(), name='res_group_details_url'),
-    # path('res_groups/<int:pk>/delete/', hview.ResourceGroupDelete.as_view(), name='res_group_delete_url'),
+
+    path('res_groups/', hview.ResourceGroupList.as_view(), name='res_group_list_url'),
+    path('res_groups/create/', hview.ResourceGroupCreate.as_view(), name='res_group_create_url'),
+    path('res_groups/<int:pk>/', hview.ResourceGroupDetails.as_view(), name='res_group_details_url'),
+    path('res_groups/<int:pk>/update/', hview.ResourceGroupUpdate.as_view(), name='res_group_update_url'),
+    path('res_groups/<int:pk>/delete/', hview.ResourceGroupDelete.as_view(), name='res_group_delete_url'),
 ]

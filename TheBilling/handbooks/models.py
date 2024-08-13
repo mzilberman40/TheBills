@@ -79,7 +79,7 @@ class Currency(MyModel, models.Model):
         return f"{self.name}"
 
 
-class ResourceGroup(models.Model):
+class ResourceGroup(MyModel, models.Model):
     name = models.CharField(max_length=120)
     description = models.CharField(max_length=1024, blank=True)
 

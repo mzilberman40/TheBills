@@ -2,7 +2,7 @@ from django import forms
 import moneyed
 # from django.core.exceptions import ValidationError
 
-from handbooks.models import LegalForm, Country, Currency
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup
 # from tools.texts import clear_text
 import tools.from_pycountry as fp
 
@@ -32,6 +32,27 @@ class LegalFormForm(forms.ModelForm):
 
     def clean_full_name(self):
         return ' '.join([word.capitalize() for word in self.cleaned_data['full_name'].split()])
+
+
+class ResourceGroupForm(forms.ModelForm):
+
+    class Meta:
+        model = ResourceGroup
+        # fields = '__all__'
+        fields = ('name', 'description')
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Name',
+            }),
+            'description': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Description'
+            })
+        }
+
+    def clean_name(self):
+        return self.cleaned_data['name'].upper()
 
 
 class CountryForm(forms.ModelForm):
