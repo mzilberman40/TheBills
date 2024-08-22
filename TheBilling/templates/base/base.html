@@ -72,14 +72,12 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% if request.user.is_authenticated %}
                                     <li><a class="dropdown-item" href="{% url 'users:account' %}">Account</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'users:user-info' %}">UserInfo</a></li>
                                     <li><a class="dropdown-item" href="{% url 'users:sign-out' %}">Logout</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item btn-danger" href="/admin">Admin</a></li>
                                 {% else %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{% url 'users:sign-in' %}">Sign-In</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'users:sign-up' %}">Sign-Up</a></li>
                                 {% endif %}
                             </ul>
                         </li>

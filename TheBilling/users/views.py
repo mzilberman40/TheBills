@@ -8,22 +8,6 @@ from .forms import UserForm, AuthForm, UserProfileForm, UserAlterationForm
 from .models import UserProfile
 
 
-class SignUpView(generic.FormView):
-    """
-    Basic user sign up page.
-    **Template:**
-    :template:`users/sign_up.html`
-    """
-    template_name = "users/sign_up.html"
-    form_class = UserForm
-    success_url = '/account/'
-
-    def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return HttpResponseRedirect(self.get_success_url())
-
-
 class SignInView(generic.FormView):
     """
     Basic user sign up page.
@@ -58,7 +42,11 @@ def AccountView(request):
 
     :template:`users/account.html`
     """
-    up = request.user.userprofile
+    # user = request.user
+    # if not hasattr(user, 'userprofile'):
+    #     user.userprofile = UserProfile(user=user)
+    # up = request.user.userprofile
+    up, _ = UserProfile.objects.get_or_create(user=request.user)
     up_form = UserProfileForm(instance=up)
     context = {'form': up_form}
 
@@ -70,25 +58,3 @@ def AccountView(request):
     else:
         return render(request, 'users/account.html', context)
 
-
-@login_required
-def UserInfoView(request):
-    """
-    User information page. CRUD profile details.
-
-    **Template:**
-
-    :template:`users/info.html`
-    """
-    user = request.user
-    u_form = UserAlterationForm(instance=user)
-    context = {'form': u_form}
-    template = 'users/info.html'
-
-    if request.method == "POST":
-        form = UserAlterationForm(instance=user, data=request.POST)
-        if form.is_valid:
-            form.save()
-            return redirect('/user-info/')
-    else:
-        return render(request, template, context)
