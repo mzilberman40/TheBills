@@ -60,10 +60,12 @@
                                 <li><a class="dropdown-item" href="{% url 'handbooks:legal_forms_list_url' %}">LegalForms</a></li>
                                 <li><a class="dropdown-item" href="{% url 'handbooks:countries_list_url' %}">Countries</a></li>
                                 <li><a class="dropdown-item" href="{% url 'handbooks:res_group_list_url' %}">ResourceGroups</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:resource_name_list_url' %}">ResourceNames</a></li>
 
                             </ul>
 
                         </li>
+
 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -98,7 +100,7 @@
                     {% endif %}
 
                     {% if nav_custom_button.show and nav_custom_button.func %}
-                      <div class="d-lg-flex col-lg-3 justify-content-lg-end">
+                      <div class="d-lg-flex col-lg-2 justify-content-lg-end">
                           <a href="{% if nav_custom_button.params %}{% url nav_custom_button.func nav_custom_button.params %}{% else %}{% url nav_custom_button.func %}{% endif %}"
                              class="btn btn-primary">
                               {{ nav_custom_button.name }}

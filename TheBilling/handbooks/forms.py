@@ -2,7 +2,7 @@ from django import forms
 import moneyed
 # from django.core.exceptions import ValidationError
 
-from handbooks.models import LegalForm, Country, Currency, ResourceGroup
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceName
 # from tools.texts import clear_text
 import tools.from_pycountry as fp
 
@@ -61,7 +61,9 @@ class CountryForm(forms.ModelForm):
         fields = '__all__'
 
         widgets = {
-            'eng_name': forms.Select(choices=[(c.name, c.name) for c in fp.get_all_countries()],
+            'eng_name': forms.Select(choices=sorted(
+                [(c.name, c.name) for c in fp.get_all_countries()]
+            ),
                                      attrs={
                                          'class': 'form-control',
                                             }),
@@ -123,7 +125,7 @@ class CurrencyForm(forms.ModelForm):
 
         widgets = {
             'name': forms.Select(
-                choices=[(c.code, c.name) for c in moneyed.list_all_currencies()],
+                choices=[(c.code, c.name) for c in sorted(moneyed.list_all_currencies(), key=lambda x: x.name)],
                 attrs={'class': 'form-control'}
             ),
             'numeric': forms.NumberInput(attrs={
@@ -133,5 +135,32 @@ class CurrencyForm(forms.ModelForm):
             'code': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': '3-char currency code',
+            }),
+        }
+
+
+class ResourceNameForm(forms.ModelForm):
+
+    class Meta:
+        model = ResourceName
+        # fields = ('name', 'description', 'group')
+        fields = '__all__'
+        labels = {
+            # 'name': 'Name',  # This sets the label for the 'name' field
+            # 'description': 'Description',  # Label for 'description' field
+            'group': 'Choose Resource Group',  # Label for 'group' field
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Name',
+            }),
+            'description': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Description'
+            }),
+            'group': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Group'
             }),
         }

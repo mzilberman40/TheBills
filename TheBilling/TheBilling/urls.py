@@ -28,6 +28,7 @@ urlpatterns = [
     path('users/', include('users.urls', namespace="users")),
     path('handbooks/', include('handbooks.urls', namespace="handbooks")),
     path('orgsandpeople/', include('orgsandpeople.urls', namespace="orgsandpeople")),
+    # path('commerce/', include('commerce.urls', namespace="commerce")),
 
 ]
 

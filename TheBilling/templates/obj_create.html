@@ -21,9 +21,12 @@
             {{ field.errors }}
           </div>
         {% endif %}
+        {{ field.label_tag}}
         {{ field }} <br>
       </div>
       {% endfor %}
+      <div class="mb-4"></div>
+
       <button type="submit" class="btn btn-primary"> Save {{class_name}}</button>
     </form>
 

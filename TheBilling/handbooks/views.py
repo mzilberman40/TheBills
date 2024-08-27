@@ -6,8 +6,8 @@ from django.views import View
 import config
 from tools.from_moneyed import name2currency
 from tools.name2country import name2country
-from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm
-from handbooks.models import LegalForm, Country, Currency, ResourceGroup
+from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceNameForm
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceName
 from utils import (ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin,
                    ObjectDeleteMixin, ObjectsListMixin)
 
@@ -224,3 +224,50 @@ class CurrencyCreate(Currencies, ObjectCreateMixin, View):
 
 class CurrencyDelete(Currencies, ObjectDeleteMixin, View):
     pass
+
+
+class ResourceNames(Handbooks):
+    model = ResourceName
+    form_model = ResourceNameForm
+    title = "ResourceNames"
+    create_function_name = 'handbooks:resource_name_create_url'
+    update_function_name = 'handbooks:resource_name_update_url'
+    delete_function_name = 'handbooks:resource_name_delete_url'
+    list_function_name = 'handbooks:resource_name_list_url'
+    redirect_to = list_function_name
+
+
+class ResourceNameList(ResourceNames, ObjectsListMixin, View):
+    fields_toshow = ['name', 'group']
+    query_fields = ['name', 'group']
+    order_by = 'name'
+    template_name = 'obj_list.html'
+    edit_button = True
+    delete_button = True
+    nav_custom_button = {
+        'name': 'NewItem',
+        'show': True,
+        'func': ResourceNames.create_function_name,
+    }
+
+
+class ResourceNameDetails(ResourceNames, ObjectDetailsMixin, View):
+    title = "Resource Names Details"
+    template_name = 'obj_list.html'
+    fields_to_header = ['id', 'group', 'name']
+    fields_to_main = ['description']
+    fields_to_footer = []
+
+
+class ResourceNameCreate(ResourceNames, ObjectCreateMixin, View):
+    title = "Resource Names Create"
+
+
+class ResourceNameUpdate(ResourceNames, ObjectUpdateMixin, View):
+    title = "Updating Resource Name"
+
+
+class ResourceNameDelete(ResourceNames, ObjectDeleteMixin, View):
+    pass
+
+

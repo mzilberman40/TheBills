@@ -17,7 +17,7 @@ class LegalForm(MyModel, models.Model):
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
     # slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
-    owner = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
     details_url = 'handbooks:legal_form_details_url'
     update_url = 'handbooks:legal_form_update_url'
@@ -100,3 +100,19 @@ class ResourceGroup(MyModel, models.Model):
         return f"{self.name}"
 
 
+class ResourceName(MyModel, models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    group = models.ForeignKey(ResourceGroup, on_delete=models.CASCADE, related_name='resources')
+    description = models.TextField(max_length=1024, blank=True)
+
+    details_url = 'handbooks:resource_name_details_url'
+    update_url = 'handbooks:resource_name_update_url'
+    delete_url = 'handbooks:resource_name_delete_url'
+
+    class Meta:
+        verbose_name = "ResourceName"
+        verbose_name_plural = "ResourceNames"
+        ordering = ('name',)
+
+    def __str__(self):
+        return f"{self.name}, {self.group}"

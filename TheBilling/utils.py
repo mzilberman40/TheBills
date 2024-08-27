@@ -155,10 +155,11 @@ class ObjectCreateMixin(Objects):
     def post(self, request, **kwargs):
         data = request.POST.copy()  # Make a mutable copy of POST data
         data['user'] = request.user  # Probably user is necessary for model
+        # print(request.user)
         bound_form = self.form_model(data)
 
         if bound_form.is_valid():
-            print(bound_form.cleaned_data)
+            # print(bound_form.cleaned_data)
             bound_form.save()
             return redirect(self.redirect_to, )
 

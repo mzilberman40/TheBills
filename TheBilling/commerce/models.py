@@ -1,27 +1,30 @@
+from django.contrib.auth import get_user_model
 from django.db import models
-from djmoney.models.fields import MoneyField
-from django.db.models import Q
-from django.urls import reverse
-from django.contrib.auth.models import User
-from pytils.translit import slugify as ru_slugify
-from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedModel, ActivatorModel
 
 from handbooks.models import ResourceGroup
+from library.my_model import MyModel
 from orgsandpeople.models import BusinessUnit
 
 
-class Resource(TimeStampedModel, ActivatorModel, models.Model):
-    name = models.CharField(max_length=120)
-    owner = models.ForeignKey(BusinessUnit, on_delete=models.CASCADE, related_name='resources')
-    group = models.ForeignKey(ResourceGroup, on_delete=models.CASCADE, related_name='resources')
-    description = models.TextField()
-    available = models.BooleanField(default=True)
+User = get_user_model()
 
-    class Meta:
-        verbose_name = "Resource"
-        verbose_name_plural = "Resources"
-        ordering = ('name',)
 
-    def __str__(self):
-        return f"{self.name}, {self.owner}"
+# class Resource(MyModel, TimeStampedModel, ActivatorModel, models.Model):
+#     name = models.CharField(max_length=120, unique=True)
+#     group = models.ForeignKey(ResourceGroup, on_delete=models.CASCADE, related_name='resources')
+#     description = models.TextField()
+#     available = models.BooleanField(default=True)
+#     user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
+#
+#     details_url = 'commerce:resource_details_url'
+#     update_url = 'commerce:resource_update_url'
+#     delete_url = 'commerce:resource_delete_url'
+#
+#     class Meta:
+#         verbose_name = "Resource"
+#         verbose_name_plural = "Resources"
+#         ordering = ('name',)
+#
+#     def __str__(self):
+#         return f"{self.name}, {self.user}"
