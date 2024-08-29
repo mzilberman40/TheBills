@@ -2,23 +2,16 @@ from django.db import models
 from django.db.models import Q
 
 from django.urls import reverse
-# from django.contrib.auth.models import User
 from django_extensions.db.models import ActivatorModel, TimeStampedModel
-# from pytils.translit import slugify as ru_slugify
 from django_extensions.db.fields import AutoSlugField
-# import moneyed
 from pytils.translit import slugify as ru_slugify
 
-# import config
 from library.my_model import MyModel
 from handbooks.models import Country, Currency, ResourceGroup
 
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
-# def get_currencies():
-#     currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
-#     return {c.code: c.name for c in currencies}
 
 
 class Bank(MyModel, models.Model):

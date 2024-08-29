@@ -10,7 +10,7 @@ def get_all_currencies() -> list:
     return [cur.name for cur in moneyed.list_all_currencies()]
 
 
-def name2currency(code):
+def code2currency(code):
     obj = moneyed.get_currency(code)
     data = {
         'name': obj.name,

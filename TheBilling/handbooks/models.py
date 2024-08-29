@@ -17,7 +17,7 @@ class LegalForm(MyModel, models.Model):
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
     # slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
-    user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
+    # user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
     details_url = 'handbooks:legal_form_details_url'
     update_url = 'handbooks:legal_form_update_url'

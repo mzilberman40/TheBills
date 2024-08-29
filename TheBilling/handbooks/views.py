@@ -3,8 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
 
-import config
-from tools.from_moneyed import name2currency
+# import config
+from tools.from_moneyed import code2currency
 from tools.name2country import name2country
 from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceNameForm
 from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceName
@@ -12,19 +12,19 @@ from utils import (ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin,
                    ObjectDeleteMixin, ObjectsListMixin)
 
 
-def show_currencies(request):
-    template_name = "handbooks/currencies.html"
-    currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
-    fields = ['name', 'code', 'numeric', 'countries']
-    data = {
-        'objects': currencies,
-        'counter': len(currencies),
-        'fields': fields,
-        'title': 'Currencies',
-        'redirect_to': 'handbooks:currencies'
-    }
-
-    return render(request, template_name=template_name, context=data)
+# def show_currencies(request):
+#     template_name = "handbooks/currencies.html"
+#     currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
+#     fields = ['name', 'code', 'numeric', 'countries']
+#     data = {
+#         'objects': currencies,
+#         'counter': len(currencies),
+#         'fields': fields,
+#         'title': 'Currencies',
+#         'redirect_to': 'handbooks:currencies'
+#     }
+#
+#     return render(request, template_name=template_name, context=data)
 
 
 class Handbooks(LoginRequiredMixin):
@@ -206,7 +206,7 @@ class CurrencyCreate(Currencies, ObjectCreateMixin, View):
     def post(self, request, **kwargs):
         data = request.POST.copy()
         name = request.POST['name']
-        data.update(name2currency(name))
+        data.update(code2currency(name))
         bound_form = self.form_model(data)
 
         if bound_form.is_valid():
