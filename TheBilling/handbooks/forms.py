@@ -2,7 +2,7 @@ from django import forms
 import moneyed
 # from django.core.exceptions import ValidationError
 
-from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceName
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType
 # from tools.texts import clear_text
 import tools.from_pycountry as fp
 
@@ -139,19 +139,16 @@ class CurrencyForm(forms.ModelForm):
         }
 
 
-class ResourceNameForm(forms.ModelForm):
+class ResourceTypeForm(forms.ModelForm):
 
     class Meta:
-        model = ResourceName
-        # fields = ('name', 'description', 'group')
+        model = ResourceType
         fields = '__all__'
         labels = {
-            # 'name': 'Name',  # This sets the label for the 'name' field
-            # 'description': 'Description',  # Label for 'description' field
             'group': 'Choose Resource Group',  # Label for 'group' field
         }
         widgets = {
-            'name': forms.TextInput(attrs={
+            'rtype': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Name',
             }),

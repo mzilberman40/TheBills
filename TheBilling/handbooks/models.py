@@ -100,19 +100,19 @@ class ResourceGroup(MyModel, models.Model):
         return f"{self.name}"
 
 
-class ResourceName(MyModel, models.Model):
-    name = models.CharField(max_length=120, unique=True)
-    group = models.ForeignKey(ResourceGroup, on_delete=models.CASCADE, related_name='resources')
+class ResourceType(MyModel, models.Model):
+    rtype = models.CharField(max_length=120, unique=True, verbose_name="ResourceType")
+    group = models.ForeignKey(ResourceGroup, on_delete=models.CASCADE, related_name='rtypes')
     description = models.TextField(max_length=1024, blank=True)
 
-    details_url = 'handbooks:resource_name_details_url'
-    update_url = 'handbooks:resource_name_update_url'
-    delete_url = 'handbooks:resource_name_delete_url'
+    details_url = 'handbooks:resource_type_details_url'
+    update_url = 'handbooks:resource_type_update_url'
+    delete_url = 'handbooks:resource_type_delete_url'
 
     class Meta:
-        verbose_name = "ResourceName"
-        verbose_name_plural = "ResourceNames"
-        ordering = ('name',)
+        verbose_name = "ResourceType"
+        verbose_name_plural = "ResourceTypes"
+        ordering = ('rtype',)
 
     def __str__(self):
-        return f"{self.name}, {self.group}"
+        return f"{self.rtype}"

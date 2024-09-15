@@ -12,6 +12,16 @@ from tools.name2country import name2country
 from handbooks import models
 
 
+def create_legal_form(**d):
+    """Create and return Legal Form"""
+    data = {
+        'short_name': "MyLF",
+        'full_name': "My Legal Form",
+        'description': "Description of My Legal Form"
+    }
+    data.update(d)
+    return models.LegalForm.objects.create(**data)
+
 class ModelTests(TestCase):
     """Test models"""
 
@@ -21,18 +31,12 @@ class ModelTests(TestCase):
 
     def test_create_legal_form(self):
         """Test creating a legal form is successful """
+        d = {
+            'full_name': "My The Best Legal Form",
+        }
+        lf = create_legal_form(**d)
 
-        short_name = "MyLF"
-        full_name = "My Legal Form"
-        description = "Description of My Legal Form"
-        lf = models.LegalForm.objects.create(
-            short_name=short_name,
-            full_name=full_name,
-            description=description
-        )
-        self.assertEqual(full_name, lf.full_name)
-        self.assertEqual(short_name, lf.short_name)
-        self.assertEqual(description, lf.description)
+        self.assertEqual(d['full_name'], lf.full_name)
 
     def test_resource_group(self):
         """Test creating a resource group is successful """

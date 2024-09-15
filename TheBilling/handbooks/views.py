@@ -6,25 +6,10 @@ from django.views import View
 # import config
 from tools.from_moneyed import code2currency
 from tools.name2country import name2country
-from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceNameForm
-from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceName
+from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceTypeForm
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType
 from utils import (ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin,
                    ObjectDeleteMixin, ObjectsListMixin)
-
-
-# def show_currencies(request):
-#     template_name = "handbooks/currencies.html"
-#     currencies = [moneyed.CURRENCIES.get(c) for c in config.CURRENCIES]
-#     fields = ['name', 'code', 'numeric', 'countries']
-#     data = {
-#         'objects': currencies,
-#         'counter': len(currencies),
-#         'fields': fields,
-#         'title': 'Currencies',
-#         'redirect_to': 'handbooks:currencies'
-#     }
-#
-#     return render(request, template_name=template_name, context=data)
 
 
 class Handbooks(LoginRequiredMixin):
@@ -226,48 +211,45 @@ class CurrencyDelete(Currencies, ObjectDeleteMixin, View):
     pass
 
 
-class ResourceNames(Handbooks):
-    model = ResourceName
-    form_model = ResourceNameForm
-    title = "ResourceNames"
-    create_function_name = 'handbooks:resource_name_create_url'
-    update_function_name = 'handbooks:resource_name_update_url'
-    delete_function_name = 'handbooks:resource_name_delete_url'
-    list_function_name = 'handbooks:resource_name_list_url'
+class ResourceTypes(Handbooks):
+    model = ResourceType
+    form_model = ResourceTypeForm
+    title = "ResourceTypes"
+    create_function_name = 'handbooks:resource_type_create_url'
+    update_function_name = 'handbooks:resource_type_update_url'
+    delete_function_name = 'handbooks:resource_type_delete_url'
+    list_function_name = 'handbooks:resource_type_list_url'
     redirect_to = list_function_name
 
 
-class ResourceNameList(ResourceNames, ObjectsListMixin, View):
-    fields_toshow = ['name', 'group']
-    query_fields = ['name', 'group']
-    order_by = 'name'
+class ResourceTypeList(ResourceTypes, ObjectsListMixin, View):
+    fields_toshow = ['rtype', 'group']
+    query_fields = ['rtype', 'group']
+    order_by = 'rtype'
     template_name = 'obj_list.html'
     edit_button = True
     delete_button = True
     nav_custom_button = {
         'name': 'NewItem',
         'show': True,
-        'func': ResourceNames.create_function_name,
+        'func': ResourceTypes.create_function_name,
     }
 
 
-class ResourceNameDetails(ResourceNames, ObjectDetailsMixin, View):
-    title = "Resource Names Details"
-    template_name = 'obj_list.html'
-    fields_to_header = ['id', 'group', 'name']
+class ResourceTypeDetails(ResourceTypes, ObjectDetailsMixin, View):
+    title = "Resource Types Details"
+    fields_to_header = ['id', 'group', 'rtype']
     fields_to_main = ['description']
     fields_to_footer = []
 
 
-class ResourceNameCreate(ResourceNames, ObjectCreateMixin, View):
-    title = "Resource Names Create"
+class ResourceTypeCreate(ResourceTypes, ObjectCreateMixin, View):
+    title = "Resource Type Create"
 
 
-class ResourceNameUpdate(ResourceNames, ObjectUpdateMixin, View):
-    title = "Updating Resource Name"
+class ResourceTypeUpdate(ResourceTypes, ObjectUpdateMixin, View):
+    title = "Updating Resource Type"
 
 
-class ResourceNameDelete(ResourceNames, ObjectDeleteMixin, View):
+class ResourceTypeDelete(ResourceTypes, ObjectDeleteMixin, View):
     pass
-
-

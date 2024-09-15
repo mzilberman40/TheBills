@@ -29,9 +29,9 @@ urlpatterns = [
     path('res_groups/<int:pk>/update/', hview.ResourceGroupUpdate.as_view(), name='res_group_update_url'),
     path('res_groups/<int:pk>/delete/', hview.ResourceGroupDelete.as_view(), name='res_group_delete_url'),
 
-    path('resources/', hview.ResourceNameList.as_view(), name='resource_name_list_url'),
-    path('resources/create/', hview.ResourceNameCreate.as_view(), name='resource_name_create_url'),
-    path('resources/<int:pk>/update/', hview.ResourceNameUpdate.as_view(), name='resource_name_update_url'),
-    path('resources/<int:pk>/delete/', hview.ResourceNameDelete.as_view(), name='resource_name_delete_url'),
-    path('resources/<int:pk>/', hview.ResourceNameDetails.as_view(), name='resource_name_details_url'),
+    path('resources/', hview.ResourceTypeList.as_view(), name='resource_type_list_url'),
+    path('resources/create/', hview.ResourceTypeCreate.as_view(), name='resource_type_create_url'),
+    path('resources/<int:pk>/update/', hview.ResourceTypeUpdate.as_view(), name='resource_type_update_url'),
+    path('resources/<int:pk>/delete/', hview.ResourceTypeDelete.as_view(), name='resource_type_delete_url'),
+    path('resources/<int:pk>/', hview.ResourceTypeDetails.as_view(), name='resource_type_details_url'),
 ]

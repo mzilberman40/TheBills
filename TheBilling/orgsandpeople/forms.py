@@ -1,10 +1,48 @@
 from django import forms
+from django.core.validators import validate_email, validate_slug
+
 # from django.core.exceptions import ValidationError
 # from django.forms import inlineformset_factory
 # from django.utils.text import slugify
 # import tools.from_pycountry as fp
 from orgsandpeople.models import Email, BusinessUnit, Bank, Account
 from handbooks.models import LegalForm, Country
+
+
+class MultiEmailField(forms.Field):
+    def to_python(self, value):
+        """Normalize data to a list of strings."""
+        # Return an empty list if no input was given.
+        if not value:
+            return []
+        return [v.strip() for v in value.split(",")]
+
+    def validate(self, value):
+        """Check if value consists only of valid emails."""
+        # Use the parent's handling of required fields, etc.
+        super().validate(value)
+        print(value)
+        for email in value:
+            print(email)
+            validate_email(email)
+
+
+class MultiEmailFieldWithEmailType(forms.Field):
+    def to_python(self, value):
+        """Normalize data to a list of strings."""
+        # Return an empty list if no input was given.
+        if not value:
+            return []
+        return [v.strip() for v in value.split(",")]
+
+    def validate(self, value):
+        """Check if value consists only of valid emails."""
+        # Use the parent's handling of required fields, etc.
+        super().validate(value)
+        for email, email_type in value:
+            if email_type:
+                validate_slug(email_type)
+            validate_email(email)
 
 
 class BankForm(forms.ModelForm):
@@ -50,12 +88,6 @@ class BankForm(forms.ModelForm):
                 'placeholder': 'notes',
             }),
         }
-
-
-class EmailForm(forms.ModelForm):
-    class Meta:
-        model = Email
-        fields = ['email', 'email_type']
 
 
 class AccountForm(forms.ModelForm):
@@ -116,7 +148,7 @@ class BusinessUnitForm(forms.ModelForm):
         label='Country',
     )
 
-    emails = forms.CharField(
+    emails = MultiEmailField(
         help_text='Enter emails with optional types in the format: '
                   'email1:type1, email2:type2, ...',
         widget=forms.TextInput(attrs={
@@ -163,21 +195,21 @@ class BusinessUnitForm(forms.ModelForm):
                                'email1:type1, email2:type2, ...'}),
         }
 
-    def clean_emails(self):
-        emails = self.cleaned_data['emails']
-        email_list = []
-        for email_entry in emails.split(','):
-            email_entry = email_entry.strip()
-            if ':' in email_entry:
-                email, email_type = email_entry.split(':', 1)
-                email = email.strip()
-                email_type = email_type.strip()
-            else:
-                email = email_entry
-                email_type = None
-
-            forms.EmailField().clean(email)  # Validate email
-            email_list.append((email, email_type))
-        return email_list
+    # def clean_emails(self):
+    #     emails = self.cleaned_data['emails']
+    #     email_list = []
+    #     for email_entry in emails.split(','):
+    #         email_entry = email_entry.strip()
+    #         if ':' in email_entry:
+    #             email, email_type = email_entry.split(':', 1)
+    #             email = email.strip()
+    #             email_type = email_type.strip()
+    #         else:
+    #             email = email_entry
+    #             email_type = None
+    #
+    #         forms.EmailField().clean(email)  # Validate email
+    #         email_list.append((email, email_type),)
+    #     return email_list
 
 

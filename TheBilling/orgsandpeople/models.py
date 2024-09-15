@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator, validate_email
 from django.db import models
 from django.db.models import Q
 
@@ -115,6 +117,18 @@ class Email(models.Model):
     def __str__(self):
         return f"{self.email} ({self.email_type})" if self.email_type else self.email
 
+    def clean(self):
+        # Call the parent class's clean method to ensure any inherited validation is maintained
+        super().clean()
+        try:
+            validate_email(self.email)  # Use Django's built-in email validator
+        except ValidationError:
+            raise ValidationError({'email': f"'{self.email}' is not a valid email address."})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Enforce model-level validation before saving
+        super(Email, self).save(*args, **kwargs)
+
 
 class Address(MyModel, models.Model):
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
@@ -162,8 +176,7 @@ class Account(ActivatorModel, models.Model):
     def do_update(self, *args, **kwargs):
         # print("Update", kwargs)
         if self.update_url:
-            print(self.update_url)
-
+            # print(self.update_url)
             return reverse(self.update_url, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
         raise NotImplementedError
 

@@ -71,7 +71,7 @@ class BusinessUnitCreate(BusinessUnits,ObjectCreateMixin, View):
 class BusinessUnitUpdate(BusinessUnits, View):
     title = "Updating BusinessUnit"
     template_name = 'obj_update.html'
-    # redirect_to = 'orgsandpeople:bu_details_url'
+    redirect_to = 'orgsandpeople:bu_details_url'
 
     def get(self, request, pk):
         bu = get_object_or_404(BusinessUnit, pk=pk)
@@ -98,23 +98,23 @@ class BusinessUnitUpdate(BusinessUnits, View):
             bu_obj.emails.all().delete()
             emails = bound_form.cleaned_data['emails']
             # print(emails)
-            for email, email_type in emails:
+            for email in emails:
                 print(f"email={email}")
                 email_obj = Email.objects.filter(email=email).first()
                 print(email_obj)
                 if email_obj is None:
-                    print(bu_obj, email, email_type)
-                    Email.objects.create(bu=bu_obj, email=email, email_type=email_type)
+                    print(bu_obj, email)
+                    Email.objects.create(bu=bu_obj, email=email)
                 else:
                     raise ValueError("Email already exists and belongs to other business unit")
 
-            return redirect(self.redirect_to)
+            return redirect(self.redirect_to, pk=pk)
 
         context = {
             'title': self.title,
             'form': bound_form,
         }
-
+        print("Context: ", context)
         return render(request, self.template_name, context)
 
 
