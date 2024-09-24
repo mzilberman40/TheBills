@@ -5,12 +5,12 @@ import moneyed
 from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType
 # from tools.texts import clear_text
 import tools.from_pycountry as fp
+from config import CCountries
 
 
 class LegalFormForm(forms.ModelForm):
     class Meta:
         model = LegalForm
-        # fields = '__all__'
         fields = ('short_name', 'full_name', 'description')
         widgets = {
             'short_name': forms.TextInput(attrs={
@@ -21,17 +21,20 @@ class LegalFormForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Fullname',
             }),
-            'description': forms.TextInput(attrs={
+            'description': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Description'
+                'placeholder': 'Description',
+                'rows': 3
             })
         }
 
     def clean_short_name(self):
-        return self.cleaned_data['short_name'].upper()
+        short_name = self.cleaned_data['short_name'].upper()
+        return short_name
 
     def clean_full_name(self):
-        return ' '.join([word.capitalize() for word in self.cleaned_data['full_name'].split()])
+        full_name = ' '.join([word.capitalize() for word in self.cleaned_data['full_name'].split()])
+        return full_name
 
 
 class ResourceGroupForm(forms.ModelForm):
@@ -62,7 +65,7 @@ class CountryForm(forms.ModelForm):
 
         widgets = {
             'eng_name': forms.Select(choices=sorted(
-                [(c.name, c.name) for c in fp.get_all_countries()]
+                [(c.name, c.name) for c in fp.get_all_countries() + CCountries.countries]
             ),
                                      attrs={
                                          'class': 'form-control',

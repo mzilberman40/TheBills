@@ -30,7 +30,7 @@ class Bank(MyModel, models.Model):
     # registration_date = models.DateField(blank=True, null=True)
     # liquidation_date = models.DateField(blank=True, null=True)
     notes = models.TextField(max_length=512, blank=True)
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
 
     details_url = 'orgsandpeople:bank_details_url'
     update_url = 'orgsandpeople:bank_update_url'
@@ -78,7 +78,7 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     country = models.ForeignKey('handbooks.Country', on_delete=models.PROTECT,
                                 verbose_name='Country')
     notes = models.CharField(max_length=512, blank=True)
-    user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE)
 
     details_url = 'orgsandpeople:bu_details_url'
     update_url = 'orgsandpeople:bu_update_url'

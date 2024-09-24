@@ -22,6 +22,7 @@ def create_legal_form(**d):
     data.update(d)
     return models.LegalForm.objects.create(**data)
 
+
 class ModelTests(TestCase):
     """Test models"""
 
@@ -50,23 +51,23 @@ class ModelTests(TestCase):
         self.assertEqual(name, rg.name)
         self.assertEqual(description, rg.description)
 
-    def test_create_resource_name(self):
-        """Test creating a ResourceName is successful """
-        name = "МояФорма"
+    def test_create_resource_type(self):
+        """Test creating a ResourceType is successful """
+        name = "МояГруппаРесурсов"
         description = "Тестовая группа ресурсов"
         rg = models.ResourceGroup.objects.create(
             name=name,
             description=description
         )
 
-        name = "Мой ресурс"
+        rtype = "Мой ресурс"
         description = "My Resource Name"
-        rn = models.ResourceName.objects.create(
-            name=name,
+        rn = models.ResourceType.objects.create(
+            rtype=rtype,
             description=description,
             group=rg
         )
-        self.assertEqual(name, rn.name)
+        self.assertEqual(rtype, rn.rtype)
         self.assertEqual(description, rn.description)
         self.assertEqual(rg, rn.group)
 

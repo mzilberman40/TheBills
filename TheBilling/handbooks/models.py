@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-# from django.contrib.auth.models import User
 from django_extensions.db.models import ActivatorModel, TimeStampedModel
 from pytils.translit import slugify as ru_slugify
 from django_extensions.db.fields import AutoSlugField
@@ -12,12 +11,10 @@ from library.my_model import MyModel
 User = get_user_model()
 
 
-class LegalForm(MyModel, models.Model):
+class LegalForm(MyModel):
     short_name = models.SlugField(max_length=32, unique=True, allow_unicode=True)
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
-    # slug = AutoSlugField(populate_from=['short_name'], unique=True, db_index=True, slugify_function=ru_slugify)
-    # user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE, default=1)
 
     details_url = 'handbooks:legal_form_details_url'
     update_url = 'handbooks:legal_form_update_url'
@@ -29,7 +26,7 @@ class LegalForm(MyModel, models.Model):
         ordering = ('short_name',)
 
     def __str__(self):
-        return f"{self.short_name}"
+        return self.short_name
 
 
 class Country(MyModel, models.Model):

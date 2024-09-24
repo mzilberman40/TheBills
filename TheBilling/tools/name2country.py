@@ -3,6 +3,7 @@ import tools.from_dadata as da
 import tools.from_pycountry as fp
 import tools.mydecorators as md
 from transliterate import detect_language
+from config import CCountries
 
 
 DEBUG = 0
@@ -10,6 +11,10 @@ DEBUG = 0
 
 @md.tracer(DEBUG=DEBUG)
 def name2country(name: str) -> dict:
+    custom_countries = CCountries.find(name)
+    if custom_countries:
+        return custom_countries[0].to_dict()
+
     country = defaultdict(str)
     c = da.Countries()
     if detect_language(name) == 'ru':

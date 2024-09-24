@@ -1,61 +1,64 @@
-# from django.test import SimpleTestCase
-# from django.urls import reverse, resolve
-# import handbooks.views as hview
-# import handbooks.urls as hurls
-#
-#
-# app_name = hurls.app_name
-#
-# def pattern2url(app_name, url_pattern):
-#     url_name = f"{app_name}:{url_pattern.name}"
-#     url_args = url_pattern.pattern.converters.keys()
-#     return reverse(url_name, args=url_args)
-#
-#
-# # def get_test_funcs(urls):
-# #     app_name = urls.app_name
-# #     for u in hurls.urlpatterns:
-# #         url_name = f"{app_name}:{u.name}"
-# #         url_args = u.pattern.converters.keys()
-# #         url = reverse(url_name, args=url_args)
-# #         if u.callback.__name__ == 'view':
-# #             self.assertEqual(resolve(url).func.view_class, )
-# #
-# #         # print(u)
-# #         # print(u.__dict__)
-# #         # print(dir(u))
-# #         # print(u.check)
-# #         # print(u.callback)
-# #         print(u.default_args)
-# #         print(u.lookup_str)
-# #         print(u.name)
-# #         print(u.pattern)
-# #         # print(u.resolve())
-#
-#
-# class TestUrls(SimpleTestCase):
-#
-#     # def test_urls(self):
-#     #     for url_pattern in hurls.urlpatterns:
-#     #         with self.subTest(url_pattern=url_pattern.name):
-#     #             url = pattern2url(app_name, url_pattern)
-#     #             r = resolve(url).func
-#     #             resolver = r.view_class if hasattr(r, 'view_class') else r
-#     #             print(resolver)
-#     #             # self.assertEqual(resolver, hview.CurrenciesList)
-#
-#     def test_currencies_list(self):
-#         url_pattern = hurls.urlpatterns[0]
-#         # url = reverse('handbooks:currencies_list_url')
-#         # url = reverse('handbooks:currencies')
-#         url = pattern2url(app_name, url_pattern)
-#         # self.assertEqual(resolve(url).func.view_class, hview.CurrenciesList)
-#         self.assertEqual(resolve(url).func, hview.show_currencies)
-#
-#     def test_currency_create(self):
-#         url_pattern = hurls.urlpatterns[1]
-#         # url = reverse('handbooks:currencies_list_url')
-#         # url = reverse('handbooks:currencies')
-#         url = pattern2url(app_name, url_pattern)
-#         # self.assertEqual(resolve(url).func.view_class, hview.CurrenciesList)
-#         self.assertEqual(resolve(url).func, hview.show_currencies)
+from http import HTTPStatus
+
+from django.contrib.auth import get_user_model
+from django.test import SimpleTestCase, TestCase
+from django.urls import reverse, resolve
+import handbooks.views as hview
+import handbooks.urls as hurls
+from handbooks.models import LegalForm
+
+TEST_USER_PARAMS = {
+    'email': 'test1@example.com',
+    'password': 'Password_123',
+}
+
+TEST_LF_PARAMS1 = {
+    'short_name': 'LForm1',
+    'full_name': 'Test Legal Form1',
+    'description': 'Test Legal Form1 Description',
+}
+
+TEST_LF_PARAMS2 = {
+    'short_name': 'LForm2',
+    'full_name': 'Test Legal Form2',
+    'description': 'Test Legal Form2 Description',
+}
+
+class TestUrlsLegalForm(TestCase):
+    def setUp(self):
+        create_function_name = 'handbooks:legal_form_create_url'
+        update_function_name = 'handbooks:legal_form_update_url'
+        delete_function_name = 'handbooks:legal_form_delete_url'
+        list_function_name = 'handbooks:legal_forms_list_url'
+
+        self.user = get_user_model().objects.create_user(**TEST_USER_PARAMS)
+        LegalForm.objects.create(**TEST_LF_PARAMS1)
+        LegalForm.objects.create(**TEST_LF_PARAMS2)
+        self.list_url = reverse(list_function_name)
+
+    def test_legal_form_list_urls_if_not_logged_in(self):
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
+    # def test_legal_form_list_urls_success(self):
+    #     self.client.login(**TEST_USER_PARAMS)
+    #     response = self.client.get(self.list_url)
+    #     template = 'obj_list.html'
+    #     self.assertTemplateUsed(response, template)
+    #     self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_legal_form_returns_lf_list(self):
+        self.client.login(**TEST_USER_PARAMS)
+        template = 'obj_list_new.html'
+
+        response = self.client.get(self.list_url)
+        self.assertTemplateUsed(response, template)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertContains(response, TEST_LF_PARAMS1['short_name'])
+        self.assertContains(response, TEST_LF_PARAMS2['short_name'])
+
+
+
+
+
+

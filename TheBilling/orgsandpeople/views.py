@@ -1,8 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views import View
+from django.views.generic import CreateView, UpdateView, DeleteView
 
 from orgsandpeople.forms import BankForm, BusinessUnitForm, AccountForm
 from orgsandpeople.models import Bank, BusinessUnit, Email, Account
@@ -245,12 +246,15 @@ class BUAccountUpdate(BUAccounts, ObjectUpdateMixin, View):
 class Banks(OrgsAndPeople):
     model = Bank
     form_model = BankForm
+    form_class = BankForm
+
     title = "Banks"
     create_function_name = 'orgsandpeople:bank_create_url'
     update_function_name = 'orgsandpeople:bank_update_url'
     delete_function_name = 'orgsandpeople:bank_delete_url'
     list_function_name = 'orgsandpeople:bank_list_url'
     redirect_to = list_function_name
+    base_app_template = None
 
 
 class BankList(Banks, ObjectsListMixin, View):
@@ -268,8 +272,103 @@ class BankDetails(Banks, ObjectDetailsMixin, View):
     fields_to_footer = ['created', 'modified', 'user']
 
 
-class BankCreate(Banks, ObjectCreateMixin, View):
+class BankCreate(Banks, ObjectCreateMixin):
     title = "Create Bank"
+    form_class = BankForm
+    # success_url = reverse_lazy('orgsandpeople:bank_list_url')
+    template_name = 'obj_create.html'
+    # fields_to_fill = ['name', 'bik', 'corr_account', 'swift', 'country', 'notes']
+
+    # Handle GET request
+    # def get(self, request, **kwargs):
+    #     form = self.form_class()
+    #     if self.fields_to_fill:
+    #         # Filter form fields if necessary
+    #         form.fields = {key: value for key, value in form.fields.items() if key in self.fields_to_fill}
+    #
+    #     # Add your custom context
+    #     context = {
+    #         'title': self.title,
+    #         'form': form,
+    #         'base_app_template': self.base_app_template,
+    #         'object_create_url': self.create_function_name
+    #     }
+    #     return render(request, self.template_name, context)
+
+    # Handle POST request (form submission)
+    def post(self, request, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            return self.form_valid(form)
+
+        # If the form is invalid, re-render it with the same context
+        context = {
+            'title': self.title,
+            'form': form,  # Bound form with validation errors
+            'base_app_template': self.base_app_template,
+            'object_create_url': self.create_function_name
+        }
+        return render(request, self.template_name, context)
+
+    # Process valid form submission
+    def form_valid(self, form):
+        # Assign the user to the form instance
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+# class BankCreate(Banks,  CreateView):
+#     title = "Create Bank"
+#     form_class = BankForm
+#     success_url = reverse_lazy('orgsandpeople:bank_list_url')
+#     template_name = 'obj_create.html'
+#     fields_to_fill = ['name', 'bik', 'corr_account', 'swift', 'country', 'notes']
+#
+#     def form_valid(self, form):
+#         # Here, we set the user directly on the model instance
+#         form.instance.user = self.request.user  # Extracts the actual User object
+#         return super().form_valid(form)
+#     # def form_valid(self, form):
+#     #     # Autofill the user field if it exists in the model
+#     #     if hasattr(form.instance, 'user'):
+#     #         form.instance.user = self.request.user
+#     #     res = super().form_valid(form)
+#     #     print(res)
+#     #     return res
+#
+#     def get(self, request, **kwargs):
+#         form = self.form_model()
+#         if self.fields_to_fill:
+#             form.fields = {key: value for key, value in form.fields.items() if key in self.fields_to_fill}
+#         # print(form.fields.keys())
+#         context = {
+#             'title': self.title,
+#             'form': form,
+#             'base_app_template': self.base_app_template,
+#             'class_name': self.model.__name__.lower(),
+#             'object_create_url': self.create_function_name
+#         }
+#
+#         return render(request, self.template_name, context=context)
+#
+#     def post(self, request, **kwargs):
+#         data = request.POST.copy()  # Make a mutable copy of POST data
+#         data['user'] = request.user  # Probably user is necessary for model
+#         print(request.user, type(request.user))
+#         print(data)
+#         bound_form = self.form_model(data)
+#
+#         if bound_form.is_valid():
+#             print(bound_form.cleaned_data)
+#             bound_form.save()
+#             return redirect(self.redirect_to, )
+#
+#         context = {
+#             'title': self.title,
+#             'form': bound_form,
+#             'base_app_template': self.base_app_template,
+#             'object_create_url': self.create_function_name
+#         }
+#         return render(request, self.template_name, context=context)
 
 
 class BankUpdate(Banks, ObjectUpdateMixin, View):

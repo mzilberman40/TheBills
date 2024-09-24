@@ -1,7 +1,9 @@
 import moneyed
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic import DeleteView, ListView
 
 # import config
 from tools.from_moneyed import code2currency
@@ -20,39 +22,77 @@ class Handbooks(LoginRequiredMixin):
 class LegalForms(Handbooks):
     model = LegalForm
     form_model = LegalFormForm
+    form_class = LegalFormForm
+    fields = None
     title = "Legal Forms"
     create_function_name = 'handbooks:legal_form_create_url'
     update_function_name = 'handbooks:legal_form_update_url'
     delete_function_name = 'handbooks:legal_form_delete_url'
     list_function_name = 'handbooks:legal_forms_list_url'
     redirect_to = list_function_name
+    success_url = reverse_lazy(list_function_name)
 
 
-class LegalFormsList(LegalForms, ObjectsListMixin, View):
+class LegalFormView(Handbooks):
+    model = LegalForm
+    success_url = reverse_lazy('handbooks:legal_forms_list_url')
+    list_function_name = 'handbooks:legal_forms_list_url'
+
+
+class LegalFormsList(LegalForms, ObjectsListMixin):
     fields_toshow = ['short_name', 'full_name']
     query_fields = ['short_name', 'full_name', 'description']
     order_by = 'short_name'
     template_name = 'obj_list.html'
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
+#
+# class LegalFormsList(LegalForms, ListView):
+#     fields = ['short_name', 'full_name']
+#     query_fields = ['short_name', 'full_name', 'description']
+#     order_by = 'short_name'
+#     template_name = 'obj_list_new.html'
+#     nav_custom_button = {'name': 'NewItem', 'show': True}
+#     # nav_custom_button = {
+#     #     'name': None,
+#     #     'show': False,
+#     #     'func': None,
+#     #     'params': None,
+#     # }
+#     title = 'XXXXXXXXXXLegal Forms'
+#     list_function_name = 'handbooks:legal_forms_list_url'
+#
+#     extra_context = {
+#         'object_redirect_url': list_function_name,
+#         'title': title,
+#         'fields': fields,
+#         'nav_custom_button': nav_custom_button,
+#     }
 
-class LegalFormDetails(LegalForms, ObjectDetailsMixin, View):
+
+class LegalFormDetails(LegalForms, ObjectDetailsMixin):
     title = f"Legal Form"
     fields_to_header = ['id', 'short_name', 'full_name']
     fields_to_main = ['description']
     fields_to_footer = ['time_create', 'time_update', 'owner']
 
 
-class LegalFormCreate(LegalForms, ObjectCreateMixin, View):
+class LegalFormCreate(LegalForms, ObjectCreateMixin):
     title = "Legal Form Create"
 
 
-class LegalFormUpdate(LegalForms, ObjectUpdateMixin, View):
+class LegalFormUpdate(LegalForms, ObjectUpdateMixin):
     title = "Updating legal form"
 
 
-class LegalFormDelete(LegalForms, ObjectDeleteMixin, View):
+class LegalFormDelete(LegalFormView, DeleteView):
+
+    template_name = 'obj_confirm_delete.html'
     title = "Deleting legal form"
+    extra_context = {
+        'title': title,
+        'redirect_url': LegalFormView.list_function_name,
+    }
 
 
 class ResourceGroups(Handbooks):
@@ -96,6 +136,8 @@ class Countries(Handbooks):
     model = Country
     objects_per_page = 10
     form_model = CountryForm
+    form_class = CountryForm
+
     title = "Countries"
     create_function_name = 'handbooks:country_create_url'
     update_function_name = 'handbooks:country_update_url'
@@ -156,6 +198,8 @@ class Currencies(Handbooks):
     model = Currency
     objects_per_page = 10
     form_model = CurrencyForm
+    form_class = CurrencyForm
+
     title = "Currencies"
     create_function_name = 'handbooks:currency_create_url'
     update_function_name = 'handbooks:currency_update_url'

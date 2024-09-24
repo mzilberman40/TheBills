@@ -52,15 +52,17 @@ class BankForm(forms.ModelForm):
         label='Country',
     )
 
-    def __init__(self, *args, **kwargs):
-        super(BankForm, self).__init__(*args, **kwargs)
-        if 'user' in kwargs:
-            self.fields['user'].initial = kwargs['user']
+    # def __init__(self, *args, **kwargs):
+    #     super(BankForm, self).__init__(*args, **kwargs)
+    #     print(kwargs)
+    #     if 'user' in kwargs:
+    #         self.fields['user'].initial = kwargs['user']
 
     class Meta:
         model = Bank
-        # fields = '__all__'
-        fields = ['name', 'short_name', 'bik', 'corr_account', 'swift', 'notes', 'country']
+        fields = '__all__'
+        # fields = ['name', 'short_name', 'bik', 'corr_account', 'swift', 'notes', 'country']
+        exclude = ['user']
 
         widgets = {
             'name': forms.TextInput(attrs={

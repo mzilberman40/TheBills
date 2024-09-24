@@ -4,6 +4,9 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.core.paginator import Paginator
 from django.utils.text import slugify
 import functools
+
+from django.views.generic import CreateView, ListView, UpdateView, DeleteView, TemplateView, View
+
 from library.inject_values import inject_values
 
 
@@ -34,7 +37,7 @@ class Objects:
     params = {}
 
 
-class ObjectsListMixin(Objects):
+class ObjectsListMixin(Objects, ListView):
     objects_per_page = 1
     query_fields = []
     fields_toshow = []     # fields to show in list
@@ -91,7 +94,7 @@ class ObjectsListMixin(Objects):
         return render(request, self.template_name, context=context)
 
 
-class ObjectDetailsMixin(Objects):
+class ObjectDetailsMixin(Objects, View):
     template_name = 'obj_details.html'
     fields_to_header = []
     card_title = None
@@ -132,15 +135,14 @@ class ObjectDetailsMixin(Objects):
         return render(request, self.template_name, context=context)
 
 
-class ObjectCreateMixin(Objects):
+class ObjectCreateMixin(Objects, CreateView):
     template_name = 'obj_create.html'
     fields_to_fill = []
 
     def get(self, request, **kwargs):
-        form = self.form_model()
+        form = self.form_class()
         if self.fields_to_fill:
             form.fields = {key: value for key, value in form.fields.items() if key in self.fields_to_fill}
-        # print(form.fields.keys())
         context = {
             'title': self.title,
             'form': form,
@@ -153,27 +155,27 @@ class ObjectCreateMixin(Objects):
         return render(request, self.template_name, context=context)
 
     def post(self, request, **kwargs):
-        data = request.POST.copy()  # Make a mutable copy of POST data
-        data['user'] = request.user  # Probably user is necessary for model
-        # print(request.user)
-        bound_form = self.form_model(data)
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            return self.form_valid(form)
 
-        if bound_form.is_valid():
-            # print(bound_form.cleaned_data)
-            bound_form.save()
-            return redirect(self.redirect_to, )
-
+        # If the form is invalid, re-render it with the same context
         context = {
             'title': self.title,
-            'form': bound_form,
+            'form': form,  # Bound form with validation errors
             'base_app_template': self.base_app_template,
             'object_create_url': self.create_function_name
         }
         context.update(self.additional_context)
-        return render(request, self.template_name, context=context)
+        return render(request, self.template_name, context)
+
+    def form_valid(self, form):
+        # Assign the user to the form instance
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
-class ObjectUpdateMixin(Objects):
+class ObjectUpdateMixin(Objects, UpdateView):
     template_name = 'obj_update.html'
 
     def get(self, request, pk, **kwargs):
@@ -219,7 +221,7 @@ class ObjectUpdateMixin(Objects):
         return render(request, self.template_name, context=context)
 
 
-class ObjectDeleteMixin(Objects):
+class ObjectDeleteMixin(Objects, DeleteView):
     template_name = 'obj_delete.html'
 
     def get(self, request, pk, **kwargs):

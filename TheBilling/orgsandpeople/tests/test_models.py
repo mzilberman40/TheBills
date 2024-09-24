@@ -1,7 +1,7 @@
 """
 Tests for orgsandpeople models
 """
-
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
@@ -127,7 +127,6 @@ class ModelTests(TestCase):
             'email_type': 'Private',
         }
 
-        email = Email.objects.create(**data)
+        with self.assertRaises(ValidationError):
+            Email.objects.create(**data)
 
-        self.assertEqual(data['email'], email.email)
-        self.assertEqual(data['email_type'], email.email_type)
