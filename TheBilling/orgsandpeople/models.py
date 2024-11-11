@@ -29,7 +29,7 @@ class Bank(MyModel, models.Model):
     # status = models.CharField(max_length=16,blank=True)
     # registration_date = models.DateField(blank=True, null=True)
     # liquidation_date = models.DateField(blank=True, null=True)
-    notes = models.TextField(max_length=512, blank=True)
+    notes = models.TextField(max_length=1024, blank=True)
     user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
 
     details_url = 'orgsandpeople:bank_details_url'
@@ -150,7 +150,7 @@ class Account(ActivatorModel, models.Model):
                                       related_name='accounts')
     bank = models.ForeignKey('orgsandpeople.Bank', on_delete=models.CASCADE)
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
-    account_number = models.CharField(max_length=20)
+    account_number = models.CharField(max_length=128)
     starting_balance = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.CharField(max_length=512, blank=True)
 

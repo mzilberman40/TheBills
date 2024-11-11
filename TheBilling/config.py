@@ -7,7 +7,15 @@ BTC = moneyed.add_currency(
     name='BitCoin',
     countries=['Our Galaxy (MilkyWay)', ]
 )
-CURRENCIES = ('BTC', 'EUR', 'GBP', 'GEL', 'ILS', 'RUB', 'TRY', 'USD', )
+
+USDT = moneyed.add_currency(
+    code='USDT',
+    numeric='10002',
+    name='Tether USD',
+    countries=['Our Galaxy (MilkyWay)', ]
+)
+
+CURRENCIES = ('BTC', 'EUR', 'GBP', 'GEL', 'ILS', 'RUB', 'TRY', 'USD', 'USDT' )
 # CURRENCY_CHOICES = [('USD', 'USD $'), ('EUR', 'EUR €')]
 
 CUSTOM_COUNTRIES = [
@@ -22,6 +30,19 @@ CUSTOM_COUNTRIES = [
         'official_name': 'Turkish Republic of Northern Cyprus (TRNC)',
         'numeric': '999',
         'status': 'Unrecognized country',
+
+    },
+    {
+        'rus_name': 'Сверхскопление Ланиакеа',
+        'rus_name_official': 'Комплекс сверхскоплений Рыб-Кита, Ланиакея',
+        'rus_name_short': 'Ланиакея',
+        'iso3166': '001',
+        'alfa2': 'LK',
+        'alfa3': 'LNK',
+        'name': 'Laniakea',
+        'official_name': 'Laniakea Supercluster',
+        'numeric': '999',
+        'status': 'Our World',
 
     },
 ]

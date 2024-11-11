@@ -29,11 +29,12 @@ class Resources(Commerce):
 
 
 class ResourceList(Resources, ObjectsListMixin, View):
-    fields_toshow = ['name', 'group', 'available']
-    query_fields = ['name', 'group']
+    fields_toshow = ['name', 'rtype', 'owner', 'available']
+    query_fields = ['name', 'rtype', 'owner']
     order_by = 'name'
     template_name = 'obj_list.html'
     edit_button = True
+    view_button = True
     delete_button = True
     nav_custom_button = {
         'name': 'NewItem',
@@ -43,8 +44,12 @@ class ResourceList(Resources, ObjectsListMixin, View):
 
 
 class ResourceDetails(Resources, ObjectDetailsMixin, View):
+    edit_button = True
+
     title = "Resource Details"
-    template_name = 'obj_list.html'
+    fields_to_header = ['id', 'rtype', 'name', 'owner']
+    fields_to_main = [ 'description', 'available']
+    fields_to_footer = ['created', 'modified', 'user']
 
 
 class ResourceCreate(Resources, ObjectCreateMixin, View):

@@ -1,4 +1,5 @@
 .idea
+__pycache__
 migrations
 TheBilling/commerce/migrations
 TheBilling/.env
@@ -11,5 +12,9 @@ TheBilling/handbooks/__pycache__/
 TheBilling/orgsandpeople/__pycache__/
 TheBilling/tools/__pycache__/
 TheBilling/users/__pycache__/
+TheBilling/library/__pycache__/
+thebilling.zip
 .gitignore
 /.venv/
+/tmp/
+/Backup/

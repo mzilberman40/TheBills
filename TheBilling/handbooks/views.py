@@ -46,29 +46,6 @@ class LegalFormsList(LegalForms, ObjectsListMixin):
     template_name = 'obj_list.html'
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
-#
-# class LegalFormsList(LegalForms, ListView):
-#     fields = ['short_name', 'full_name']
-#     query_fields = ['short_name', 'full_name', 'description']
-#     order_by = 'short_name'
-#     template_name = 'obj_list_new.html'
-#     nav_custom_button = {'name': 'NewItem', 'show': True}
-#     # nav_custom_button = {
-#     #     'name': None,
-#     #     'show': False,
-#     #     'func': None,
-#     #     'params': None,
-#     # }
-#     title = 'XXXXXXXXXXLegal Forms'
-#     list_function_name = 'handbooks:legal_forms_list_url'
-#
-#     extra_context = {
-#         'object_redirect_url': list_function_name,
-#         'title': title,
-#         'fields': fields,
-#         'nav_custom_button': nav_custom_button,
-#     }
-
 
 class LegalFormDetails(LegalForms, ObjectDetailsMixin):
     title = f"Legal Form"
@@ -98,6 +75,8 @@ class LegalFormDelete(LegalFormView, DeleteView):
 class ResourceGroups(Handbooks):
     model = ResourceGroup
     form_model = ResourceGroupForm
+    form_class = ResourceGroupForm
+
     title = "Resource Group"
     create_function_name = 'handbooks:res_group_create_url'
     update_function_name = 'handbooks:res_group_update_url'
@@ -258,6 +237,8 @@ class CurrencyDelete(Currencies, ObjectDeleteMixin, View):
 class ResourceTypes(Handbooks):
     model = ResourceType
     form_model = ResourceTypeForm
+    form_class = ResourceTypeForm
+
     title = "ResourceTypes"
     create_function_name = 'handbooks:resource_type_create_url'
     update_function_name = 'handbooks:resource_type_update_url'

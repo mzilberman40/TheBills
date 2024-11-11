@@ -1,6 +1,0 @@
-Django>=5.0.6
-dadata>=21.10.1
-transliterate>=1.10.2
-pycountry>=23.12.11
-py-moneyed>=3.0
-pytils>=0.4.1

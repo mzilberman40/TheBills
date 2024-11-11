@@ -43,11 +43,11 @@ class Country(MyModel, models.Model):
     iso3166 = models.PositiveSmallIntegerField(primary_key=True)
     alfa2 = models.SlugField(max_length=2, unique=True)
     alfa3 = models.SlugField(max_length=3, unique=True)
-    eng_name = models.CharField(max_length=64, unique=True)
-    eng_name_official = models.CharField(max_length=64, blank=True, null=True)
+    eng_name = models.CharField(max_length=512, unique=True)
+    eng_name_official = models.CharField(max_length=512, blank=True, null=True)
     rus_name_short = models.CharField(max_length=64, unique=True)  # data.name_short
-    rus_name = models.CharField(max_length=64, unique=True)     # data.name
-    rus_name_official = models.CharField(max_length=64, unique=True)    # value
+    rus_name = models.CharField(max_length=128, unique=True)     # data.name
+    rus_name_official = models.CharField(max_length=512, unique=True)    # value
 
     details_url = 'handbooks:country_details_url'
     update_url = 'handbooks:country_update_url'
@@ -65,7 +65,7 @@ class Country(MyModel, models.Model):
 class Currency(MyModel, models.Model):
     numeric = models.PositiveSmallIntegerField(primary_key=True)
     name = models.CharField(max_length=64, unique=True)
-    code = models.CharField(max_length=3, unique=True)
+    code = models.CharField(max_length=5, unique=True)
 
     details_url = 'handbooks:currency_details_url'
     update_url = 'handbooks:currency_update_url'
