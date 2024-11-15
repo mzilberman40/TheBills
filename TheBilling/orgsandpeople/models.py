@@ -70,13 +70,12 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     # is in an intimate relationship ))
     special_status = models.BooleanField(default=False, verbose_name="Special Status")
     # payment_name is unique name for BU. Not necessary if INN exists
-    payment_name = models.CharField(max_length=128, unique=True, null=True, blank=True)
+    payment_name = models.CharField(max_length=128, unique=True)
     slug = AutoSlugField(populate_from=['short_name'], unique=True,
                          db_index=True, slugify_function=ru_slugify)
     legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT,
                                    verbose_name='Legal Form')
-    country = models.ForeignKey('handbooks.Country', on_delete=models.PROTECT,
-                                verbose_name='Country')
+    country = models.ForeignKey('handbooks.Country', on_delete=models.PROTECT, verbose_name='Country')
     notes = models.CharField(max_length=512, blank=True)
     user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE)
 
@@ -91,7 +90,7 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
         constraints = [
             models.CheckConstraint(
                 check=Q(inn__isnull=False) | Q(payment_name__isnull=False),
-                name='not_both_null'
+                name='inn_or_payment_name_required'
             )
         ]
 
@@ -100,9 +99,10 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
 
     @property
     def e_mails(self):
-        return ', '.join([f"{email.email}:{email.email_type}"
-                          if email.email_type else email.email
-                          for email in self.emails.all()])
+        if not self.emails.exists():
+            return "No emails"
+        return ', '.join(
+            [f"{email.email}:{email.email_type}" if email.email_type else email.email for email in self.emails.all()])
 
 
 class Email(models.Model):

@@ -1,48 +1,47 @@
 from django import forms
-from django.core.validators import validate_email, validate_slug
-
-# from django.core.exceptions import ValidationError
-# from django.forms import inlineformset_factory
-# from django.utils.text import slugify
-# import tools.from_pycountry as fp
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from orgsandpeople.models import Email, BusinessUnit, Bank, Account
 from handbooks.models import LegalForm, Country
 
 
-class MultiEmailField(forms.Field):
-    def to_python(self, value):
-        """Normalize data to a list of strings."""
-        # Return an empty list if no input was given.
-        if not value:
-            return []
-        return [v.strip() for v in value.split(",")]
-
-    def validate(self, value):
-        """Check if value consists only of valid emails."""
-        # Use the parent's handling of required fields, etc.
-        super().validate(value)
-        print(value)
-        for email in value:
-            print(email)
-            validate_email(email)
-
-
 class MultiEmailFieldWithEmailType(forms.Field):
+    def __init__(self, *args, **kwargs):
+        kwargs['widget'] = forms.TextInput(
+            attrs={'class': 'form-control',
+                   'placeholder': 'Enter emails in the format: email1, email2:type, ...'}
+        )
+        kwargs['help_text'] = "Enter emails in the format: email1, email2:type2, email3"
+        super().__init__(*args, **kwargs)
+
     def to_python(self, value):
-        """Normalize data to a list of strings."""
-        # Return an empty list if no input was given.
         if not value:
             return []
-        return [v.strip() for v in value.split(",")]
+        return value.split(',')
 
     def validate(self, value):
-        """Check if value consists only of valid emails."""
-        # Use the parent's handling of required fields, etc.
         super().validate(value)
-        for email, email_type in value:
-            if email_type:
-                validate_slug(email_type)
-            validate_email(email)
+        emails = []
+
+        for entry in value:
+            entry = entry.strip()
+            if ':' in entry:
+                email, email_type = entry.split(':', 1)
+                email = email.strip()
+                email_type = email_type.strip()
+            else:
+                email = entry
+                email_type = None
+
+            # Validate email format
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise ValidationError(f"'{email}' is not a valid email address.")
+
+            emails.append({'email': email, 'email_type': email_type})
+
+        return emails
 
 
 class BankForm(forms.ModelForm):
@@ -51,12 +50,6 @@ class BankForm(forms.ModelForm):
         empty_label='Choose Country',
         label='Country',
     )
-
-    # def __init__(self, *args, **kwargs):
-    #     super(BankForm, self).__init__(*args, **kwargs)
-    #     print(kwargs)
-    #     if 'user' in kwargs:
-    #         self.fields['user'].initial = kwargs['user']
 
     class Meta:
         model = Bank
@@ -142,39 +135,45 @@ class BusinessUnitForm(forms.ModelForm):
         queryset=LegalForm.objects.all(),
         empty_label='Choose Legal Form',
         label='Legal Form',
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
 
     country = forms.ModelChoiceField(
         queryset=Country.objects.all(),
         empty_label='Choose Country',
         label='Country',
+        widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    emails = MultiEmailField(
-        help_text='Enter emails with optional types in the format: '
-                  'email1:type1, email2:type2, ...',
+    emails = MultiEmailFieldWithEmailType(
+        required=False,
+        help_text='Enter emails in the format: email1, email2, ...',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Enter emails with optional types in the format: '
-                           'email1:type1, email2:type2, ...'}),
+            'placeholder': 'Enter emails in the format: email1, email2, ...'}),
     )
 
     def __init__(self, *args, **kwargs):
-        super(BusinessUnitForm, self).__init__(*args, **kwargs)
-        if 'user' in kwargs:
-            self.fields['user'].initial = kwargs['user']
+        user = kwargs.pop('user', None)
+        # print(kwargs)
+        super().__init__(*args, **kwargs)
+        self.user = user
+        # print(args, kwargs)
+        # print("User: ", self.user)
+        if self.instance and hasattr(self.instance, 'pk') and self.instance.pk:
+            # Prepopulate the emails_field with existing emails
+            emails = self.instance.emails.all()
+            emails_data = ', '.join([f"{email.email}:{email.email_type}" if email.email_type else email.email for email in emails])
+            self.initial['emails'] = emails_data
 
     class Meta:
         model = BusinessUnit
-        fields = ['legal_form', 'inn', 'ogrn',
+        # fields = '__all__'
+        fields = ['legal_form', 'country', 'inn', 'ogrn',
                   'first_name', 'middle_name', 'last_name',
                   'full_name', 'short_name', 'payment_name',
-                  'special_status', 'notes', 'emails', 'country']
+                  'special_status', 'notes', 'emails']
         widgets = {
-            'country': forms.Select(
-                attrs={'class': 'form-control',
-                       'empty_label': 'Choose Country',
-                       'label': 'Choose Country'}),
             'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'INN'}),
             'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'OGRN'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
@@ -184,34 +183,41 @@ class BusinessUnitForm(forms.ModelForm):
             'short_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Short Name'}),
             'payment_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Payment Name'}),
             'special_status': forms.CheckboxInput(attrs={
-                'placeholder': 'Payment Name',
                 'class': "form-control, form-check form-switch form-check-input",
                 'type': 'checkbox',
                 'role': 'switch',
                 'id': "flexSwitchCheckDefault"
             }),
-            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Notes'}),
-            'emails': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter emails with types in the format: '
-                               'email1:type1, email2:type2, ...'}),
+            'notes': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Notes'}),
         }
 
-    # def clean_emails(self):
-    #     emails = self.cleaned_data['emails']
-    #     email_list = []
-    #     for email_entry in emails.split(','):
-    #         email_entry = email_entry.strip()
-    #         if ':' in email_entry:
-    #             email, email_type = email_entry.split(':', 1)
-    #             email = email.strip()
-    #             email_type = email_type.strip()
-    #         else:
-    #             email = email_entry
-    #             email_type = None
-    #
-    #         forms.EmailField().clean(email)  # Validate email
-    #         email_list.append((email, email_type),)
-    #     return email_list
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        # print(instance)
 
+        emails = self.cleaned_data.get('emails', [])
+        # Set user if not set (handle create case)
+        if not instance.user_id:
+            instance.user = self.user
+        # Always save the instance first if commit is False
+        instance.save()
+        # Clear existing emails and add new ones
+        instance.emails.all().delete()
+        for email_data in emails:
+            # print(f"Email data: {email_data}")
+            if isinstance(email_data, dict):
+                Email.objects.create(bu=instance, email=email_data['email'], email_type=email_data['email_type'])
+            else:
+                email_data = email_data.strip()
+                if ':' in email_data:
+                    email, email_type = email_data.split(':', 1)
+                    email = email.strip()
+                    email_type = email_type.strip()
+                else:
+                    email = email_data
+                    email_type = None
+                Email.objects.create(bu=instance, email=email, email_type=email_type)
+        if commit:
+            self.save_m2m()  # Save many-to-many relationships if any
 
+        return instance

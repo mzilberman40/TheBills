@@ -17,7 +17,7 @@ class ResourceForm(forms.ModelForm):
         model = Resource
         # fields = ('owner', 'name', 'description', 'rtype', 'available')
         fields = '__all__'
-        exclude = ['activate_date', 'deactivate_date',]
+        exclude = ['activate_date', 'deactivate_date', 'user']
         labels = {
             # # 'name': 'Name',  # This sets the label for the 'name' field
             # # 'description': 'Description',  # Label for 'description' field
@@ -45,39 +45,3 @@ class ResourceForm(forms.ModelForm):
                 'placeholder': 'BusinessUnit'
             }),
         }
-
-#
-# class ResourceForm(forms.ModelForm):
-#     name = forms.CharField(
-#         label='Name',
-#         widget=forms.TextInput(attrs={
-#             'class': 'form-control',
-#             'placeholder': 'Name'
-#         })
-#     )
-#     description = forms.CharField(
-#         label='Description',
-#         widget=forms.TextInput(attrs={
-#             'class': 'form-control',
-#             'placeholder': 'Description'
-#         })
-#     )
-#     rtype = forms.ModelChoiceField(
-#         queryset=ResourceType.objects.all(),
-#         label='Choose Resource Type',
-#         widget=forms.Select(attrs={
-#             'class': 'form-control'
-#         })
-#     )
-#     available = forms.BooleanField(
-#         label='Resource Available',
-#         widget=forms.CheckboxInput(attrs={
-#             'class': 'form-check-input'
-#         })
-#     )
-#
-#     class Meta:
-#         model = Resource
-#         fields = ('name', 'description', 'group', 'available')
-#
-#

@@ -1,5 +1,6 @@
 from django.urls import path
 import orgsandpeople.views as oview
+import commerce.views as comview
 
 
 app_name = "orgsandpeople"
@@ -23,9 +24,9 @@ urlpatterns = [
     path('BU/<int:bu_pk>/accounts/delete/<int:pk>/', oview.BUAccountDelete.as_view(), name='bu_account_delete_url'),
     path('BU/<int:bu_pk>/accounts/<int:pk>/', oview.BUAccountDetail.as_view(), name='bu_account_detail_url'),
 
-    # path('Accounts/', oview.AccountList.as_view(), name='account_list_url'),
-    # path('Account/create/', oview.AccountCreate.as_view(), name='account_create_url'),
-    # path('Account/<int:pk>/update/', oview.AccountUpdate.as_view(), name='account_update_url'),
-    # path('Account/<int:pk>/delete/', oview.AccountDelete.as_view(), name='account_delete_url'),
-    # path('Account/<int:pk>/', oview.AccountDetails.as_view(), name='account_details_url'),
+    path('BU/<int:bu_pk>/resources/', comview.ResourceList.as_view(), name='bu_resources_url'),
+    path('BU/<int:bu_pk>/resources/create/', comview.ResourceCreate.as_view(), name='bu_resource_create_url'),
+    path('BU/<int:bu_pk>/resources/update/<int:pk>/', comview.ResourceUpdate.as_view(), name='bu_resource_update_url'),
+    path('BU/<int:bu_pk>/resources/delete/<int:pk>/', comview.ResourceDelete.as_view(), name='bu_resource_delete_url'),
+    path('BU/<int:bu_pk>/resources/<int:pk>/', comview.ResourceDetails.as_view(), name='bu_resource_detail_url'),
 ]
