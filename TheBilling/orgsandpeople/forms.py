@@ -158,13 +158,15 @@ class BusinessUnitForm(forms.ModelForm):
         # print(kwargs)
         super().__init__(*args, **kwargs)
         self.user = user
-        # print(args, kwargs)
-        # print("User: ", self.user)
+        self.initial['emails'] = self.get_initial_emails()
+
+    def get_initial_emails(self):
         if self.instance and hasattr(self.instance, 'pk') and self.instance.pk:
-            # Prepopulate the emails_field with existing emails
             emails = self.instance.emails.all()
-            emails_data = ', '.join([f"{email.email}:{email.email_type}" if email.email_type else email.email for email in emails])
-            self.initial['emails'] = emails_data
+            return ', '.join(
+                [f"{email.email}:{email.email_type}" if email.email_type else email.email for email in emails])
+        return ''
+
 
     class Meta:
         model = BusinessUnit
@@ -199,8 +201,9 @@ class BusinessUnitForm(forms.ModelForm):
         # Set user if not set (handle create case)
         if not instance.user_id:
             instance.user = self.user
-        # Always save the instance first if commit is False
-        instance.save()
+
+        if commit:
+            instance.save()
         # Clear existing emails and add new ones
         instance.emails.all().delete()
         for email_data in emails:
@@ -217,7 +220,7 @@ class BusinessUnitForm(forms.ModelForm):
                     email = email_data
                     email_type = None
                 Email.objects.create(bu=instance, email=email, email_type=email_type)
-        if commit:
-            self.save_m2m()  # Save many-to-many relationships if any
+        # if commit:
+        #     self.save_m2m()  # Save many-to-many relationships if any
 
         return instance

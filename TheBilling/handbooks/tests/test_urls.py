@@ -49,7 +49,7 @@ class TestUrlsLegalForm(TestCase):
 
     def test_legal_form_returns_lf_list(self):
         self.client.login(**TEST_USER_PARAMS)
-        template = 'obj_list_new.html'
+        template = 'obj_list.html'
 
         response = self.client.get(self.list_url)
         self.assertTemplateUsed(response, template)

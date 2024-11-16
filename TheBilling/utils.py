@@ -46,7 +46,7 @@ class ObjectsListMixin(Objects, View):
     order_by = None     # List of fields for ordering
 
     def get(self, request, **kwargs):
-        print(kwargs)
+        # print(kwargs)
         queryset = self.model.objects.all()
         fkey, fk_field = self.fk_model
         if fkey and fk_field:
@@ -162,11 +162,6 @@ class ObjectCreateMixin(Objects, CreateView):
 
     def post(self, request, **kwargs):
         form = self.form_class(request.POST)
-
-        # if form.is_valid():
-        #     form.save()
-        #     return redirect(self.redirect_to)
-
         if form.is_valid():
             return self.form_valid(form)
 
@@ -214,7 +209,7 @@ class ObjectUpdateMixin(Objects, View):
         redirect_param = self.params.get('redirect_param')
         if redirect_param:
             args.append(kwargs.get(redirect_param))
-        print(f"Redirect params: {args}")
+        # print(f"Redirect params: {args}")
         if bound_form.is_valid():
             bound_form.save()
             return redirect(self.redirect_to, *args)
