@@ -6,21 +6,22 @@ from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from library.testlib import get_new_legal_form
 from tools.from_moneyed import code2currency
 from tools.name2country import name2country
 
 from handbooks import models
 
 
-def create_legal_form(**d):
-    """Create and return Legal Form"""
-    data = {
-        'short_name': "MyLF",
-        'full_name': "My Legal Form",
-        'description': "Description of My Legal Form"
-    }
-    data.update(d)
-    return models.LegalForm.objects.create(**data)
+# def create_legal_form(**d):
+#     """Create and return Legal Form"""
+#     data = {
+#         'short_name': "MyLF",
+#         'full_name': "My Legal Form",
+#         'description': "Description of My Legal Form"
+#     }
+#     data.update(d)
+#     return models.LegalForm.objects.create(**data)
 
 
 class ModelTests(TestCase):
@@ -35,7 +36,7 @@ class ModelTests(TestCase):
         d = {
             'full_name': "My The Best Legal Form",
         }
-        lf = create_legal_form(**d)
+        lf = get_new_legal_form(**d)
 
         self.assertEqual(d['full_name'], lf.full_name)
 

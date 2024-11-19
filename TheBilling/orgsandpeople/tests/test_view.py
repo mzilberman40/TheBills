@@ -2,6 +2,8 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+
+from library.testlib import get_new_user, get_new_bu, get_new_country, get_new_legal_form
 from orgsandpeople.models import BusinessUnit, Email
 
 User = get_user_model()
@@ -9,19 +11,10 @@ User = get_user_model()
 class BusinessUnitViewTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(email='testuser@example.com', password='password')
-        self.business_unit = BusinessUnit.objects.create(
-            inn='123456789012',
-            ogrn='123456789012345',
-            first_name='Test',
-            last_name='Unit',
-            full_name='Test Unit',
-            short_name='TestUnit',
-            payment_name='NewUnitP',
-            legal_form_id=101,
-            country_id=1,
-            user=self.user
-        )
+        self.user = get_new_user(email='testuser@example.com', password='password')
+        self.country = get_new_country()
+        self.legal_form = get_new_legal_form()
+        self.business_unit = get_new_bu(user=self.user, country=self.country, legal_form=self.legal_form)
         self.client.login(email='testuser@example.com', password='password')
 
     # def test_bu_get_list(self):

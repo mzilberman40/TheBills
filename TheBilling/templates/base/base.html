@@ -41,6 +41,7 @@
 
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="{% url 'commerce:resource_list_url' %}">Resources</a></li>
+                                <li><a class="dropdown-item" href="{% url 'commerce:project_list_url' %}">Projects</a></li>
 
                             </ul>
 
@@ -104,7 +105,7 @@
                     {% endif %}
 
                     {% if show_query %}
-                    <form action="{% url redirect_to %}" class="d-flex me-auto mt-2">
+                    <form action="{% if redirect_param %}{% url redirect_to redirect_param %}{% else %}{% url redirect_to %}{% endif %}" class="d-flex me-auto mt-2">
                         <input class="form-control me-2 " value="{{search_query}}" type="search" placeholder="Search"
                         aria-label="Search" name="query">
                         <button class="btn btn-outline-success" type="submit">Search</button>

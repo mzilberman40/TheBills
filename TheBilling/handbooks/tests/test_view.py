@@ -66,7 +66,7 @@ class LegalFormsViewTests(TestCase):
 
     def test_lf_delete_view_get(self):
         url = 'handbooks:legal_form_delete_url'
-        template_name = 'obj_confirm_delete.html'
+        template_name = 'obj_delete.html'
         response = self.client.get(reverse(url, args=[self.legal_form.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)

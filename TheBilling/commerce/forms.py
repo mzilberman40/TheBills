@@ -19,9 +19,6 @@ class ResourceForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['activate_date', 'deactivate_date', 'user']
         labels = {
-            # # 'name': 'Name',  # This sets the label for the 'name' field
-            # # 'description': 'Description',  # Label for 'description' field
-            # 'group': 'Choose Resource Group',  # Label for 'group' field
             'available': 'Resource Available'  # Label for 'available' field
         }
         widgets = {
@@ -43,5 +40,29 @@ class ResourceForm(forms.ModelForm):
             'owner': forms.Select(attrs={
                 'class': 'form-control',
                 'placeholder': 'BusinessUnit'
+            }),
+        }
+
+
+class ProjectForm(forms.ModelForm):
+
+    class Meta:
+        model = Project
+        fields = '__all__'
+        exclude = []
+        labels = {
+        }
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Title',
+            }),
+            'description': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Description'
+            }),
+            'beneficiary': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': 'Beneficiary'
             }),
         }

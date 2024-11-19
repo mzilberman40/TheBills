@@ -29,3 +29,21 @@ class Resource(MyModel, TimeStampedModel, ActivatorModel, models.Model):
 
     def __str__(self):
         return f"{self.name}, {self.rtype}, {self.owner}"
+
+
+class Project(MyModel, models.Model):
+    title = models.CharField(max_length=120, unique=True)
+    description = models.TextField(max_length=512, null=True, blank=True)
+    beneficiary = models.ForeignKey(BusinessUnit, on_delete=models.CASCADE, related_name='projects')
+
+    details_url = 'commerce:project_details_url'
+    update_url = 'commerce:project_update_url'
+    delete_url = 'commerce:project_delete_url'
+
+    class Meta:
+        verbose_name = "Project"
+        verbose_name_plural = "Projects"
+        ordering = ('title',)
+
+    def __str__(self):
+        return f"{self.title}, {self.beneficiary}"

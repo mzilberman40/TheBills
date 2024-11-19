@@ -33,12 +33,6 @@ class LegalForms(Handbooks):
     success_url = reverse_lazy(list_function_name)
 
 
-class LegalFormView(Handbooks):
-    model = LegalForm
-    success_url = reverse_lazy('handbooks:legal_forms_list_url')
-    list_function_name = 'handbooks:legal_forms_list_url'
-
-
 class LegalFormsList(LegalForms, ObjectsListMixin):
     fields_toshow = ['short_name', 'full_name']
     query_fields = ['short_name', 'full_name', 'description']
@@ -62,14 +56,9 @@ class LegalFormUpdate(LegalForms, ObjectUpdateMixin):
     title = "Updating legal form"
 
 
-class LegalFormDelete(LegalFormView, DeleteView):
-
-    template_name = 'obj_confirm_delete.html'
+class LegalFormDelete(LegalForms, ObjectDeleteMixin):
+    template_name = 'obj_delete.html'
     title = "Deleting legal form"
-    extra_context = {
-        'title': title,
-        'redirect_url': LegalFormView.list_function_name,
-    }
 
 
 class ResourceGroups(Handbooks):

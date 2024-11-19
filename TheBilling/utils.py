@@ -35,7 +35,6 @@ class Objects:
         'params': None,
     }
     params = {}
-    fk_model = ('', None) # Foreign keys model for filtering objects for queryset. (key_in_kwargs, field)
 
 
 class ObjectsListMixin(Objects, View):
@@ -48,27 +47,20 @@ class ObjectsListMixin(Objects, View):
     def get(self, request, **kwargs):
         # print(kwargs)
         queryset = self.model.objects.all()
-        fkey, fk_field = self.fk_model
-        if fkey and fk_field:
-            fk_value = kwargs.get(fkey)
-            queryset = queryset.filter(fk_field=fk_value)
-
         show_query = len(self.query_fields)
         search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
         if search_query and self.redirect_to:
             z = [Q((f'{qq}__icontains', search_query)) for qq in self.query_fields]
             q = functools.reduce(lambda a, b: a | b, z)
-            objects = queryset.filter(q)
-        else:
-            objects = queryset
+            queryset = queryset.filter(q)
 
         if self.order_by:
-            objects = objects.order_by(self.order_by)
+            queryset = queryset.order_by(self.order_by)
 
         if not self.fields_toshow:
             self.fields_toshow = [f.name for f in self.model._meta.get_fields()]
         #
-        objects = [inject_values(o, self.fields_toshow) for o in objects]
+        objects = [inject_values(o, self.fields_toshow) for o in queryset]
         page_number = request.GET.get('page', 1)
         paginator = Paginator(objects, self.objects_per_page)
         page_object = paginator.get_page(page_number)
@@ -189,7 +181,7 @@ class ObjectUpdateMixin(Objects, View):
         pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
         # redirect_param = self.params.get('redirect_param')
-        form = self.form_model(instance=obj)
+        form = self.form_class(instance=obj)
         context = {
             'title': self.title + f" with pk {obj.pk}.....",
             'form': form,
@@ -205,7 +197,7 @@ class ObjectUpdateMixin(Objects, View):
         args = []
         pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
-        bound_form = self.form_model(request.POST.copy(), instance=obj)
+        bound_form = self.form_class(request.POST.copy(), instance=obj)
         redirect_param = self.params.get('redirect_param')
         if redirect_param:
             args.append(kwargs.get(redirect_param))

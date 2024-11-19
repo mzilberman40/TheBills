@@ -1,10 +1,15 @@
+import functools
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils.text import slugify
 from django.views import View
-from django.views.generic import CreateView, UpdateView, DeleteView, ListView
 
+from commerce.forms import ResourceForm
+from commerce.models import Resource
 from orgsandpeople.forms import BankForm, BusinessUnitForm, AccountForm
 from orgsandpeople.models import Bank, BusinessUnit, Email, Account
 from utils import (ObjectDetailsMixin, ObjectCreateMixin,
@@ -32,7 +37,7 @@ class BusinessUnits(OrgsAndPeople):
     # form_template = 'orgsandpeople/bu_form.html'
 
 
-class BusinessUnitList(BusinessUnits, ObjectsListMixin, View):
+class BusinessUnitList(BusinessUnits, ObjectsListMixin):
     fields_toshow = ['full_name', 'payment_name']
     query_fields = ['full_name', 'payment_name']
     order_by = 'full_name'
@@ -64,7 +69,7 @@ class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin):
     title = "Deleting BusinessUnit"
 
 
-class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin, View):
+class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin):
     template_name = 'orgsandpeople/bu_details.html'
     title = f"Business Unit Details"
     fields_to_header = ['id', 'inn', 'slug', 'payment_name', 'special_status']
@@ -126,7 +131,7 @@ class BUAccountList(BUAccounts, View):
         return render(request, self.template_name, context=context)
 
 
-class BUAccountDetail(BUAccounts, ObjectDetailsMixin, View):
+class BUAccountDetail(BUAccounts, ObjectDetailsMixin):
     title = f"Account Details"
     fields_to_header = ['id', 'business_unit']
     fields_to_main = ['bank', 'account_number', 'currency', 'starting_balance', 'notes']
@@ -177,11 +182,11 @@ class BUAccountCreate(BUAccounts, View):
         return render(request, self.template_name, context=context)
 
 
-class BUAccountDelete(BUAccounts, ObjectDeleteMixin, View):
+class BUAccountDelete(BUAccounts, ObjectDeleteMixin):
     title = "Deleting Account"
 
 
-class BUAccountUpdate(BUAccounts, ObjectUpdateMixin, View):
+class BUAccountUpdate(BUAccounts, ObjectUpdateMixin):
     title = "Updating Account"
 
 
@@ -199,7 +204,7 @@ class Banks(OrgsAndPeople):
     base_app_template = None
 
 
-class BankList(Banks, ObjectsListMixin, View):
+class BankList(Banks, ObjectsListMixin):
     fields_toshow = ['short_name', 'bik', 'swift']
     query_fields = ['short_name', 'name', 'bik', 'swift']
     order_by = 'short_name'
@@ -207,7 +212,7 @@ class BankList(Banks, ObjectsListMixin, View):
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
 
-class BankDetails(Banks, ObjectDetailsMixin, View):
+class BankDetails(Banks, ObjectDetailsMixin):
     title = f"Bank Details"
     fields_to_header = ['id', 'short_name', 'name', 'slug']
     fields_to_main = ['bik', 'corr_account', 'swift', 'country', 'notes']
@@ -239,10 +244,116 @@ class BankCreate(Banks, ObjectCreateMixin):
         return super().form_valid(form)
 
 
-class BankUpdate(Banks, ObjectUpdateMixin, View):
+class BankUpdate(Banks, ObjectUpdateMixin):
     title = "Updating Bank"
 
 
-class BankDelete(Banks, ObjectDeleteMixin, View):
+class BankDelete(Banks, ObjectDeleteMixin):
     title = "Deleting Bank"
+
+
+class Resources(OrgsAndPeople):
+    model = Resource
+    form_model = ResourceForm
+    form_class = ResourceForm
+    title = "Resources"
+    create_function_name = 'orgsandpeople:bu_resource_create_url'
+    update_function_name = 'orgsandpeople:bu_resource_update_url'
+    delete_function_name = 'orgsandpeople:bu_resource_delete_url'
+    list_function_name = 'orgsandpeople:bu_resources_url'
+    redirect_to = list_function_name
+    success_url = reverse_lazy(list_function_name)
+    params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
+
+
+class ResourceList(Resources, View):
+    fields_toshow = ['name', 'rtype', 'available']
+    query_fields = ['name']
+    order_by = 'name'
+    template_name = 'obj_list.html'
+    edit_button = True
+    view_button = True
+    delete_button = True
+    nav_custom_button = {
+        'name': 'NewItem',
+        'show': True,
+        'func': Resources.create_function_name,
+    }
+
+    def get(self, request, bu_pk):
+        print(bu_pk)
+        bu = get_object_or_404(BusinessUnit, pk=bu_pk)
+        queryset = bu.resources.all()
+        self.title = f"{str(bu)} {self.title}"
+        show_query = len(self.query_fields)
+        # show_query = False
+        search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
+        if search_query and self.redirect_to:
+            z = [Q((f'{qq}__icontains', search_query)) for qq in self.query_fields]
+            q = functools.reduce(lambda a, b: a | b, z)
+            queryset = queryset.filter(q)
+
+        if self.order_by:
+            queryset = queryset.order_by(self.order_by)
+
+        if not self.fields_toshow:
+            self.fields_toshow = [f.name for f in self.model._meta.get_fields()]
+        #
+        print(queryset)
+        objects = [inject_values(o, self.fields_toshow) for o in queryset]
+        print(objects)
+        print([o.addons for o in objects])
+
+        page_number = request.GET.get('page', 1)
+        paginator = Paginator(objects, self.objects_per_page)
+        page_object = paginator.get_page(page_number)
+        is_paginated = page_object.has_other_pages()
+        self.nav_custom_button['func'] = self.create_function_name
+        self.nav_custom_button['params'] = bu_pk
+
+        context = {
+            'title': self.title,
+            # 'comments': self.comments,
+            # 'base_app_template': self.base_app_template,
+            'show_query': show_query,
+            'redirect_to': self.redirect_to,
+            # 'search_query': search_query,
+            'page_object': page_object,
+            'is_paginated': is_paginated,
+            'counter': len(objects),
+            'fields': self.fields_toshow,
+            'create_function': self.create_function_name,
+            'delete_function': self.delete_function_name,
+            'update_function': self.update_function_name,
+            'delete_button': self.delete_button,
+            'edit_button': self.edit_button,
+            'view_button': self.view_button,
+            'nav_custom_button': self.nav_custom_button,
+            'redirect_param': bu_pk
+
+        }
+        # context.update(self.additional_context)
+
+        return render(request, self.template_name, context=context)
+
+
+class ResourceDetails(Resources, ObjectDetailsMixin):
+    edit_button = True
+
+    title = "Resource Details"
+    fields_to_header = ['id', 'rtype', 'name', 'owner']
+    fields_to_main = [ 'description', 'available']
+    fields_to_footer = ['created', 'modified', 'user']
+
+
+class ResourceCreate(Resources, ObjectCreateMixin):
+    title = "Resource Create"
+
+
+class ResourceUpdate(Resources, ObjectUpdateMixin):
+    title = "Updating email"
+
+
+class ResourceDelete(Resources, ObjectDeleteMixin):
+    pass
 
