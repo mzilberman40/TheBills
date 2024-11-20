@@ -3,11 +3,8 @@ Tests for orgsandpeople models
 """
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-
-from handbooks.models import Country
 from library.testlib import get_new_user, get_new_bank, get_new_bu, get_new_legal_form, get_new_country
 from orgsandpeople.models import Email
-from tools.name2country import name2country
 
 
 class ModelTests(TestCase):
@@ -35,8 +32,8 @@ class ModelTests(TestCase):
         """Test creating a business unit is successful """
 
         data = {
-            'inn': 'INNN567890',
-            'full_name': 'Abram Isakovich Ivanov ibn Hottab',
+            'inn': 'INN567890',
+            'full_name': 'Abram Isaakovich Ivanov ibn Hottab',
             'special_status': False,
             'payment_name': 'Abram_I_Ivanov',
         }
@@ -75,4 +72,3 @@ class ModelTests(TestCase):
 
         with self.assertRaises(ValidationError):
             Email.objects.create(**data)
-

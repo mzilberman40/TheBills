@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load form_filters %}
 
 {% block title %}
  {{title}} -- {{block.super}}
@@ -22,7 +23,8 @@
           </div>
         {% endif %}
         {{ field.label_tag}}
-        {{ field }} <br>
+        {{ field|add_class:"form-control" }} <br>
+
       </div>
       {% endfor %}
       <div class="mb-4"></div>

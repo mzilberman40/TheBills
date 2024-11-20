@@ -13,17 +13,6 @@ from tools.name2country import name2country
 from handbooks import models
 
 
-# def create_legal_form(**d):
-#     """Create and return Legal Form"""
-#     data = {
-#         'short_name': "MyLF",
-#         'full_name': "My Legal Form",
-#         'description': "Description of My Legal Form"
-#     }
-#     data.update(d)
-#     return models.LegalForm.objects.create(**data)
-
-
 class ModelTests(TestCase):
     """Test models"""
 
@@ -85,12 +74,9 @@ class ModelTests(TestCase):
 
     def test_country(self):
         """Test creating a country is successful """
-
         eng_name = "Israel"
         data = name2country(eng_name)
-        # print(data)
         country = models.Country.objects.create(**data)
         self.assertEqual(data['eng_name'], country.eng_name)
         self.assertEqual(data['rus_name'], country.rus_name)
         self.assertEqual(data['eng_name_official'], country.eng_name_official)
-
