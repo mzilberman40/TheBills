@@ -1,7 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from library.views import SilverListView
 from tools.from_moneyed import code2currency
 from tools.name2country import name2country
 from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceTypeForm
