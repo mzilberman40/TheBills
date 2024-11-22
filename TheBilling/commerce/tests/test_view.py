@@ -62,14 +62,14 @@ class ProjectViewTests(TestCase):
         self.project.refresh_from_db()
         self.assertEqual(self.project.title, data['title'])
 
-    def test_project_delete_view_get(self):
+    def test_project_delete_get(self):
         url = reverse('commerce:project_delete_url', args=[self.project.pk])
         template_name = 'obj_delete.html'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
 
-    def test_project_delete_view_post(self):
+    def test_project_delete_post(self):
         url = reverse('commerce:project_delete_url', args=[self.project.pk])
         self.assertTrue(Project.objects.exists())
         response = self.client.post(url)

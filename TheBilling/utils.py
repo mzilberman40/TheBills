@@ -3,10 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.core.paginator import Paginator
 from django.utils.text import slugify
 import functools
-
 from django.views.generic import View, CreateView, UpdateView
-
 from library.inject_values import inject_values
+
 
 
 class Objects:
@@ -40,7 +39,7 @@ class Objects:
 class ObjectsListMixin(Objects, View):
     objects_per_page = 1
     query_fields = []
-    fields_toshow = []     # fields to show in list
+    fields_to_show = []     # fields to show in list
     template_name = 'obj_list.html'
     order_by = None     # List of fields for ordering
 
@@ -57,10 +56,10 @@ class ObjectsListMixin(Objects, View):
         if self.order_by:
             queryset = queryset.order_by(self.order_by)
 
-        if not self.fields_toshow:
-            self.fields_toshow = [f.name for f in self.model._meta.get_fields()]
+        if not self.fields_to_show:
+            self.fields_to_show = [f.name for f in self.model._meta.get_fields()]
         #
-        objects = [inject_values(o, self.fields_toshow) for o in queryset]
+        objects = [inject_values(o, self.fields_to_show) for o in queryset]
         page_number = request.GET.get('page', 1)
         paginator = Paginator(objects, self.objects_per_page)
         page_object = paginator.get_page(page_number)
@@ -77,7 +76,7 @@ class ObjectsListMixin(Objects, View):
             'page_object': page_object,
             'is_paginated': is_paginated,
             'counter': len(objects),
-            'fields': self.fields_toshow,
+            'fields': self.fields_to_show,
             'create_function': self.create_function_name,
             'delete_function': self.delete_function_name,
             'update_function': self.update_function_name,
@@ -146,7 +145,9 @@ class ObjectCreateMixin(Objects, CreateView):
             'form': form,
             'base_app_template': self.base_app_template,
             'class_name': self.model.__name__.lower(),
-            'object_create_url': self.create_function_name
+            'object_create_url': self.create_function_name,
+            'object_redirect_url': self.redirect_to,
+
         }
         context.update(self.additional_context)
 
@@ -180,13 +181,14 @@ class ObjectUpdateMixin(Objects, View):
     def get(self, request, **kwargs):
         pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
-        # redirect_param = self.params.get('redirect_param')
         form = self.form_class(instance=obj)
+
         context = {
             'title': self.title + f" with pk {obj.pk}.....",
             'form': form,
             'object': obj,
             'update_function': self.update_function_name,
+            'object_redirect_url': self.redirect_to,
             # 'redirect_param': kwargs.get(redirect_param)
         }
         context.update(self.additional_context)
@@ -208,7 +210,8 @@ class ObjectUpdateMixin(Objects, View):
         context = {
             'form': bound_form,
             'base_app_template': self.base_app_template,
-            'redirect_param': kwargs.get(redirect_param)
+            'object_redirect_url': self.redirect_to,
+            # 'redirect_param': kwargs.get(redirect_param)
         }
         context.update(self.additional_context)
         return render(request, self.template_name, context=context)

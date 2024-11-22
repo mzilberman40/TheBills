@@ -27,9 +27,10 @@
 
       </div>
       {% endfor %}
-      <div class="mb-4"></div>
-
-      <button type="submit" class="btn btn-primary"> Save {{class_name}}</button>
+      <div class="d-flex justify-content-end">
+        <a href="{% url object_redirect_url %}" class="btn btn-secondary me-2">Cancel</a>
+        <button type="submit" class="btn btn-primary">Save {{ class_name }}</button>
+      </div>
     </form>
 
 {% endblock %}

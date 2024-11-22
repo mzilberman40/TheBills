@@ -23,7 +23,6 @@ class LegalFormsViewTests(TestCase):
         template_name = 'obj_list.html'
         url = reverse('handbooks:legal_forms_list_url')
         response = self.client.get(url)
-        # print(response.content.decode())
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
 
@@ -84,5 +83,3 @@ class LegalFormsViewTests(TestCase):
         response = self.client.get(reverse(url, args=[self.legal_form.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
-
-

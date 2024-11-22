@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import models
 from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedModel, ActivatorModel
 
@@ -49,7 +50,7 @@ class Project(MyModel, models.Model):
         return f"{self.title}, {self.beneficiary}"
 
 
-class Agreement(MyModel, models.Model):
+class Agreement(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     STATUS_CHOICES = [
         ('planned', 'Planned'),
         ('active', 'Active'),
@@ -82,3 +83,10 @@ class Agreement(MyModel, models.Model):
 
     def __str__(self):
         return f"{self.number} ({self.get_status_display()})"
+
+    def clean(self):
+        """Ensure Seller and Buyer are different and validate dates."""
+        if self.seller == self.buyer:
+            raise ValidationError("Seller and Buyer must be different.")
+        if self.end_date and self.start_date and self.end_date < self.start_date:
+            raise ValidationError("End date must be after start date.")

@@ -99,7 +99,7 @@ class ResourceGroup(MyModel, models.Model):
 
 class ResourceType(MyModel, models.Model):
     rtype = models.CharField(max_length=120, unique=True, verbose_name="ResourceType")
-    group = models.ForeignKey(ResourceGroup, on_delete=models.CASCADE, related_name='rtypes')
+    group = models.ForeignKey(ResourceGroup, on_delete=models.RESTRICT, related_name='rtypes')
     description = models.TextField(max_length=1024, blank=True)
 
     details_url = 'handbooks:resource_type_details_url'

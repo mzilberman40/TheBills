@@ -1,11 +1,7 @@
-import moneyed
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views import View
-from django.views.generic import DeleteView, ListView
-
-# import config
+from library.views import SilverListView
 from tools.from_moneyed import code2currency
 from tools.name2country import name2country
 from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceTypeForm
@@ -21,7 +17,7 @@ class Handbooks(LoginRequiredMixin):
 
 class LegalForms(Handbooks):
     model = LegalForm
-    form_model = LegalFormForm
+    # form_model = LegalFormForm
     form_class = LegalFormForm
     fields = None
     title = "Legal Forms"
@@ -29,16 +25,16 @@ class LegalForms(Handbooks):
     update_function_name = 'handbooks:legal_form_update_url'
     delete_function_name = 'handbooks:legal_form_delete_url'
     list_function_name = 'handbooks:legal_forms_list_url'
+    nav_custom_button_func = create_function_name
     redirect_to = list_function_name
     success_url = reverse_lazy(list_function_name)
 
 
 class LegalFormsList(LegalForms, ObjectsListMixin):
-    fields_toshow = ['short_name', 'full_name']
-    query_fields = ['short_name', 'full_name', 'description']
-    order_by = 'short_name'
-    template_name = 'obj_list.html'
-    nav_custom_button = {'name': 'NewItem', 'show': True}
+    context_object_name = "legal_forms"
+    template_name = "obj_list.html"
+    fields_to_show = ['short_name', 'full_name']
+    query_fields = ['short_name', 'full_name']
 
 
 class LegalFormDetails(LegalForms, ObjectDetailsMixin):
@@ -55,48 +51,43 @@ class LegalFormCreate(LegalForms, ObjectCreateMixin):
 class LegalFormUpdate(LegalForms, ObjectUpdateMixin):
     title = "Updating legal form"
 
-
 class LegalFormDelete(LegalForms, ObjectDeleteMixin):
-    template_name = 'obj_delete.html'
     title = "Deleting legal form"
-
 
 class ResourceGroups(Handbooks):
     model = ResourceGroup
-    form_model = ResourceGroupForm
     form_class = ResourceGroupForm
-
     title = "Resource Group"
     create_function_name = 'handbooks:res_group_create_url'
     update_function_name = 'handbooks:res_group_update_url'
     delete_function_name = 'handbooks:res_group_delete_url'
     list_function_name = 'handbooks:res_group_list_url'
     redirect_to = list_function_name
+    nav_custom_button_func = create_function_name
 
-
-class ResourceGroupList(ResourceGroups, ObjectsListMixin, View):
-    fields_toshow = ['name']
+class ResourceGroupList(ResourceGroups, ObjectsListMixin):
+    context_object_name = "legal_forms"
+    fields_to_show = ['name']
     query_fields = ['name', 'description']
     order_by = 'name'
-    # template_name = 'obj_list.html'
+    template_name = "obj_list.html"
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
-
-class ResourceGroupDetails(ResourceGroups, ObjectDetailsMixin, View):
+class ResourceGroupDetails(ResourceGroups, ObjectDetailsMixin):
     fields_to_header = ['id', 'name',]
     fields_to_main = ['description']
     fields_to_footer = ['time_create', 'time_update', 'owner']
 
 
-class ResourceGroupCreate(ResourceGroups, ObjectCreateMixin, View):
+class ResourceGroupCreate(ResourceGroups, ObjectCreateMixin):
     title = "Resource Group Create"
 
 
-class ResourceGroupUpdate(ResourceGroups, ObjectUpdateMixin, View):
+class ResourceGroupUpdate(ResourceGroups, ObjectUpdateMixin):
     title = "Updating Resource Group"
 
 
-class ResourceGroupDelete(ResourceGroups, ObjectDeleteMixin, View):
+class ResourceGroupDelete(ResourceGroups, ObjectDeleteMixin):
     title = "Deleting Resource Group"
 
 
@@ -114,8 +105,8 @@ class Countries(Handbooks):
     redirect_to = list_function_name
 
 
-class CountriesList(Countries, ObjectsListMixin, View):
-    fields_toshow = ['iso3166', 'eng_name', 'rus_name', 'alfa2']
+class CountriesList(Countries, ObjectsListMixin):
+    fields_to_show = ['iso3166', 'eng_name', 'rus_name', 'alfa2']
     query_fields = ['eng_name', 'rus_name', 'iso3166', 'alfa2', 'alfa3']
     order_by = 'eng_name'
     template_name = 'obj_list.html'
@@ -124,7 +115,7 @@ class CountriesList(Countries, ObjectsListMixin, View):
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
 
-class CountryDetails(Countries, ObjectDetailsMixin, View):
+class CountryDetails(Countries, ObjectDetailsMixin):
     title = "Country Details"
     fields_to_header = ['iso3166', 'alfa2', 'alfa3']
     fields_to_main = ['eng_name', 'eng_name_official', 'rus_name', 'rus_name_short', 'rus_name_official']
@@ -133,7 +124,7 @@ class CountryDetails(Countries, ObjectDetailsMixin, View):
     delete_button = False
 
 
-class CountryCreate(Countries, ObjectCreateMixin, View):
+class CountryCreate(Countries, ObjectCreateMixin):
     title = "Create country"
     fields_to_fill = ['eng_name']
 
@@ -158,7 +149,7 @@ class CountryCreate(Countries, ObjectCreateMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class CountryDelete(Countries, ObjectDeleteMixin, View):
+class CountryDelete(Countries, ObjectDeleteMixin):
     pass
 
 
@@ -176,8 +167,8 @@ class Currencies(Handbooks):
     redirect_to = list_function_name
 
 
-class CurrenciesList(Currencies, ObjectsListMixin, View):
-    fields_toshow = ['numeric', 'name', 'code']
+class CurrenciesList(Currencies, ObjectsListMixin):
+    fields_to_show = ['numeric', 'name', 'code']
     query_fields = ['numeric', 'name', 'code']
     order_by = 'name'
     template_name = 'obj_list.html'
@@ -186,7 +177,7 @@ class CurrenciesList(Currencies, ObjectsListMixin, View):
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
 
-class CurrencyDetails(Currencies, ObjectDetailsMixin, View):
+class CurrencyDetails(Currencies, ObjectDetailsMixin):
     title = "Currency Details"
     fields_to_header = ['numeric', 'name', 'code']
     fields_to_main = []
@@ -195,7 +186,7 @@ class CurrencyDetails(Currencies, ObjectDetailsMixin, View):
     delete_button = False
 
 
-class CurrencyCreate(Currencies, ObjectCreateMixin, View):
+class CurrencyCreate(Currencies, ObjectCreateMixin):
     title = "Create currency"
     fields_to_fill = ['name']
     template_name = 'obj_create.html'
@@ -218,10 +209,8 @@ class CurrencyCreate(Currencies, ObjectCreateMixin, View):
 
         return render(request, self.template_name, context=context)
 
-
-class CurrencyDelete(Currencies, ObjectDeleteMixin, View):
+class CurrencyDelete(Currencies, ObjectDeleteMixin):
     pass
-
 
 class ResourceTypes(Handbooks):
     model = ResourceType
@@ -236,8 +225,8 @@ class ResourceTypes(Handbooks):
     redirect_to = list_function_name
 
 
-class ResourceTypeList(ResourceTypes, ObjectsListMixin, View):
-    fields_toshow = ['rtype', 'group']
+class ResourceTypeList(ResourceTypes, ObjectsListMixin):
+    fields_to_show = ['rtype', 'group']
     query_fields = ['rtype', 'group']
     order_by = 'rtype'
     template_name = 'obj_list.html'
@@ -249,21 +238,17 @@ class ResourceTypeList(ResourceTypes, ObjectsListMixin, View):
         'func': ResourceTypes.create_function_name,
     }
 
-
-class ResourceTypeDetails(ResourceTypes, ObjectDetailsMixin, View):
+class ResourceTypeDetails(ResourceTypes, ObjectDetailsMixin):
     title = "Resource Types Details"
     fields_to_header = ['id', 'group', 'rtype']
     fields_to_main = ['description']
     fields_to_footer = []
 
-
-class ResourceTypeCreate(ResourceTypes, ObjectCreateMixin, View):
+class ResourceTypeCreate(ResourceTypes, ObjectCreateMixin):
     title = "Resource Type Create"
 
-
-class ResourceTypeUpdate(ResourceTypes, ObjectUpdateMixin, View):
+class ResourceTypeUpdate(ResourceTypes, ObjectUpdateMixin):
     title = "Updating Resource Type"
 
-
-class ResourceTypeDelete(ResourceTypes, ObjectDeleteMixin, View):
+class ResourceTypeDelete(ResourceTypes, ObjectDeleteMixin):
     pass

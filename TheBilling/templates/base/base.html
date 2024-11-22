@@ -35,7 +35,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Commerce
                             </a>
 
@@ -49,7 +49,7 @@
 
 
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Orgs&People
                             </a>
 
@@ -58,13 +58,10 @@
                                 <li><a class="dropdown-item" href="{% url 'orgsandpeople:bank_list_url' %}">Banks</a></li>
 
                             </ul>
-
                         </li>
 
-                    
-
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Handbooks
                             </a>
 
@@ -105,7 +102,7 @@
                     {% endif %}
 
                     {% if show_query %}
-                    <form action="{% if redirect_param %}{% url redirect_to redirect_param %}{% else %}{% url redirect_to %}{% endif %}" class="d-flex me-auto mt-2">
+                    <form action="{% url redirect_to %}" class="d-flex me-auto mt-2">
                         <input class="form-control me-2 " value="{{search_query}}" type="search" placeholder="Search"
                         aria-label="Search" name="query">
                         <button class="btn btn-outline-success" type="submit">Search</button>
@@ -114,7 +111,7 @@
 
                     {% if nav_custom_button.show and nav_custom_button.func %}
                       <div class="d-lg-flex col-lg-2 justify-content-lg-end">
-                          <a href="{% if nav_custom_button.params %}{% url nav_custom_button.func nav_custom_button.params %}{% else %}{% url nav_custom_button.func %}{% endif %}"
+                          <a href="{% if nav_custom_button.param %}{% url nav_custom_button.func nav_custom_button.param %}{% else %}{% url nav_custom_button.func %}{% endif %}"
                              class="btn btn-primary">
                               {{ nav_custom_button.name }}
                           </a>
@@ -128,60 +125,63 @@
           </nav>
         </header>
 
-        <main>
-            <div class="container mt-5">
-                <div class="row justify-content-md-center mb-5">
-                    <div class="col text-center">
-                        <h3>{% block page_header %} {% endblock %}</h3>
-                    </div>
-                </div>
-                {% block content %}
-                {% endblock %}
+<main>
+    <div class="container mt-5">
+        <div class="row justify-content-md-center mb-5">
+            <div class="col text-center">
+                <h3>{% block page_header %} {% endblock %}</h3>
             </div>
+        </div>
+        {% block content %}
+        {% endblock %}
 
-                       {% if is_paginated %}
-                <nav aria-label="...">
-                    <ul class="pagination justify-content-center">
-                        {% if page_object.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_object.previous_page_number }}" >Previous</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1">First</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                              <span class="page-link">Previous</span>
-                            </li>
-                            <li class="page-item disabled">
-                                <span class="page-link">First</span>
-                            </li>
-                        {% endif %}
+        {% if is_paginated %}
+            <div class="row mt-4">
+                <div class="col">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_object.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_object.previous_page_number }}">Previous</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">First</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Previous</span>
+                                </li>
+                            {% endif %}
 
-                        <li class="page-item active" aria-current="page">
-                          <span class="page-link">Page {{ page_object.number }} of {{ page_object.paginator.num_pages }}</span>
-                        </li>
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">Page {{ page_object.number }} of {{ page_object.paginator.num_pages }}</span>
+                            </li>
 
-                        {% if page_object.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_object.paginator.num_pages }}">Last</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_object.next_page_number }}">Next</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                              <span class="page-link">Next</span>
-                            </li>
-                            <li class="page-item disabled">
-                                <span class="page-link">Last</span>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
-
-        </main>
+                            {% if page_object.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_object.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_object.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
+                                <li class="page-item disabled">
+                                    <span class="page-link">Last</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</main>
 
         <footer>
 

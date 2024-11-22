@@ -5,7 +5,6 @@
 {% block page_header %}{{ title }}:{% endblock %}
 
 {% block content %}
-
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -17,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for obj in page_object.object_list %}
+                {% for obj in page_object %}
 
                     <tr>
                         {% for value in obj.addons %}
@@ -26,19 +25,17 @@
                         {% endfor %}
 
                         <td>
-                         <div class="btn-group" role="group">
-                            {% if view_button %}
-                                <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-info">View </a>
-                            {% endif %}
+                        {% if view_button %}
+                            <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-info">View </a>
+                        {% endif %}
 
-                            {% if edit_button %}
-                                <a href="{{ obj.do_update }}" class="btn btn-sm btn-warning">Edit </a>
-                            {% endif %}
-                            {% if delete_button %}
+                        {% if edit_button %}
+                            <a href="{{ obj.do_update }}" class="btn btn-sm btn-warning">Edit </a>
+                        {% endif %}
+                        {% if delete_button %}
 
-                                 <a href="{{ obj.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
-                            {% endif %}
-                         </div>
+                             <a href="{{ obj.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
+                        {% endif %}
                         </td>
 
                     </tr>

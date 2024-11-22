@@ -38,7 +38,7 @@ class BusinessUnits(OrgsAndPeople):
 
 
 class BusinessUnitList(BusinessUnits, ObjectsListMixin):
-    fields_toshow = ['full_name', 'payment_name']
+    fields_to_show = ['full_name', 'payment_name']
     query_fields = ['full_name', 'payment_name']
     order_by = 'full_name'
     template_name = 'obj_list.html'
@@ -61,8 +61,8 @@ class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin):
 class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin):
     title = "Updating BusinessUnit"
     template_name = 'obj_update.html'
-    redirect_to = 'orgsandpeople:bu_details_url'
-    params = {'redirect_param': 'pk'}
+    # redirect_to = 'orgsandpeople:bu_list_url'
+    # params = {'redirect_param': 'pk'}
 
 
 class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin):
@@ -205,7 +205,7 @@ class Banks(OrgsAndPeople):
 
 
 class BankList(Banks, ObjectsListMixin):
-    fields_toshow = ['short_name', 'bik', 'swift']
+    fields_to_show = ['short_name', 'bik', 'swift']
     query_fields = ['short_name', 'name', 'bik', 'swift']
     order_by = 'short_name'
     template_name = 'obj_list.html'

@@ -31,9 +31,8 @@ class Resources(Commerce):
     params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
 
 
-
 class ResourceList(Resources, ObjectsListMixin):
-    fields_toshow = ['name', 'rtype', 'owner', 'available']
+    fields_to_show = ['name', 'rtype', 'owner', 'available']
     query_fields = ['name', 'rtype', 'owner']
     order_by = 'name'
     template_name = 'obj_list.html'
@@ -46,10 +45,8 @@ class ResourceList(Resources, ObjectsListMixin):
         'func': Resources.create_function_name,
     }
 
-
 class ResourceDetails(Resources, ObjectDetailsMixin):
     edit_button = True
-
     title = "Resource Details"
     fields_to_header = ['id', 'rtype', 'name', 'owner']
     fields_to_main = [ 'description', 'available']
@@ -81,7 +78,7 @@ class Projects(Commerce):
 
 
 class ProjectList(Projects, ObjectsListMixin):
-    fields_toshow = ['title', 'beneficiary']
+    fields_to_show = ['title', 'beneficiary']
     query_fields = ['title']
     order_by = 'title'
     template_name = 'obj_list.html'

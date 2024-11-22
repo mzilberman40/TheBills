@@ -23,22 +23,18 @@ class ResourceForm(forms.ModelForm):
         }
         widgets = {
             'name': forms.TextInput(attrs={
-                'class': 'form-control',
                 'placeholder': 'Name',
             }),
             'description': forms.TextInput(attrs={
-                'class': 'form-control',
                 'placeholder': 'Description'
             }),
             'rtype': forms.Select(attrs={
-                'class': 'form-control',
                 'placeholder': 'ResourceType'
             }),
             'available': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
             'owner': forms.Select(attrs={
-                'class': 'form-control',
                 'placeholder': 'BusinessUnit'
             }),
         }
@@ -54,15 +50,12 @@ class ProjectForm(forms.ModelForm):
         }
         widgets = {
             'title': forms.TextInput(attrs={
-                'class': 'form-control',
                 'placeholder': 'Title',
             }),
             'description': forms.TextInput(attrs={
-                'class': 'form-control',
                 'placeholder': 'Description'
             }),
             'beneficiary': forms.Select(attrs={
-                'class': 'form-control',
                 'placeholder': 'Beneficiary'
             }),
         }
