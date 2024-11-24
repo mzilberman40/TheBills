@@ -12,9 +12,11 @@ from library.my_model import MyModel
 from handbooks.models import Country, Currency, ResourceGroup
 
 from django.contrib.auth import get_user_model
+from library.mydecorators import tracer
+
 
 User = get_user_model()
-
+DEBUG = 0
 
 class Bank(MyModel, models.Model):
     bik = models.SlugField(unique=True, max_length=9, null=True, blank=True)
@@ -97,18 +99,18 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     def __str__(self):
         return f"{self.payment_name}"
 
-    @property
-    def e_mails(self):
-        if not self.emails.exists():
-            return "No emails"
-        return ', '.join(
-            [f"{email.email}:{email.email_type}" if email.email_type else email.email for email in self.emails.all()])
+    # @property
+    # def e_mails(self):
+    #     if not self.emails.exists():
+    #         return "No emails"
+    #     return ', '.join(
+    #         [f"{email.email}:{email.email_type}" if email.email_type else email.email for email in self.emails.all()])
 
 
 class Email(models.Model):
     email = models.EmailField(unique=True)
     bu = models.ForeignKey('BusinessUnit', on_delete=models.CASCADE, related_name='emails')
-    email_type = models.CharField(max_length=10, null=True, blank=True)
+    email_type = models.SlugField(max_length=10, null=True, blank=True)
 
     class Meta:
         verbose_name = "Email"
@@ -117,14 +119,23 @@ class Email(models.Model):
     def __str__(self):
         return f"{self.email} ({self.email_type})" if self.email_type else self.email
 
+    @tracer()
     def clean(self):
         # Call the parent class's clean method to ensure any inherited validation is maintained
         super().clean()
+
+        # Validate email format
         try:
-            validate_email(self.email)  # Use Django's built-in email validator
+            validate_email(self.email)
         except ValidationError:
             raise ValidationError({'email': f"'{self.email}' is not a valid email address."})
 
+        # Ensure email is unique to avoid duplications (handled in the model level)
+        if Email.objects.filter(email=self.email).exclude(pk=self.pk).exists():
+            raise ValidationError(
+                {'email': f"The email address '{self.email}' is already in use by another BusinessUnit."})
+
+    @tracer()
     def save(self, *args, **kwargs):
         self.full_clean()  # Enforce model-level validation before saving
         super(Email, self).save(*args, **kwargs)

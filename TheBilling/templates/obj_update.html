@@ -20,8 +20,8 @@
 
           </div>
         {% endif %}
-          {{ field.label }}
-        {{ field }} <br>
+            {{ field.label }}
+            {{ field|add_class:"form-control" }} <br>
       </div>
       {% endfor %}
 

@@ -34,6 +34,7 @@ class LegalFormsList(LegalForms, ObjectsListMixin):
     template_name = "obj_list.html"
     fields_to_show = ['short_name', 'full_name']
     query_fields = ['short_name', 'full_name']
+    nav_custom_button = {'name': 'NewItem', 'show': True}
 
 
 class LegalFormDetails(LegalForms, ObjectDetailsMixin):

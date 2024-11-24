@@ -135,6 +135,7 @@ class ObjectDetailsMixin(Objects, View):
 class ObjectCreateMixin(Objects, CreateView):
     template_name = 'obj_create.html'
     fields_to_fill = []
+    create_param = None
 
     def get(self, request, **kwargs):
         form = self.form_class()
@@ -147,10 +148,12 @@ class ObjectCreateMixin(Objects, CreateView):
             'class_name': self.model.__name__.lower(),
             'object_create_url': self.create_function_name,
             'object_redirect_url': self.redirect_to,
+            'create_param': self.create_param,
 
         }
+        if self.create_param:
+            context.update({'create_param': self.create_param})
         context.update(self.additional_context)
-
         return render(request, self.template_name, context=context)
 
     def post(self, request, **kwargs):
@@ -163,7 +166,9 @@ class ObjectCreateMixin(Objects, CreateView):
             'title': self.title,
             'form': form,  # Bound form with validation errors
             'base_app_template': self.base_app_template,
-            'object_create_url': self.create_function_name
+            'object_create_url': self.create_function_name,
+            'object_redirect_url': self.redirect_to,
+
         }
         context.update(self.additional_context)
         return render(request, self.template_name, context)
@@ -211,9 +216,14 @@ class ObjectUpdateMixin(Objects, View):
             'form': bound_form,
             'base_app_template': self.base_app_template,
             'object_redirect_url': self.redirect_to,
+            'update_function': self.update_function_name,
+            'object': obj,
+
             # 'redirect_param': kwargs.get(redirect_param)
         }
         context.update(self.additional_context)
+        print(context)
+        print(bound_form.cleaned_data, bound_form.errors)
         return render(request, self.template_name, context=context)
 
 

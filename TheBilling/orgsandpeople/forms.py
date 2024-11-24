@@ -1,55 +1,58 @@
+from typing import cast
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.utils.text import slugify
+
+from library.mydecorators import tracer
 from orgsandpeople.models import Email, BusinessUnit, Bank, Account
 from handbooks.models import LegalForm, Country
 
+DEBUG = 0
 
 class MultiEmailFieldWithEmailType(forms.Field):
+    @tracer(DEBUG)
     def __init__(self, *args, **kwargs):
-        kwargs['widget'] = forms.TextInput(
-            attrs={'class': 'form-control',
-                   'placeholder': 'Enter emails in the format: email1, email2:type, ...'}
-        )
-        kwargs['help_text'] = "Enter emails in the format: email1, email2:type2, email3"
+        help_text = 'Enter emails in the format: email1, email2:type, ...'
+        kwargs['widget'] = forms.TextInput(attrs={'placeholder': help_text})
+        kwargs['help_text'] = help_text
         super().__init__(*args, **kwargs)
 
+    @tracer(DEBUG)
     def to_python(self, value):
         if not value:
-            return []
-        return value.split(',')
+            return {}
 
+        result = {}
+        emails = value.split(',')
+        for email_data in emails:
+            email, email_type = email_data.split(':', 1) if ':' in email_data else (email_data, None)
+            result[email.strip()] = slugify(email_type) if email_type else None
+        return result
+
+    @tracer(DEBUG)
     def validate(self, value):
         super().validate(value)
-        emails = []
-
-        for entry in value:
-            entry = entry.strip()
-            if ':' in entry:
-                email, email_type = entry.split(':', 1)
-                email = email.strip()
-                email_type = email_type.strip()
-            else:
-                email = entry
-                email_type = None
-
-            # Validate email format
+        for email in value:
             try:
                 validate_email(email)
             except ValidationError:
                 raise ValidationError(f"'{email}' is not a valid email address.")
-
-            emails.append({'email': email, 'email_type': email_type})
-
-        return emails
+        return value
 
 
 class BankForm(forms.ModelForm):
     country = forms.ModelChoiceField(
-        queryset=Country.objects.all(),
+        queryset=Country.objects.none(),
         empty_label='Choose Country',
         label='Country',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        country_field = cast(forms.ModelChoiceField, self.fields['country'])
+        country_field.queryset = Country.objects.all()
 
     class Meta:
         model = Bank
@@ -58,30 +61,12 @@ class BankForm(forms.ModelForm):
         exclude = ['user']
 
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'name',
-            }),
-            'short_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'short_name',
-            }),
-            'bik': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'National Bank Identification Code',
-            }),
-            'corr_account': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Corr account',
-            }),
-            'swift': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'swift',
-            }),
-            'notes': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'notes',
-            }),
+            'name': forms.TextInput(attrs={'placeholder': 'name',}),
+            'short_name': forms.TextInput(attrs={'placeholder': 'short_name',}),
+            'bik': forms.TextInput(attrs={'placeholder': 'National Bank Identification Code',}),
+            'corr_account': forms.TextInput(attrs={'placeholder': 'Corr account',}),
+            'swift': forms.TextInput(attrs={'placeholder': 'swift',}),
+            'notes': forms.Textarea(attrs={'placeholder': 'notes',}),
         }
 
 
@@ -92,81 +77,53 @@ class AccountForm(forms.ModelForm):
                   'status', 'notes']
 
         widgets = {
-            'name': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'name',
-                }),
-            'business_unit': forms.Select(
-                attrs={'class': 'form-control',
-                       'empty_label': 'Choose Business Unit',
-                       'label': 'Choose Business Unit'}),
-            'bank': forms.Select(
-                attrs={'class': 'form-control',
-                       'empty_label': 'Choose Bank',
-                       'label': 'Choose Bank'}),
-            'currency': forms.Select(
-                attrs={'class': 'form-control',
-                       'empty_label': 'Choose Currency',
-                       'label': 'Choose Currency'}),
-            'account_number': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Account Number',
-                }),
-            'starting_balance': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Starting balance',
-                }),
-            'status': forms.Select(
-                attrs={
-                    'class': 'form-control',
-                }),
-            'notes': forms.Textarea(
-                attrs={'class': 'form-control',
-                       'placeholder': 'notes',
-                       }),
+            'name': forms.TextInput(attrs={'placeholder': 'name',}),
+            'business_unit': forms.Select(attrs={'empty_label': 'Choose Business Unit', 'label': 'Choose Business Unit'}),
+            'bank': forms.Select(attrs={'empty_label': 'Choose Bank', 'label': 'Choose Bank'}),
+            'currency': forms.Select(attrs={'empty_label': 'Choose Currency', 'label': 'Choose Currency'}),
+            'account_number': forms.TextInput(attrs={'placeholder': 'Account Number',}),
+            'starting_balance': forms.TextInput(attrs={'placeholder': 'Starting balance',}),
+            'status': forms.Select(),
+            'notes': forms.Textarea(attrs={'placeholder': 'notes',}),
         }
 
 
 class BusinessUnitForm(forms.ModelForm):
+
     legal_form = forms.ModelChoiceField(
-        queryset=LegalForm.objects.all(),
+        queryset=LegalForm.objects.none(),
         empty_label='Choose Legal Form',
         label='Legal Form',
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select()
     )
-
     country = forms.ModelChoiceField(
-        queryset=Country.objects.all(),
+        queryset=Country.objects.none(),
         empty_label='Choose Country',
         label='Country',
-        widget=forms.Select(attrs={'class': 'form-control'})
+        widget=forms.Select()
     )
+    emails = MultiEmailFieldWithEmailType(required=False)
 
-    emails = MultiEmailFieldWithEmailType(
-        required=False,
-        help_text='Enter emails in the format: email1, email2, ...',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter emails in the format: email1, email2, ...'}),
-    )
-
+    @tracer(DEBUG)
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        # print(kwargs)
         super().__init__(*args, **kwargs)
+        user = kwargs.pop('user', None)
         self.user = user
+        # Cast the field to the appropriate type to suppress the warning
+        legal_form_field = cast(forms.ModelChoiceField, self.fields['legal_form'])
+        legal_form_field.queryset = LegalForm.objects.all()
+        # Similarly for country field
+        country_field = cast(forms.ModelChoiceField, self.fields['country'])
+        country_field.queryset = Country.objects.all()
         self.initial['emails'] = self.get_initial_emails()
 
+    @tracer(DEBUG)
     def get_initial_emails(self):
         if self.instance and hasattr(self.instance, 'pk') and self.instance.pk:
             emails = self.instance.emails.all()
             return ', '.join(
                 [f"{email.email}:{email.email_type}" if email.email_type else email.email for email in emails])
         return ''
-
 
     class Meta:
         model = BusinessUnit
@@ -176,51 +133,78 @@ class BusinessUnitForm(forms.ModelForm):
                   'full_name', 'short_name', 'payment_name',
                   'special_status', 'notes', 'emails']
         widgets = {
-            'inn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'INN'}),
-            'ogrn': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'OGRN'}),
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
-            'middle_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Middle Name'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
-            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
-            'short_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Short Name'}),
+            'inn': forms.TextInput(attrs={'placeholder': 'INN'}),
+            'ogrn': forms.TextInput(attrs={'placeholder': 'OGRN'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'First Name'}),
+            'middle_name': forms.TextInput(attrs={'placeholder': 'Middle Name'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'Last Name'}),
+            'full_name': forms.TextInput(attrs={'placeholder': 'Full Name'}),
+            'short_name': forms.TextInput(attrs={'placeholder': 'Short Name'}),
             'payment_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Payment Name'}),
-            'special_status': forms.CheckboxInput(attrs={
-                'class': "form-control, form-check form-switch form-check-input",
-                'type': 'checkbox',
-                'role': 'switch',
-                'id': "flexSwitchCheckDefault"
-            }),
-            'notes': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Notes'}),
+            'special_status': forms.CheckboxInput(attrs={'class': "form-check-input",}),
+            'notes': forms.TextInput(attrs={'placeholder': 'Notes'}),
         }
 
+    @tracer(DEBUG)
+    def clean(self):
+        cleaned_data = super().clean()
+        # raise ValidationError({'emails': f'Херня0 какая-то'})
+
+        emails = cleaned_data.get('emails')
+        if emails:
+            for email in emails:
+                qs = Email.objects.filter(email=email)
+                if self.instance.pk and qs.exclude(bu=self.instance).exists() or not self.instance.pk and qs.exists():
+                    raise ValidationError({
+                        'emails': f"The email addresss '{email}' is already in use by another BusinessUnit."
+                    })
+        # raise ValidationError({'emails': f'Херня какая-то'})
+        return cleaned_data
+
+    @tracer(DEBUG)
+    def save_emails(self, instance):
+        """
+        Saves the email addresses associated with the given BusinessUnit instance.
+
+        This method deletes any existing email records associated with the
+        given instance and then processes the cleaned email data to create
+        new email entries.
+        """
+        emails = self.cleaned_data.get('emails', [])
+        # print(emails)
+        instance.emails.all().delete()
+
+        for email in emails:
+            # Create or update email association
+            # Ensure email is unique to avoid duplications (handled in the model level)
+            try:
+                Email.objects.create(bu=instance, email=email, email_type=emails[email])
+            except ValidationError as e:
+                raise ValidationError(e.message_dict)
+
+
+    @tracer(DEBUG)
     def save(self, commit=True):
         instance = super().save(commit=False)
-        # print(instance)
 
-        emails = self.cleaned_data.get('emails', [])
-        # Set user if not set (handle create case)
+        # Set user if not already set (handle create case)
         if not instance.user_id:
             instance.user = self.user
 
+        try:
+            # Trigger model-level validation explicitly
+            instance.full_clean()
+        except ValidationError as e:
+            # Add validation errors to the form
+            for field, messages in e.message_dict.items():
+                for message in messages:
+                    self.add_error(field, message)
+            return instance  # Return without saving to stop the process
+
         if commit:
             instance.save()
-        # Clear existing emails and add new ones
-        instance.emails.all().delete()
-        for email_data in emails:
-            # print(f"Email data: {email_data}")
-            if isinstance(email_data, dict):
-                Email.objects.create(bu=instance, email=email_data['email'], email_type=email_data['email_type'])
-            else:
-                email_data = email_data.strip()
-                if ':' in email_data:
-                    email, email_type = email_data.split(':', 1)
-                    email = email.strip()
-                    email_type = email_type.strip()
-                else:
-                    email = email_data
-                    email_type = None
-                Email.objects.create(bu=instance, email=email, email_type=email_type)
-        # if commit:
-        #     self.save_m2m()  # Save many-to-many relationships if any
+
+        # Handle email associations (if applicable)
+        self.save_emails(instance)
 
         return instance

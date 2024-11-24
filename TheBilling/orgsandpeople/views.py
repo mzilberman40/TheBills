@@ -55,13 +55,15 @@ class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin):
                       'full_name', 'short_name', 'emails', 'special_status',
                       'payment_name', 'legal_form', 'notes', 'country']
     template_name = 'obj_create.html'
+    redirect_to = 'orgsandpeople:bu_list_url'
+
 
 
 
 class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin):
     title = "Updating BusinessUnit"
     template_name = 'obj_update.html'
-    # redirect_to = 'orgsandpeople:bu_list_url'
+    redirect_to = 'orgsandpeople:bu_list_url'
     # params = {'redirect_param': 'pk'}
 
 
@@ -111,7 +113,7 @@ class BUAccountList(BUAccounts, View):
         is_paginated = page_object.has_other_pages()
 
         self.nav_custom_button['func'] = self.create_function_name
-        self.nav_custom_button['params'] = bu_pk
+        self.nav_custom_button['param'] = bu_pk
 
         context = {
             'title': f"{bu}'s {self.title}",
@@ -155,7 +157,9 @@ class BUAccountCreate(BUAccounts, View):
             'form': form,
             'class_name': self.model.__name__.lower(),
             'object_create_url': self.create_function_name,
-            'create_param': bu_pk
+            'object_redirect_url': self.redirect_to,
+
+            'create_param': bu_pk,
         }
         return render(request, self.template_name, context=context)
 
@@ -213,6 +217,7 @@ class BankList(Banks, ObjectsListMixin):
 
 
 class BankDetails(Banks, ObjectDetailsMixin):
+    template_name = 'obj_details.html'
     title = f"Bank Details"
     fields_to_header = ['id', 'short_name', 'name', 'slug']
     fields_to_main = ['bik', 'corr_account', 'swift', 'country', 'notes']
@@ -265,11 +270,10 @@ class Resources(OrgsAndPeople):
     success_url = reverse_lazy(list_function_name)
     params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
 
-
 class ResourceList(Resources, View):
     fields_toshow = ['name', 'rtype', 'available']
-    query_fields = ['name']
-    order_by = 'name'
+    # query_fields = ['name']
+    # order_by = 'name'
     template_name = 'obj_list.html'
     edit_button = True
     view_button = True
@@ -277,69 +281,43 @@ class ResourceList(Resources, View):
     nav_custom_button = {
         'name': 'NewItem',
         'show': True,
-        'func': Resources.create_function_name,
     }
+    create_function_name = 'orgsandpeople:bu_resource_create_url'
 
     def get(self, request, bu_pk):
-        print(bu_pk)
         bu = get_object_or_404(BusinessUnit, pk=bu_pk)
-        queryset = bu.resources.all()
-        self.title = f"{str(bu)} {self.title}"
-        show_query = len(self.query_fields)
-        # show_query = False
-        search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
-        if search_query and self.redirect_to:
-            z = [Q((f'{qq}__icontains', search_query)) for qq in self.query_fields]
-            q = functools.reduce(lambda a, b: a | b, z)
-            queryset = queryset.filter(q)
-
-        if self.order_by:
-            queryset = queryset.order_by(self.order_by)
-
-        if not self.fields_toshow:
-            self.fields_toshow = [f.name for f in self.model._meta.get_fields()]
-        #
-        print(queryset)
-        objects = [inject_values(o, self.fields_toshow) for o in queryset]
-        print(objects)
-        print([o.addons for o in objects])
+        resources = bu.resources.all()
+        resources = [inject_values(o, self.fields_toshow) for o in resources]
 
         page_number = request.GET.get('page', 1)
-        paginator = Paginator(objects, self.objects_per_page)
+        paginator = Paginator(resources, self.objects_per_page)
         page_object = paginator.get_page(page_number)
         is_paginated = page_object.has_other_pages()
+
         self.nav_custom_button['func'] = self.create_function_name
-        self.nav_custom_button['params'] = bu_pk
+        self.nav_custom_button['param'] = bu_pk
 
         context = {
-            'title': self.title,
-            # 'comments': self.comments,
-            # 'base_app_template': self.base_app_template,
-            'show_query': show_query,
+            'title': f"{bu}'s {self.title}",
             'redirect_to': self.redirect_to,
-            # 'search_query': search_query,
             'page_object': page_object,
             'is_paginated': is_paginated,
-            'counter': len(objects),
+            'counter': len(resources),
             'fields': self.fields_toshow,
-            'create_function': self.create_function_name,
             'delete_function': self.delete_function_name,
             'update_function': self.update_function_name,
             'delete_button': self.delete_button,
             'edit_button': self.edit_button,
             'view_button': self.view_button,
             'nav_custom_button': self.nav_custom_button,
-            'redirect_param': bu_pk
-
+            'bu_pk': bu_pk,
         }
-        # context.update(self.additional_context)
 
         return render(request, self.template_name, context=context)
 
 
 class ResourceDetails(Resources, ObjectDetailsMixin):
     edit_button = True
-
     title = "Resource Details"
     fields_to_header = ['id', 'rtype', 'name', 'owner']
     fields_to_main = [ 'description', 'available']
@@ -348,6 +326,7 @@ class ResourceDetails(Resources, ObjectDetailsMixin):
 
 class ResourceCreate(Resources, ObjectCreateMixin):
     title = "Resource Create"
+    create_param = 'bu_pk'
 
 
 class ResourceUpdate(Resources, ObjectUpdateMixin):
