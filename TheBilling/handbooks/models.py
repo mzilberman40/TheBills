@@ -16,9 +16,9 @@ class LegalForm(MyModel):
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
 
-    details_url = 'handbooks:legal_form_details_url'
-    update_url = 'handbooks:legal_form_update_url'
-    delete_url = 'handbooks:legal_form_delete_url'
+    details_url_name = 'handbooks:legal_form_details_url_name'
+    update_url_name = 'handbooks:legal_form_update_url_name'
+    delete_url_name = 'handbooks:legal_form_delete_url_name'
 
     class Meta:
         verbose_name = "LegalForm"
@@ -29,7 +29,7 @@ class LegalForm(MyModel):
         return self.short_name
 
 
-class Country(MyModel, models.Model):
+class Country(MyModel):
     """
     Format dadata:
     value	Значение одной строкой (как показывается в списке подсказок)
@@ -49,9 +49,9 @@ class Country(MyModel, models.Model):
     rus_name = models.CharField(max_length=128, unique=True)     # data.name
     rus_name_official = models.CharField(max_length=512, unique=True)    # value
 
-    details_url = 'handbooks:country_details_url'
-    update_url = 'handbooks:country_update_url'
-    delete_url = 'handbooks:country_delete_url'
+    details_url_name = 'handbooks:country_details_url_name'
+    update_url_name = 'handbooks:country_update_url_name'
+    delete_url_name = 'handbooks:country_delete_url_name'
 
     class Meta:
         verbose_name = "Country"
@@ -62,14 +62,14 @@ class Country(MyModel, models.Model):
         return f"{self.eng_name}"
 
 
-class Currency(MyModel, models.Model):
+class Currency(MyModel):
     numeric = models.PositiveSmallIntegerField(primary_key=True)
     name = models.CharField(max_length=64, unique=True)
     code = models.CharField(max_length=5, unique=True)
 
-    details_url = 'handbooks:currency_details_url'
-    update_url = 'handbooks:currency_update_url'
-    delete_url = 'handbooks:currency_delete_url'
+    details_url_name = 'handbooks:currency_details_url_name'
+    update_url_name = 'handbooks:currency_update_url_name'
+    delete_url_name = 'handbooks:currency_delete_url_name'
 
     class Meta:
         verbose_name = "Currency"
@@ -80,13 +80,13 @@ class Currency(MyModel, models.Model):
         return f"{self.name}"
 
 
-class ResourceGroup(MyModel, models.Model):
-    name = models.CharField(max_length=120)
+class ResourceGroup(MyModel):
+    name = models.CharField(max_length=120, unique=True)
     description = models.CharField(max_length=1024, blank=True)
 
-    details_url = 'handbooks:res_group_details_url'
-    update_url = 'handbooks:res_group_update_url'
-    delete_url = 'handbooks:res_group_delete_url'
+    details_url_name = 'handbooks:res_group_details_url_name'
+    update_url_name = 'handbooks:res_group_update_url_name'
+    delete_url_name = 'handbooks:res_group_delete_url_name'
 
     class Meta:
         verbose_name = "Resource Group"
@@ -97,14 +97,14 @@ class ResourceGroup(MyModel, models.Model):
         return f"{self.name}"
 
 
-class ResourceType(MyModel, models.Model):
+class ResourceType(MyModel):
     rtype = models.CharField(max_length=120, unique=True, verbose_name="ResourceType")
     group = models.ForeignKey(ResourceGroup, on_delete=models.RESTRICT, related_name='rtypes')
     description = models.TextField(max_length=1024, blank=True)
 
-    details_url = 'handbooks:resource_type_details_url'
-    update_url = 'handbooks:resource_type_update_url'
-    delete_url = 'handbooks:resource_type_delete_url'
+    details_url_name = 'handbooks:resource_type_details_url_name'
+    update_url_name = 'handbooks:resource_type_update_url_name'
+    delete_url_name = 'handbooks:resource_type_delete_url_name'
 
     class Meta:
         verbose_name = "ResourceType"

@@ -36,7 +36,7 @@
     </i>
       <div class="btn-group" role="group">
 
-        <a href="{% if redirect_param %}{% url list_function redirect_param %}{% else %}{% url list_function %}{% endif %}" class="btn btn-light">Back to the list</a>
+        <a href="{{ redirect_url }}" class="btn btn-light">Back to the list</a>
         {% if edit_button %}
             <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
         {% endif %}

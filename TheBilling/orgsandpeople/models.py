@@ -18,7 +18,7 @@ from library.mydecorators import tracer
 User = get_user_model()
 DEBUG = 0
 
-class Bank(MyModel, models.Model):
+class Bank(MyModel):
     bik = models.SlugField(unique=True, max_length=9, null=True, blank=True)
     corr_account = models.CharField(max_length=20, unique=False, blank=True, null=True)
     name = models.CharField(max_length=256, blank=False)
@@ -32,11 +32,11 @@ class Bank(MyModel, models.Model):
     # registration_date = models.DateField(blank=True, null=True)
     # liquidation_date = models.DateField(blank=True, null=True)
     notes = models.TextField(max_length=1024, blank=True)
-    user = models.ForeignKey(User, verbose_name='User', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='User', on_delete=models.PROTECT)
 
-    details_url = 'orgsandpeople:bank_details_url'
-    update_url = 'orgsandpeople:bank_update_url'
-    delete_url = 'orgsandpeople:bank_delete_url'
+    details_url_name = 'orgsandpeople:bank_details_url_name'
+    update_url_name = 'orgsandpeople:bank_update_url_name'
+    delete_url_name = 'orgsandpeople:bank_delete_url_name'
 
     class Meta:
         verbose_name = "Bank"
@@ -49,7 +49,7 @@ class Bank(MyModel, models.Model):
         return f"{self.short_name}"
 
 
-class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
+class BusinessUnit(TimeStampedModel, ActivatorModel, MyModel):
     """
     inn - is a pk of this model.
     But not all BU have inn.
@@ -75,15 +75,14 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
     payment_name = models.CharField(max_length=128, unique=True)
     slug = AutoSlugField(populate_from=['short_name'], unique=True,
                          db_index=True, slugify_function=ru_slugify)
-    legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT,
-                                   verbose_name='Legal Form')
+    legal_form = models.ForeignKey('handbooks.LegalForm', on_delete=models.PROTECT, verbose_name='Legal Form')
     country = models.ForeignKey('handbooks.Country', on_delete=models.PROTECT, verbose_name='Country')
     notes = models.CharField(max_length=512, blank=True)
-    user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.PROTECT)
 
-    details_url = 'orgsandpeople:bu_details_url'
-    update_url = 'orgsandpeople:bu_update_url'
-    delete_url = 'orgsandpeople:bu_delete_url'
+    details_url_name = 'orgsandpeople:bu_details_url_name'
+    update_url_name = 'orgsandpeople:bu_update_url_name'
+    delete_url_name = 'orgsandpeople:bu_delete_url_name'
 
     class Meta:
         verbose_name = "BusinessUnit"
@@ -98,13 +97,6 @@ class BusinessUnit(MyModel, TimeStampedModel, ActivatorModel, models.Model):
 
     def __str__(self):
         return f"{self.payment_name}"
-
-    # @property
-    # def e_mails(self):
-    #     if not self.emails.exists():
-    #         return "No emails"
-    #     return ', '.join(
-    #         [f"{email.email}:{email.email_type}" if email.email_type else email.email for email in self.emails.all()])
 
 
 class Email(models.Model):
@@ -135,13 +127,12 @@ class Email(models.Model):
             raise ValidationError(
                 {'email': f"The email address '{self.email}' is already in use by another BusinessUnit."})
 
-    @tracer()
     def save(self, *args, **kwargs):
         self.full_clean()  # Enforce model-level validation before saving
         super(Email, self).save(*args, **kwargs)
 
 
-class Address(MyModel, models.Model):
+class Address(MyModel):
     country = models.ForeignKey(Country, on_delete=models.PROTECT)
     address_data = models.JSONField(blank=True, null=True)
     owner = models.ForeignKey('BusinessUnit', on_delete=models.PROTECT)
@@ -165,30 +156,28 @@ class Account(ActivatorModel, models.Model):
     starting_balance = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.CharField(max_length=512, blank=True)
 
-    details_url = 'orgsandpeople:bu_account_detail_url'
-    update_url = 'orgsandpeople:bu_account_update_url'
-    delete_url = 'orgsandpeople:bu_account_delete_url'
+    details_url_name = 'orgsandpeople:bu_account_detail_url_name'
+    update_url_name = 'orgsandpeople:bu_account_update_url_name'
+    delete_url_name = 'orgsandpeople:bu_account_delete_url_name'
 
     def __str__(self):
-        # return (f"{self.name}: {self.account_number} - {self.bank.name} - {self.currency.code}"
-        #         f" - {'Active' if self.status else 'Inactive'}")
         return self.name
 
-    def get_absolute_url(self, *args, **kwargs):
-        if self.details_url:
-            return reverse(self.details_url, kwargs={'bu_pk': self.business_unit.pk, 'pk': self.pk })
+    def get_absolute_url_name(self, *args, **kwargs):
+        if self.details_url_name:
+            return reverse(self.details_url_name, kwargs={'bu_pk': self.business_unit.pk, 'pk': self.pk })
         raise NotImplementedError
 
     def do_delete(self, *args, **kwargs):
-        if self.delete_url:
-            return reverse(self.delete_url, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
+        if self.delete_url_name:
+            return reverse(self.delete_url_name, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
         raise NotImplementedError
 
     def do_update(self, *args, **kwargs):
         # print("Update", kwargs)
-        if self.update_url:
-            # print(self.update_url)
-            return reverse(self.update_url, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
+        if self.update_url_name:
+            # print(self.update_url_name)
+            return reverse(self.update_url_name, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
         raise NotImplementedError
 
     class Meta:

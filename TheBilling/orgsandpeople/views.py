@@ -1,17 +1,14 @@
-import functools
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
-from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.utils.text import slugify
 from django.views import View
 
 from commerce.forms import ResourceForm
 from commerce.models import Resource
 from orgsandpeople.forms import BankForm, BusinessUnitForm, AccountForm
-from orgsandpeople.models import Bank, BusinessUnit, Email, Account
+from orgsandpeople.models import Bank, BusinessUnit, Account
 from utils import (ObjectDetailsMixin, ObjectCreateMixin,
                    ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin)
 from library.inject_values import inject_values
@@ -24,16 +21,18 @@ class OrgsAndPeople(LoginRequiredMixin):
 
 class BusinessUnits(OrgsAndPeople):
     model = BusinessUnit
-    form_model = BusinessUnitForm
     form_class = BusinessUnitForm
     title = "Business Units"
-    create_function_name = 'orgsandpeople:bu_create_url'
-    update_function_name = 'orgsandpeople:bu_update_url'
-    details_function_name = 'orgsandpeople:bu_details_url'
-    delete_function_name = 'orgsandpeople:bu_delete_url'
-    list_function_name = 'orgsandpeople:bu_list_url'
-    redirect_to = list_function_name
-    special_fields = ['emails']
+    create_url_name = 'orgsandpeople:bu_create_url_name'
+    update_url_name = 'orgsandpeople:bu_update_url_name'
+    details_url_name = 'orgsandpeople:bu_details_url_name'
+    delete_url_name = 'orgsandpeople:bu_delete_url_name'
+    list_url_name = 'orgsandpeople:bu_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+    failure_url_name = list_url_name
+    # special_fields = ['emails']
     # form_template = 'orgsandpeople/bu_form.html'
 
 
@@ -42,11 +41,7 @@ class BusinessUnitList(BusinessUnits, ObjectsListMixin):
     query_fields = ['full_name', 'payment_name']
     order_by = 'full_name'
     template_name = 'obj_list.html'
-    nav_custom_button = {
-        'name': 'NewItem',
-        'show': True,
-        'func': BusinessUnits.create_function_name,
-    }
+    nav_custom_button = {'name': 'NewItem', 'show': True,}
 
 
 class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin):
@@ -55,17 +50,10 @@ class BusinessUnitCreate(BusinessUnits, ObjectCreateMixin):
                       'full_name', 'short_name', 'emails', 'special_status',
                       'payment_name', 'legal_form', 'notes', 'country']
     template_name = 'obj_create.html'
-    redirect_to = 'orgsandpeople:bu_list_url'
-
-
-
 
 class BusinessUnitUpdate(BusinessUnits, ObjectUpdateMixin):
     title = "Updating BusinessUnit"
     template_name = 'obj_update.html'
-    redirect_to = 'orgsandpeople:bu_list_url'
-    # params = {'redirect_param': 'pk'}
-
 
 class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin):
     title = "Deleting BusinessUnit"
@@ -83,54 +71,25 @@ class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin):
 class BUAccounts(OrgsAndPeople):
     title = "Accounts"
     model = Account
-    form_model = AccountForm
     form_class = AccountForm
-    create_function_name = 'orgsandpeople:bu_account_create_url'
-    update_function_name = 'orgsandpeople:bu_account_update_url'
-    delete_function_name = 'orgsandpeople:bu_account_delete_url'
-    list_function_name = 'orgsandpeople:bu_accounts_url'
-    redirect_to = list_function_name
-    params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
+    create_url_name = 'orgsandpeople:bu_account_create_url_name'
+    update_url_name = 'orgsandpeople:bu_account_update_url_name'
+    delete_url_name = 'orgsandpeople:bu_account_delete_url_name'
+    list_url_name = 'orgsandpeople:bu_accounts_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+    failure_url_name = list_url_name
+    filter_param = ('business_unit', 'bu_pk')
+    redirect_param = 'bu_pk'
 
-
-class BUAccountList(BUAccounts, View):
+class BUAccountList(BUAccounts, ObjectsListMixin):
     template_name = 'obj_list.html'
-    fields_toshow = ['name', 'bank', 'currency']
+    fields_to_show = ['name', 'bank', 'currency']
     edit_button = True
     delete_button = True
     view_button = True
     nav_custom_button = {'name': 'New Account', 'show': True}
-    create_function_name = 'orgsandpeople:bu_account_create_url'
-
-    def get(self, request, bu_pk):
-        bu = get_object_or_404(BusinessUnit, pk=bu_pk)
-        accounts = bu.accounts.all()
-        accounts = [inject_values(o, self.fields_toshow) for o in accounts]
-
-        page_number = request.GET.get('page', 1)
-        paginator = Paginator(accounts, self.objects_per_page)
-        page_object = paginator.get_page(page_number)
-        is_paginated = page_object.has_other_pages()
-
-        self.nav_custom_button['func'] = self.create_function_name
-        self.nav_custom_button['param'] = bu_pk
-
-        context = {
-            'title': f"{bu}'s {self.title}",
-            'redirect_to': self.redirect_to,
-            'page_object': page_object,
-            'is_paginated': is_paginated,
-            'counter': len(accounts),
-            'fields': self.fields_toshow,
-            'delete_function': self.delete_function_name,
-            'update_function': self.update_function_name,
-            'delete_button': self.delete_button,
-            'edit_button': self.edit_button,
-            'view_button': self.view_button,
-            'nav_custom_button': self.nav_custom_button,
-        }
-
-        return render(request, self.template_name, context=context)
 
 
 class BUAccountDetail(BUAccounts, ObjectDetailsMixin):
@@ -140,72 +99,67 @@ class BUAccountDetail(BUAccounts, ObjectDetailsMixin):
     fields_to_footer = ['status', 'activate_date', 'deactivate_date']
 
 
-class BUAccountCreate(BUAccounts, View):
+class BUAccountCreate(BUAccounts, ObjectCreateMixin):
     title = f"Creating account..."
-    template_name = 'obj_create.html'
     fields_to_fill = ['name', 'bank', 'currency', 'account_number',
                       'starting_balance', 'status', 'notes']
-    create_function_name = 'orgsandpeople:bu_account_create_url'
-
-    def get(self, request, bu_pk):
-        form = self.form_model()
-        if self.fields_to_fill:
-            form.fields = {key: value for key, value in form.fields.items()
-                           if key in self.fields_to_fill}
-        context = {
-            'title': self.title,
-            'form': form,
-            'class_name': self.model.__name__.lower(),
-            'object_create_url': self.create_function_name,
-            'object_redirect_url': self.redirect_to,
-
-            'create_param': bu_pk,
-        }
-        return render(request, self.template_name, context=context)
-
-    def post(self, request, bu_pk):
-        data = request.POST.copy()  # Make a mutable copy of POST data
-        data['user'] = request.user  # Probably user is necessary for model
-        bu = get_object_or_404(BusinessUnit, pk=bu_pk)
-
-        data['business_unit'] = bu
-        bound_form = self.form_model(data)
-
-        if bound_form.is_valid():
-            # print(bound_form.cleaned_data)
-            bound_form.save()
-            return redirect(self.redirect_to, bu_pk)
-
-        context = {
-            'title': self.title,
-            'form': bound_form,
-            'object_create_url': self.create_function_name,
-            'create_param': bu_pk
-        }
-
-        return render(request, self.template_name, context=context)
-
+    create_url_name = 'orgsandpeople:bu_account_create_url_name'
 
 class BUAccountDelete(BUAccounts, ObjectDeleteMixin):
     title = "Deleting Account"
 
-
 class BUAccountUpdate(BUAccounts, ObjectUpdateMixin):
     title = "Updating Account"
+
+    # def get(self, request, **kwargs):
+    #     pk = kwargs.get('pk')
+    #     obj = get_object_or_404(self.model, pk=pk)
+    #     form = self.form_class(instance=obj)
+    #
+    #     context = {
+    #         'title': self.title + f" with pk {obj.pk}.....",
+    #         'form': form,
+    #         'object': obj,
+    #         'update_function': reverse(self.update_url_name, kwargs={'pk': pk, 'bu_pk': obj.pk}),
+    #         'redirect_function': reverse(self.redirect_url_name, kwargs={'bu_pk': obj.pk}),
+    #     }
+    #     context.update(self.additional_context)
+    #
+    #     return render(request, self.template_name, context=context)
+    #
+    # def post(self, request, **kwargs):
+    #     print(kwargs)
+    #     args = []
+    #     pk = kwargs.get('pk')
+    #     obj = get_object_or_404(self.model, pk=pk)
+    #     bound_form = self.form_class(request.POST.copy(), instance=obj)
+    #     redirect_function = reverse(self.redirect_url_name, kwargs={'bu_pk': obj.pk})
+    #     if bound_form.is_valid():
+    #         bound_form.save()
+    #         return redirect(redirect_function)
+    #     context = {
+    #         'form': bound_form,
+    #         'object': obj,
+    #         'update_function': reverse(self.update_url_name, kwargs={'pk': pk, 'bu_pk': obj.pk}),
+    #         # 'redirect_function': reverse(self.redirect_url_name, kwargs={'bu_pk': obj.pk}),
+    #     }
+    #     context.update(self.additional_context)
+    #     return render(request, self.template_name, context=context)
+    #
 
 
 class Banks(OrgsAndPeople):
     model = Bank
-    form_model = BankForm
     form_class = BankForm
 
     title = "Banks"
-    create_function_name = 'orgsandpeople:bank_create_url'
-    update_function_name = 'orgsandpeople:bank_update_url'
-    delete_function_name = 'orgsandpeople:bank_delete_url'
-    list_function_name = 'orgsandpeople:bank_list_url'
-    redirect_to = list_function_name
-    base_app_template = None
+    create_url_name = 'orgsandpeople:bank_create_url_name'
+    update_url_name = 'orgsandpeople:bank_update_url_name'
+    delete_url_name = 'orgsandpeople:bank_delete_url_name'
+    list_url_name = 'orgsandpeople:bank_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
 
 
 class BankList(Banks, ObjectsListMixin):
@@ -238,7 +192,7 @@ class BankCreate(Banks, ObjectCreateMixin):
             'title': self.title,
             'form': form,  # Bound form with validation errors
             'base_app_template': self.base_app_template,
-            'object_create_url': self.create_function_name
+            'object_create_url_name': self.create_url_name
         }
         return render(request, self.template_name, context)
 
@@ -262,12 +216,13 @@ class Resources(OrgsAndPeople):
     form_model = ResourceForm
     form_class = ResourceForm
     title = "Resources"
-    create_function_name = 'orgsandpeople:bu_resource_create_url'
-    update_function_name = 'orgsandpeople:bu_resource_update_url'
-    delete_function_name = 'orgsandpeople:bu_resource_delete_url'
-    list_function_name = 'orgsandpeople:bu_resources_url'
-    redirect_to = list_function_name
-    success_url = reverse_lazy(list_function_name)
+    create_url_name = 'orgsandpeople:bu_resource_create_url_name'
+    update_url_name = 'orgsandpeople:bu_resource_update_url_name'
+    delete_url_name = 'orgsandpeople:bu_resource_delete_url_name'
+    list_url_name = 'orgsandpeople:bu_resources_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
     params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
 
 class ResourceList(Resources, View):
@@ -282,7 +237,7 @@ class ResourceList(Resources, View):
         'name': 'NewItem',
         'show': True,
     }
-    create_function_name = 'orgsandpeople:bu_resource_create_url'
+    create_url_name = 'orgsandpeople:bu_resource_create_url_name'
 
     def get(self, request, bu_pk):
         bu = get_object_or_404(BusinessUnit, pk=bu_pk)
@@ -294,18 +249,18 @@ class ResourceList(Resources, View):
         page_object = paginator.get_page(page_number)
         is_paginated = page_object.has_other_pages()
 
-        self.nav_custom_button['func'] = self.create_function_name
+        self.nav_custom_button['func'] = self.create_url_name
         self.nav_custom_button['param'] = bu_pk
 
         context = {
             'title': f"{bu}'s {self.title}",
-            'redirect_to': self.redirect_to,
+            'redirect_url_name': self.redirect_url_name,
             'page_object': page_object,
             'is_paginated': is_paginated,
             'counter': len(resources),
             'fields': self.fields_toshow,
-            'delete_function': self.delete_function_name,
-            'update_function': self.update_function_name,
+            'delete_function': self.delete_url_name,
+            'update_function': self.update_url_name,
             'delete_button': self.delete_button,
             'edit_button': self.edit_button,
             'view_button': self.view_button,
@@ -335,4 +290,3 @@ class ResourceUpdate(Resources, ObjectUpdateMixin):
 
 class ResourceDelete(Resources, ObjectDeleteMixin):
     pass
-

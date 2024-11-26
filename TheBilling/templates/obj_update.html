@@ -10,7 +10,7 @@
     <div class="alert alert-danger"> {{ e }} </div>
   {% endfor %}
 
-  <form class="" method="post" action="{% url update_function object.pk %} " enctype="multipart/form-data">
+  <form class="" method="post"  enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
       <div class="form-group">
@@ -26,7 +26,7 @@
       {% endfor %}
 
       <div class="d-flex justify-content-end">
-        <a href="{% url object_redirect_url %}" class="btn btn-secondary me-2">Cancel</a>
+        <a href="{{ redirect_url }}" class="btn btn-secondary me-2">Cancel</a>
         <button type="submit" class="btn btn-primary">Save {{ class_name }}</button>
       </div>
 

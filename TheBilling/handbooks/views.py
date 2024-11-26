@@ -1,6 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
 from tools.from_moneyed import code2currency
 from tools.name2country import name2country
 from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceTypeForm
@@ -20,13 +19,13 @@ class LegalForms(Handbooks):
     form_class = LegalFormForm
     fields = None
     title = "Legal Forms"
-    create_function_name = 'handbooks:legal_form_create_url'
-    update_function_name = 'handbooks:legal_form_update_url'
-    delete_function_name = 'handbooks:legal_form_delete_url'
-    list_function_name = 'handbooks:legal_forms_list_url'
-    nav_custom_button_func = create_function_name
-    redirect_to = list_function_name
-    success_url = reverse_lazy(list_function_name)
+    create_url_name = 'handbooks:legal_form_create_url_name'
+    update_url_name = 'handbooks:legal_form_update_url_name'
+    delete_url_name = 'handbooks:legal_form_delete_url_name'
+    list_url_name = 'handbooks:legal_forms_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
 
 
 class LegalFormsList(LegalForms, ObjectsListMixin):
@@ -58,12 +57,13 @@ class ResourceGroups(Handbooks):
     model = ResourceGroup
     form_class = ResourceGroupForm
     title = "Resource Group"
-    create_function_name = 'handbooks:res_group_create_url'
-    update_function_name = 'handbooks:res_group_update_url'
-    delete_function_name = 'handbooks:res_group_delete_url'
-    list_function_name = 'handbooks:res_group_list_url'
-    redirect_to = list_function_name
-    nav_custom_button_func = create_function_name
+    create_url_name = 'handbooks:res_group_create_url_name'
+    update_url_name = 'handbooks:res_group_update_url_name'
+    delete_url_name = 'handbooks:res_group_delete_url_name'
+    list_url_name = 'handbooks:res_group_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
 
 class ResourceGroupList(ResourceGroups, ObjectsListMixin):
     context_object_name = "legal_forms"
@@ -98,11 +98,14 @@ class Countries(Handbooks):
     form_class = CountryForm
 
     title = "Countries"
-    create_function_name = 'handbooks:country_create_url'
-    update_function_name = 'handbooks:country_update_url'
-    delete_function_name = 'handbooks:country_delete_url'
-    list_function_name = 'handbooks:countries_list_url'
-    redirect_to = list_function_name
+    create_url_name = 'handbooks:country_create_url_name'
+    update_url_name = 'handbooks:country_update_url_name'
+    delete_url_name = 'handbooks:country_delete_url_name'
+    list_url_name = 'handbooks:countries_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+
 
 
 class CountriesList(Countries, ObjectsListMixin):
@@ -136,13 +139,13 @@ class CountryCreate(Countries, ObjectCreateMixin):
 
         if bound_form.is_valid():
             bound_form.save()
-            return redirect(self.redirect_to)
+            return redirect(self.redirect_url_name)
 
         context = {
             'title': self.title,
             'form': bound_form,
             'base_app_template': self.base_app_template,
-            'object_create_url': self.create_function_name
+            'object_create_url_name': self.create_url_name
         }
         context.update(self.additional_context)
 
@@ -160,11 +163,14 @@ class Currencies(Handbooks):
     form_class = CurrencyForm
 
     title = "Currencies"
-    create_function_name = 'handbooks:currency_create_url'
-    update_function_name = 'handbooks:currency_update_url'
-    delete_function_name = 'handbooks:currency_delete_url'
-    list_function_name = 'handbooks:currencies_list_url'
-    redirect_to = list_function_name
+    create_url_name = 'handbooks:currency_create_url_name'
+    update_url_name = 'handbooks:currency_update_url_name'
+    delete_url_name = 'handbooks:currency_delete_url_name'
+    list_url_name = 'handbooks:currencies_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+
 
 
 class CurrenciesList(Currencies, ObjectsListMixin):
@@ -199,12 +205,12 @@ class CurrencyCreate(Currencies, ObjectCreateMixin):
 
         if bound_form.is_valid():
             bound_form.save()
-            return redirect(self.redirect_to)
+            return redirect(self.redirect_url_name)
 
         context = {
             'title': self.title,
             'form': bound_form,
-            'object_create_url': self.create_function_name
+            'object_create_url_name': self.create_url_name
         }
 
         return render(request, self.template_name, context=context)
@@ -218,11 +224,14 @@ class ResourceTypes(Handbooks):
     form_class = ResourceTypeForm
 
     title = "ResourceTypes"
-    create_function_name = 'handbooks:resource_type_create_url'
-    update_function_name = 'handbooks:resource_type_update_url'
-    delete_function_name = 'handbooks:resource_type_delete_url'
-    list_function_name = 'handbooks:resource_type_list_url'
-    redirect_to = list_function_name
+    create_url_name = 'handbooks:resource_type_create_url_name'
+    update_url_name = 'handbooks:resource_type_update_url_name'
+    delete_url_name = 'handbooks:resource_type_delete_url_name'
+    list_url_name = 'handbooks:resource_type_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+
 
 
 class ResourceTypeList(ResourceTypes, ObjectsListMixin):
@@ -235,7 +244,7 @@ class ResourceTypeList(ResourceTypes, ObjectsListMixin):
     nav_custom_button = {
         'name': 'NewItem',
         'show': True,
-        'func': ResourceTypes.create_function_name,
+        'func': ResourceTypes.create_url_name,
     }
 
 class ResourceTypeDetails(ResourceTypes, ObjectDetailsMixin):

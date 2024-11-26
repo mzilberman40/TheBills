@@ -22,13 +22,14 @@ class Resources(Commerce):
     form_model = ResourceForm
     form_class = ResourceForm
     title = "Resources"
-    create_function_name = 'commerce:resource_create_url'
-    update_function_name = 'commerce:resource_update_url'
-    delete_function_name = 'commerce:resource_delete_url'
-    list_function_name = 'commerce:resource_list_url'
-    redirect_to = list_function_name
-    success_url = reverse_lazy(list_function_name)
-    params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
+    create_url_name = 'commerce:resource_create_url_name'
+    update_url_name = 'commerce:resource_update_url_name'
+    delete_url_name = 'commerce:resource_delete_url_name'
+    list_url_name = 'commerce:resource_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+    # params = {'redirect_param': 'bu_pk', 'update_param': 'pk', 'delete_param': 'pk'}
 
 
 class ResourceList(Resources, ObjectsListMixin):
@@ -42,7 +43,7 @@ class ResourceList(Resources, ObjectsListMixin):
     nav_custom_button = {
         'name': 'NewItem',
         'show': True,
-        'func': Resources.create_function_name,
+        'func': Resources.create_url_name,
     }
 
 class ResourceDetails(Resources, ObjectDetailsMixin):
@@ -69,12 +70,14 @@ class Projects(Commerce):
     model = Project
     form_class = ProjectForm
     title = "Projects"
-    create_function_name = 'commerce:project_create_url'
-    update_function_name = 'commerce:project_update_url'
-    delete_function_name = 'commerce:project_delete_url'
-    list_function_name = 'commerce:project_list_url'
-    redirect_to = list_function_name
-    success_url = reverse_lazy(list_function_name)
+    create_url_name = 'commerce:project_create_url_name'
+    update_url_name = 'commerce:project_update_url_name'
+    delete_url_name = 'commerce:project_delete_url_name'
+    list_url_name = 'commerce:project_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+
 
 
 class ProjectList(Projects, ObjectsListMixin):

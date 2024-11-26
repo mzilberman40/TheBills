@@ -18,13 +18,13 @@ class BusinessUnitViewTests(TestCase):
         self.client.login(email='testuser@example.com', password='password')
 
     # def test_bu_get_list(self):
-    #     url = reverse('orgsandpeople:bu_list_url')
+    #     url = reverse('orgsandpeople:bu_list_url_name')
     #     response = self.client.get(url)
     #     self.assertEqual(response.status_code, 200)
     #
     # # def test_business_unit_create_view_get(self):
     #     self.client.login(email='testuser@example.com', password='password')
-    #     response = self.client.get(reverse('orgsandpeople:bu_create_url'))
+    #     response = self.client.get(reverse('orgsandpeople:bu_create_url_name'))
     #     self.assertEqual(response.status_code, 200)
     #     self.assertTemplateUsed(response, 'obj_create.html')
 #
@@ -42,13 +42,13 @@ class BusinessUnitViewTests(TestCase):
 #             'country': 1,
 #             'emails': 'test@example.com, test2@example.com:type2'
 #         }
-#         response = self.client.post(reverse('orgsandpeople:bu_create_url'), data)
+#         response = self.client.post(reverse('orgsandpeople:bu_create_url_name'), data)
 #         self.assertEqual(response.status_code, 200)
 #         self.assertTrue(BusinessUnit.objects.filter(short_name='NewUnit').exists())
 #
 #     def test_business_unit_update_view_get(self):
 #         self.client.login(email='testuser@example.com', password='password')
-#         response = self.client.get(reverse('orgsandpeople:bu_update_url', args=[self.business_unit.pk]))
+#         response = self.client.get(reverse('orgsandpeople:bu_update_url_name', args=[self.business_unit.pk]))
 #         self.assertEqual(response.status_code, 200)
 #         self.assertTemplateUsed(response, 'obj_update.html')
 #
@@ -66,7 +66,7 @@ class BusinessUnitViewTests(TestCase):
 #             'country': 1,
 #             'emails': 'updated@example.com'
 #         }
-#         response = self.client.post(reverse('orgsandpeople:bu_update_url', args=[self.business_unit.pk]), data)
+#         response = self.client.post(reverse('orgsandpeople:bu_update_url_name', args=[self.business_unit.pk]), data)
 #         self.assertEqual(response.status_code, 302)
 #         self.business_unit.refresh_from_db()
 #         self.assertEqual(self.business_unit.first_name, 'Updated')

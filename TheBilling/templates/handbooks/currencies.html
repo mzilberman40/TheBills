@@ -26,7 +26,7 @@
                         <td>{{ obj.countries|truncatewords:7 }}</td>
 
                         {% if view_button %}
-                            <a href="{{ obj.get_absolute_url }}" class="btn btn-sm btn-info">View </a>
+                            <a href="{{ obj.get_absolute_url_name }}" class="btn btn-sm btn-info">View </a>
                         {% endif %}
 
                         </td>

@@ -12,7 +12,7 @@
   {% for e in form.non_field_errors %}
     <div class="alert alert-danger"> {{ e }} </div>
   {% endfor %}
-    <form action="{% if create_param %}{% url object_create_url create_param %}{% else%}{% url object_create_url %}{% endif %} " method="post" enctype="multipart/form-data">
+    <form  method="post" enctype="multipart/form-data">
 
       {% csrf_token %}
       {% for field in form %}
@@ -28,7 +28,7 @@
       </div>
       {% endfor %}
       <div class="d-flex justify-content-end">
-        <a href="{% url object_redirect_url %}" class="btn btn-secondary me-2">Cancel</a>
+        <a href="{{ redirect_url }}" class="btn btn-secondary me-2">Cancel</a>
         <button type="submit" class="btn btn-primary">Save {{ class_name }}</button>
       </div>
     </form>

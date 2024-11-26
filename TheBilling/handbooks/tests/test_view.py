@@ -21,14 +21,14 @@ class LegalFormsViewTests(TestCase):
 
     def test_lf_get_list(self):
         template_name = 'obj_list.html'
-        url = reverse('handbooks:legal_forms_list_url')
+        url = reverse('handbooks:legal_forms_list_url_name')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
 
     def test_lf_create_view_get(self):
         template_name = 'obj_create.html'
-        url = 'handbooks:legal_form_create_url'
+        url = 'handbooks:legal_form_create_url_name'
         response = self.client.get(reverse(url))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
@@ -39,20 +39,20 @@ class LegalFormsViewTests(TestCase):
             'full_name': 'Test Legal Form1',
             'description': 'Test Legal Form is for test only2',
         }
-        url = 'handbooks:legal_form_create_url'
+        url = 'handbooks:legal_form_create_url_name'
         response = self.client.post(reverse(url), data)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(LegalForm.objects.filter(short_name='NEWUNIT').exists())
 
     def test_lf_update_view_get(self):
         template_name = 'obj_update.html'
-        url = 'handbooks:legal_form_update_url'
+        url = 'handbooks:legal_form_update_url_name'
         response = self.client.get(reverse(url, args=[self.legal_form.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
 
     def test_lf_update_view_post(self):
-        url = 'handbooks:legal_form_update_url'
+        url = 'handbooks:legal_form_update_url_name'
         data = {
             'short_name': 'UpdatedUnit',
             'full_name': 'Test Legal Form2 Updated',
@@ -64,14 +64,14 @@ class LegalFormsViewTests(TestCase):
         self.assertEqual(self.legal_form.short_name, 'UPDATEDUNIT')
 
     def test_lf_delete_view_get(self):
-        url = 'handbooks:legal_form_delete_url'
+        url = 'handbooks:legal_form_delete_url_name'
         template_name = 'obj_delete.html'
         response = self.client.get(reverse(url, args=[self.legal_form.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
 
     def test_lf_delete_view_post(self):
-        url = 'handbooks:legal_form_delete_url'
+        url = 'handbooks:legal_form_delete_url_name'
         self.assertTrue(LegalForm.objects.exists())
         response = self.client.post(reverse(url, args=[self.legal_form.pk]))
         self.assertEqual(response.status_code, 302)
@@ -79,7 +79,7 @@ class LegalFormsViewTests(TestCase):
 
     def test_lf_details_view_get(self):
         template_name = 'obj_details.html'
-        url = 'handbooks:legal_form_details_url'
+        url = 'handbooks:legal_form_details_url_name'
         response = self.client.get(reverse(url, args=[self.legal_form.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)

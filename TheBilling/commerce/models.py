@@ -11,17 +11,17 @@ from orgsandpeople.models import BusinessUnit
 User = get_user_model()
 
 
-class Resource(MyModel, TimeStampedModel, ActivatorModel, models.Model):
+class Resource(TimeStampedModel, ActivatorModel, MyModel):
     name = models.CharField(max_length=120, unique=True)
-    rtype = models.ForeignKey(ResourceType, on_delete=models.CASCADE, related_name='resources')
+    rtype = models.ForeignKey(ResourceType, on_delete=models.PROTECT, related_name='resources')
     description = models.TextField(max_length=512, null=True, blank=True)
     available = models.BooleanField(default=True)
-    owner = models.ForeignKey(BusinessUnit, on_delete=models.CASCADE, related_name='resources')
-    user = models.ForeignKey(User, verbose_name='user', on_delete=models.CASCADE)
+    owner = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='resources')
+    user = models.ForeignKey(User, verbose_name='user', on_delete=models.PROTECT)
 
-    details_url = 'commerce:resource_details_url'
-    update_url = 'commerce:resource_update_url'
-    delete_url = 'commerce:resource_delete_url'
+    details_url_name = 'commerce:resource_details_url_name'
+    update_url_name = 'commerce:resource_update_url_name'
+    delete_url_name = 'commerce:resource_delete_url_name'
 
     class Meta:
         verbose_name = "Resource"
@@ -32,14 +32,14 @@ class Resource(MyModel, TimeStampedModel, ActivatorModel, models.Model):
         return f"{self.name}, {self.rtype}, {self.owner}"
 
 
-class Project(MyModel, models.Model):
+class Project(MyModel):
     title = models.CharField(max_length=120, unique=True)
     description = models.TextField(max_length=512, null=True, blank=True)
-    beneficiary = models.ForeignKey(BusinessUnit, on_delete=models.CASCADE, related_name='projects')
+    beneficiary = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='projects')
 
-    details_url = 'commerce:project_details_url'
-    update_url = 'commerce:project_update_url'
-    delete_url = 'commerce:project_delete_url'
+    details_url_name = 'commerce:project_details_url_name'
+    update_url_name = 'commerce:project_update_url_name'
+    delete_url_name = 'commerce:project_delete_url_name'
 
     class Meta:
         verbose_name = "Project"
@@ -72,9 +72,9 @@ class Agreement(MyModel, TimeStampedModel, ActivatorModel, models.Model):
         default='planned',
     )
 
-    details_url = 'commerce:agreement_details_url'
-    update_url = 'commerce:agreement_update_url'
-    delete_url = 'commerce:agreement_delete_url'
+    details_url_name = 'commerce:agreement_details_url_name'
+    update_url_name = 'commerce:agreement_update_url_name'
+    delete_url_name = 'commerce:agreement_delete_url_name'
 
     class Meta:
         verbose_name = "Agreement"

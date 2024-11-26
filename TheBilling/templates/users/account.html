@@ -35,7 +35,7 @@
 {% block extend_foot %}
 <script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.2.5/js/fileinput.min.js"></script>
 <script>
-    var avatar_url = '{{request.user.userprofile.avatar.url|safe}}'
+    var avatar_url_name = '{{request.user.userprofile.avatar.url|safe}}'
     var btnCust = '<button type="button" class="btn btn-secondary" title="Add picture tags" ' +
         'onclick="alert(\'Call your custom code here.\')">' +
         '<i class="bi-tag"></i>' +
@@ -52,7 +52,7 @@
         removeTitle: 'Cancel or reset changes',
         elErrorContainer: '#kv-avatar-errors-1',
         msgErrorClass: 'alert alert-block alert-danger',
-        defaultPreviewContent: '<img src="'+ avatar_url +'" alt="Your Avatar">',
+        defaultPreviewContent: '<img src="'+ avatar_url_name +'" alt="Your Avatar">',
         layoutTemplates: {main2: '{preview} {remove} {browse}'},
         allowedFileExtensions: ["jpg", "png", "gif"]
     });

@@ -28,7 +28,7 @@
         <header>
           <nav class="navbar navbar-expand-lg bg-body-tertiary">
             <div class="container-fluid">
-                <a class="navbar-brand" href="{% url 'core:home'%}">SilveBilling</a>
+                <a class="navbar-brand" href="{% url 'core:home_url_name'%}">SilveBilling</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                   <span class="navbar-toggler-icon"></span>
                 </button>
@@ -40,8 +40,8 @@
                             </a>
 
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'commerce:resource_list_url' %}">Resources</a></li>
-                                <li><a class="dropdown-item" href="{% url 'commerce:project_list_url' %}">Projects</a></li>
+                                <li><a class="dropdown-item" href="{% url 'commerce:resource_list_url_name' %}">Resources</a></li>
+                                <li><a class="dropdown-item" href="{% url 'commerce:project_list_url_name' %}">Projects</a></li>
 
                             </ul>
 
@@ -54,8 +54,8 @@
                             </a>
 
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:bu_list_url' %}">Business Units</a></li>
-                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:bank_list_url' %}">Banks</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:bu_list_url_name' %}">Business Units</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:bank_list_url_name' %}">Banks</a></li>
 
                             </ul>
                         </li>
@@ -66,11 +66,11 @@
                             </a>
 
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'handbooks:currencies_list_url' %}">Currencies</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:legal_forms_list_url' %}">LegalForms</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:countries_list_url' %}">Countries</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:res_group_list_url' %}">ResourceGroups</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:resource_type_list_url' %}">ResourceTypes</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:currencies_list_url_name' %}">Currencies</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:legal_forms_list_url_name' %}">LegalForms</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:countries_list_url_name' %}">Countries</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:res_group_list_url_name' %}">ResourceGroups</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:resource_type_list_url_name' %}">ResourceTypes</a></li>
 
                             </ul>
 
@@ -102,7 +102,7 @@
                     {% endif %}
 
                     {% if show_query %}
-                    <form action="{% url redirect_to %}" class="d-flex me-auto mt-2">
+                    <form action="{{ redirect_url }}" class="d-flex me-auto mt-2">
                         <input class="form-control me-2 " value="{{search_query}}" type="search" placeholder="Search"
                         aria-label="Search" name="query">
                         <button class="btn btn-outline-success" type="submit">Search</button>
@@ -111,7 +111,7 @@
 
                     {% if nav_custom_button.show and nav_custom_button.func %}
                       <div class="d-lg-flex col-lg-2 justify-content-lg-end">
-                          <a href="{% if nav_custom_button.param %}{% url nav_custom_button.func nav_custom_button.param %}{% else %}{% url nav_custom_button.func %}{% endif %}"
+                          <a href="{{ nav_custom_button.func }}"
                              class="btn btn-primary">
                               {{ nav_custom_button.name }}
                           </a>
