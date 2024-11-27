@@ -1,35 +1,54 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedModel, ActivatorModel
 
 from handbooks.models import ResourceType
 from library.my_model import MyModel
 from orgsandpeople.models import BusinessUnit
 
-
 User = get_user_model()
 
-
-class Resource(TimeStampedModel, ActivatorModel, MyModel):
+class Resource(TimeStampedModel, ActivatorModel, models.Model):
     name = models.CharField(max_length=120, unique=True)
     rtype = models.ForeignKey(ResourceType, on_delete=models.PROTECT, related_name='resources')
     description = models.TextField(max_length=512, null=True, blank=True)
     available = models.BooleanField(default=True)
-    owner = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='resources')
+    business_unit = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='resources')
     user = models.ForeignKey(User, verbose_name='user', on_delete=models.PROTECT)
 
-    details_url_name = 'commerce:resource_details_url_name'
-    update_url_name = 'commerce:resource_update_url_name'
-    delete_url_name = 'commerce:resource_delete_url_name'
+    details_url_name = 'orgsandpeople:bu_resource_detail_url_name'
+    update_url_name = 'orgsandpeople:bu_resource_update_url_name'
+    delete_url_name = 'orgsandpeople:bu_resource_delete_url_name'
 
     class Meta:
         verbose_name = "Resource"
         verbose_name_plural = "Resources"
         ordering = ('name',)
 
+    # def __str__(self):
+    #     return f"{self.name}, {self.rtype}"
+
     def __str__(self):
-        return f"{self.name}, {self.rtype}, {self.owner}"
+        return self.name
+
+    def get_absolute_url_name(self, *args, **kwargs):
+        if self.details_url_name:
+            return reverse(self.details_url_name, kwargs={'bu_pk': self.business_unit.pk, 'pk': self.pk })
+        raise NotImplementedError
+
+    def do_delete(self, *args, **kwargs):
+        if self.delete_url_name:
+            return reverse(self.delete_url_name, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
+        raise NotImplementedError
+
+    def do_update(self, *args, **kwargs):
+        # print("Update", kwargs)
+        if self.update_url_name:
+            # print(self.update_url_name)
+            return reverse(self.update_url_name, kwargs={'pk': self.pk, 'bu_pk': self.business_unit.pk})
+        raise NotImplementedError
 
 
 class Project(MyModel):

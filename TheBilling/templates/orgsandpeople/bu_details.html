@@ -38,7 +38,7 @@
 
         <a href="{% url 'orgsandpeople:bu_accounts_url_name' businessunit.pk %}" class="btn btn-info">View & edit Accounts</a>
 
-        <a href="{{ reverse_url }}" class="btn btn-light">Back to the list</a>
+        <a href="{{ redirect_url }}" class="btn btn-light">Back to the list</a>
         <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
         <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
         <a href="{% url 'orgsandpeople:bu_resources_url_name' businessunit.pk %}" class="btn btn-info">View & edit Resources</a>

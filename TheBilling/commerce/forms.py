@@ -9,34 +9,22 @@ class ResourceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ResourceForm, self).__init__(*args, **kwargs)
-        print(kwargs)
         if 'user' in kwargs:
             self.fields['user'].initial = kwargs['user']
 
     class Meta:
         model = Resource
-        # fields = ('owner', 'name', 'description', 'rtype', 'available')
         fields = '__all__'
-        exclude = ['activate_date', 'deactivate_date', 'user']
+        exclude = ['activate_date', 'deactivate_date', 'user', 'business_unit']
         labels = {
             'available': 'Resource Available'  # Label for 'available' field
         }
         widgets = {
-            'name': forms.TextInput(attrs={
-                'placeholder': 'Name',
-            }),
-            'description': forms.TextInput(attrs={
-                'placeholder': 'Description'
-            }),
-            'rtype': forms.Select(attrs={
-                'placeholder': 'ResourceType'
-            }),
-            'available': forms.CheckboxInput(attrs={
-                'class': 'form-check-input'
-            }),
-            'owner': forms.Select(attrs={
-                'placeholder': 'BusinessUnit'
-            }),
+            'name': forms.TextInput(attrs={'placeholder': 'Name',}),
+            'description': forms.TextInput(attrs={'placeholder': 'Description'}),
+            'rtype': forms.Select(),
+            'available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'business_unit': forms.Select(),
         }
 
 
@@ -49,13 +37,7 @@ class ProjectForm(forms.ModelForm):
         labels = {
         }
         widgets = {
-            'title': forms.TextInput(attrs={
-                'placeholder': 'Title',
-            }),
-            'description': forms.TextInput(attrs={
-                'placeholder': 'Description'
-            }),
-            'beneficiary': forms.Select(attrs={
-                'placeholder': 'Beneficiary'
-            }),
+            'title': forms.TextInput(attrs={'placeholder': 'Title',}),
+            'description': forms.TextInput(attrs={'placeholder': 'Description'}),
+            'beneficiary': forms.Select(),
         }

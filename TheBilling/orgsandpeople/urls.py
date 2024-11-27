@@ -24,9 +24,9 @@ urlpatterns = [
     path('BU/<int:bu_pk>/accounts/delete/<int:pk>/', oview.BUAccountDelete.as_view(), name='bu_account_delete_url_name'),
     path('BU/<int:bu_pk>/accounts/<int:pk>/', oview.BUAccountDetail.as_view(), name='bu_account_detail_url_name'),
 
-    path('BU/<int:bu_pk>/resources/', oview.ResourceList.as_view(), name='bu_resources_url_name'),
-    path('BU/<int:bu_pk>/resources/create/', oview.ResourceCreate.as_view(), name='bu_resource_create_url_name'),
-    path('BU/<int:bu_pk>/resources/update/<int:pk>/', oview.ResourceUpdate.as_view(), name='bu_resource_update_url_name'),
-    path('BU/<int:bu_pk>/resources/delete/<int:pk>/', oview.ResourceDelete.as_view(), name='bu_resource_delete_url_name'),
-    path('BU/<int:bu_pk>/resources/<int:pk>/', oview.ResourceDetails.as_view(), name='bu_resource_detail_url_name'),
+    path('BU/<int:bu_pk>/resources/', oview.BUResourceList.as_view(), name='bu_resources_url_name'),
+    path('BU/<int:bu_pk>/resources/create/', oview.BUResourceCreate.as_view(), name='bu_resource_create_url_name'),
+    path('BU/<int:bu_pk>/resources/update/<int:pk>/', oview.BUResourceUpdate.as_view(), name='bu_resource_update_url_name'),
+    path('BU//<int:bu_pk>/resources/delete/<int:pk>/', oview.BUResourceDelete.as_view(), name='bu_resource_delete_url_name'),
+    path('BU//<int:bu_pk>/resources/<int:pk>/', oview.BUResourceDetails.as_view(), name='bu_resource_detail_url_name'),
 ]

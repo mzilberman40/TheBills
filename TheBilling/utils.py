@@ -1,11 +1,14 @@
-from django.db.models import Q
+
+from django.db.models import Q, ProtectedError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.utils.text import slugify
 import functools
 from django.views.generic import View
+from django.contrib import messages
 
+from library.Param import Param
 from library.field_name2model import field_name2model
 from library.inject_values import inject_values
 
@@ -20,10 +23,14 @@ class Objects:
     update_url_name = None
     list_url_name = None
     redirect_url_name = None
-    redirect_param = None
     success_url_name = None
     fail_url_name = None
-    filter_param = tuple()  # tuple: (field_name, key_name) where key_name - key from kwargs in http request
+    redirect_param = Param(field=None, key=None) #
+    filter_param = Param(field=None, key=None)  # (field_name, key_name) where key_name - key from kwargs in http request
+    create_param = tuple()  # (field_name, key_name) where key_name - key from kwargs in http request
+                            # field_name has to be in exclude list in the Meta subclass of form_class
+    update_param = tuple()
+
     title = 'No title'
     comments = ''
     additional_context = {}
@@ -35,7 +42,21 @@ class Objects:
         'show': False,
         'func': None,
     }
-    params = {}
+    # params = {}
+
+    @staticmethod
+    def get_kwargs(param: Param, obj, **kwargs) -> dict:
+        if param.key:
+            value = kwargs.get(param.key)
+            if value:
+                return {param.key: value}
+
+            if param.field:
+                value = getattr(obj, param.field, None)
+                if value:
+                    return {param.key: value}
+
+        return {}
 
 
 class ObjectsListMixin(Objects, View):
@@ -47,18 +68,19 @@ class ObjectsListMixin(Objects, View):
     nav_custom_button_func = None
 
     def get(self, request, **kwargs):
+        print(kwargs)
         queryset = self.model.objects.all()
         title = self.title
         self.nav_custom_button['func'] = reverse_lazy(self.nav_custom_button_func)
-        if self.filter_param and isinstance(self.filter_param, tuple) and len(self.filter_param) == 2:
-            field_name, key = self.filter_param
-            value = kwargs.get(key, None)
+        if self.filter_param:
+            value = kwargs.get(self.filter_param.key, None)
             if value:
-                queryset = queryset.filter(**{field_name: value})
-                related_model = field_name2model(self.model, field_name)
+                queryset = queryset.filter(**{self.filter_param.field: value})
+                related_model = field_name2model(self.model, self.filter_param.field)
                 related_object = related_model.objects.get(pk=value)
                 title = f"{title} of {related_object}"
-                self.nav_custom_button['func'] = reverse_lazy(self.nav_custom_button_func, kwargs={key: value})
+                self.nav_custom_button['func'] = (
+                    reverse_lazy(self.nav_custom_button_func, kwargs={self.filter_param.key: value}))
 
         show_query = len(self.query_fields)
         search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
@@ -84,7 +106,7 @@ class ObjectsListMixin(Objects, View):
             'comments': self.comments,
             'base_app_template': self.base_app_template,
             'show_query': show_query,
-            'redirect_url': reverse_lazy(self.redirect_url_name), # For search
+            'redirect_url': reverse_lazy(self.redirect_url_name, kwargs=kwargs), # For search
             'search_query': search_query,
             'page_object': page_object,
             'is_paginated': is_paginated,
@@ -109,13 +131,10 @@ class ObjectDetailsMixin(Objects, View):
 
     def get(self, request, **kwargs):
         pk = kwargs.get('pk')
-        redirect_kwargs = {}
-        if self.redirect_param:
-            redirect_param = kwargs.get(self.redirect_param)
-            if redirect_param:
-                redirect_kwargs = {self.redirect_param: redirect_param}
-
         obj = get_object_or_404(self.model, pk=pk)
+        redirect_kwargs = self.get_kwargs(self.redirect_param, obj, **kwargs)
+        # print(redirect_kwargs)
+
         header_dict = {k: getattr(obj, k, None) for k in self.fields_to_header}
         main_dict = {k: getattr(obj, k, None) for k in self.fields_to_main}
         footer_dict = {k: getattr(obj, k, None) for k in self.fields_to_footer}
@@ -162,17 +181,21 @@ class ObjectCreateMixin(Objects, View):
         return render(request, self.template_name, context=context)
 
     def post(self, request, **kwargs):
+        field_name, field_value = None, None
         data = request.POST.copy()  # Make a mutable copy of POST data
-        if self.filter_param and isinstance(self.filter_param, tuple) and len(self.filter_param) == 2:
-            field_name, key = self.filter_param
-            value = kwargs.get(key, None)
-            if value:
-                data[field_name] = value
+        # print(self.create_param)
+        if self.create_param and isinstance(self.create_param, tuple) and len(self.create_param) == 2:
+            field_name, key = self.create_param
+            field_value = kwargs.get(key, None)
+            # if field_value:
+            #     data[field_name] = field_value
 
         self.success_url = reverse_lazy(self.success_url_name, kwargs=kwargs)
         form = self.form_class(data)
         if form.is_valid():
             form.instance.user = self.request.user
+            if field_name and field_value:
+                setattr(form.instance, field_name, field_value)
             form.save()
             return redirect(self.success_url)
 
@@ -180,7 +203,6 @@ class ObjectCreateMixin(Objects, View):
         context = {
             'title': self.title,
             'form': form,  # Bound form with validation errors
-            'base_app_template': self.base_app_template,
         }
         context.update(self.additional_context)
         return render(request, self.template_name, context)
@@ -193,11 +215,8 @@ class ObjectUpdateMixin(Objects, View):
         pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
         form = self.form_class(instance=obj)
-        redirect_kwargs = {}
-        if self.redirect_param:
-            redirect_param = kwargs.get(self.redirect_param)
-            if redirect_param:
-                redirect_kwargs = {self.redirect_param: redirect_param}
+        redirect_kwargs = self.get_kwargs(self.redirect_param, obj, **kwargs)
+        print(redirect_kwargs)
 
         context = {
             'title': self.title + f" with pk {obj.pk}.....",
@@ -206,23 +225,20 @@ class ObjectUpdateMixin(Objects, View):
             'redirect_url': reverse_lazy(self.redirect_url_name, kwargs=redirect_kwargs), # For Cancel button
         }
         context.update(self.additional_context)
-
+        print(context)
         return render(request, self.template_name, context=context)
 
     def post(self, request, **kwargs):
-        redirect_kwargs = {}
-        if self.redirect_param:
-            redirect_param = kwargs.get(self.redirect_param)
-            if redirect_param:
-                redirect_kwargs = {self.redirect_param: redirect_param}
-        self.success_url = reverse_lazy(self.success_url_name, kwargs=redirect_kwargs)
         pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
+        redirect_kwargs = self.get_kwargs(self.redirect_param, obj, **kwargs)
+
+        self.success_url = reverse_lazy(self.success_url_name, kwargs=redirect_kwargs)
         bound_form = self.form_class(request.POST.copy(), instance=obj)
 
         if bound_form.is_valid():
             bound_form.save()
-            return redirect(reverse_lazy(self.redirect_url_name, kwargs=redirect_kwargs))
+            return redirect(self.success_url)
 
         context = {
             'form': bound_form,
@@ -233,22 +249,37 @@ class ObjectUpdateMixin(Objects, View):
 class ObjectDeleteMixin(Objects, View):
     template_name = 'obj_delete.html'
 
-    def get(self, request, pk, **kwargs):
+    def get(self, request, **kwargs):
+        pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
         if not self.redirect_url_name:
             self.redirect_url_name = self.list_url_name
+
+        redirect_kwargs = self.get_kwargs(self.redirect_param, obj, **kwargs)
+
         context = {
             'object': obj,
             'class_name': self.model.__name__.lower(),
             'object_name': obj.__str__,
             'base_app_template': self.base_app_template,
-            'redirect_url': reverse_lazy(self.redirect_url_name, kwargs=kwargs),
+            'redirect_url': reverse_lazy(self.redirect_url_name, kwargs=redirect_kwargs),
         }
+        print(redirect_kwargs)
         context.update(self.additional_context)
         return render(request, self.template_name, context=context)
 
-    def post(self, request, pk, **kwargs):
+    def post(self, request, **kwargs):
+        pk = kwargs.get('pk')
         obj = get_object_or_404(self.model, pk=pk)
-        obj.delete()
-        redirect_url = reverse_lazy(self.redirect_url_name, kwargs=kwargs)
+        redirect_kwargs = self.get_kwargs(self.redirect_param, obj, **kwargs)
+
+        try:
+            obj.delete()
+            messages.success(request, "Country deleted successfully.")
+        except ProtectedError:
+            # Handling the case where deletion is not possible due to protected references
+            messages.error(request, "Cannot delete this country because it is being referenced by other business units.")
+            return redirect(self.redirect_url_name)
+
+        redirect_url = reverse_lazy(self.redirect_url_name, kwargs=redirect_kwargs)
         return redirect(redirect_url)

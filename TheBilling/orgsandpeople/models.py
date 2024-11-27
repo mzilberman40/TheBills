@@ -98,6 +98,13 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, MyModel):
     def __str__(self):
         return f"{self.payment_name}"
 
+    @property
+    def e_mails(self):
+        """
+        To use field 'e_mails' to display all emails in detailView for example
+        """
+        return ','.join(str(e) for e in Email.objects.filter(bu=self))
+
 
 class Email(models.Model):
     email = models.EmailField(unique=True)
@@ -154,6 +161,7 @@ class Account(ActivatorModel, models.Model):
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=128)
     starting_balance = models.DecimalField(max_digits=10, decimal_places=2)
+    balance = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.CharField(max_length=512, blank=True)
 
     details_url_name = 'orgsandpeople:bu_account_detail_url_name'
