@@ -18,11 +18,11 @@ class SignInView(generic.FormView):
     """
     template_name = "users/sign_in.html"
     form_class = AuthForm
-    success_url_name = '/'
+    success_url = '/'
 
     def form_valid(self, form):
         login(self.request, form.get_user())
-        return HttpResponseRedirect(self.get_success_url_name())
+        return HttpResponseRedirect(self.get_success_url())
 
 
 def sign_out(request):
