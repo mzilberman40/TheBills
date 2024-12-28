@@ -8,13 +8,17 @@
 
 <div class="card text-center">
   <div class="card-header">
-    <div class="row">
-      {% for k, v in main_dict.items %}
-        <div class="col-md-4 mb-3">
-          <b>{{ k }}:</b> {{ v }}
-        </div>
-      {% endfor %}
-    </div>
+      <table class="table table-borderless">
+          <tbody>
+              <tr>
+                  {% for k, v in header_dict.items %}
+                      <td>
+                        <b> {{ k }}: </b> {{ v }}
+                      </td>
+                  {% endfor %}
+              </tr>
+          </tbody>
+      </table>
 
   </div>
   <div class="card-body">
@@ -30,16 +34,14 @@
         </p>
     <br>
     </i>
-    <a href="{% if redirect_param %}{% url list_function redirect_param %}{% else %}{% url list_function %}{% endif %}" class="btn btn-light">Back to the list</a>
-    {% if edit_button %}
-        <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
-    {% endif %}
-    {% if delete_button %}
-         <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
-    {% endif %}
+      <div class="btn-group" role="group">
 
+        <a href="{{ redirect_url }}" class="btn btn-light">Back to the list</a>
+        <a href="{% url update_url_name pk=object.pk %}" class="btn btn-sm btn-warning">Edit </a>
+        <a href="{% url delete_url_name pk=object.pk %}" class="btn btn-sm btn-danger">Delete</a>
+        <a href="{% url 'orgsandpeople:services_url_name' contract.pk %}" class="btn btn-info">View & edit Services</a>
 
-
+      </div>
   </div>
   <div class="card-footer text-body-secondary">
      <table class="table table-borderless">

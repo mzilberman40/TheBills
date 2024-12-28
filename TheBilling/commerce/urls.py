@@ -1,19 +1,36 @@
 from django.urls import path
 import commerce.views as cviews
+import commerce.models as cmodels
+
 
 app_name = "commerce"
 
 urlpatterns = [
+    path('projects/', cviews.ProjectList.as_view(), name=cmodels.Project.LOCAL_LIST_URL_NAME()),
+    path('projects/create/', cviews.ProjectCreate.as_view(), name=cmodels.Project.LOCAL_CREATE_URL_NAME()),
+    path('projects/<int:pk>/update/', cviews.ProjectUpdate.as_view(), name=cmodels.Project.LOCAL_UPDATE_URL_NAME()),
+    path('projects/<int:pk>/delete/', cviews.ProjectDelete.as_view(), name=cmodels.Project.LOCAL_DELETE_URL_NAME()),
+    path('projects/<int:pk>/', cviews.ProjectDetails.as_view(), name=cmodels.Project.LOCAL_DETAILS_URL_NAME()),
 
-    # path('resources/', cviews.ResourceList.as_view(), name='resource_list_url_name'),
-    # path('resources/create/', cviews.ResourceCreate.as_view(), name='resource_create_url_name'),
-    # path('resources/<int:pk>/update/', cviews.ResourceUpdate.as_view(), name='resource_update_url_name'),
-    # path('resources/<int:pk>/delete/', cviews.ResourceDelete.as_view(), name='resource_delete_url_name'),
-    # path('resources/<int:pk>/', cviews.ResourceDetails.as_view(), name='resource_details_url_name'),
-    #
-    # path('projects/', cviews.ProjectList.as_view(), name='project_list_url_name'),
-    # path('projects/create/', cviews.ProjectCreate.as_view(), name='project_create_url_name'),
-    # path('projects/<int:pk>/update/', cviews.ProjectUpdate.as_view(), name='project_update_url_name'),
-    # path('projects/<int:pk>/delete/', cviews.ProjectDelete.as_view(), name='project_delete_url_name'),
-    # path('projects/<int:pk>/', cviews.ProjectDetails.as_view(), name='project_details_url_name'),
+    path('contracts/', cviews.ContractList.as_view(), name=cmodels.Contract.LOCAL_LIST_URL_NAME()),
+    path('contracts/create/', cviews.ContractCreate.as_view(), name=cmodels.Contract.LOCAL_CREATE_URL_NAME()),
+    path('contracts/<int:pk>/update/', cviews.ContractUpdate.as_view(), name=cmodels.Contract.LOCAL_UPDATE_URL_NAME()),
+    path('contracts/<int:pk>/delete/', cviews.ContractDelete.as_view(), name=cmodels.Contract.LOCAL_DELETE_URL_NAME()),
+    path('contracts/<int:pk>/', cviews.ContractDetails.as_view(), name=cmodels.Contract.LOCAL_DETAILS_URL_NAME()),
+
+    path('services/', cviews.ServiceList.as_view(), name=cmodels.Service.LOCAL_LIST_URL_NAME()),
+    path('services/create/', cviews.ServiceCreate.as_view(), name=cmodels.Service.LOCAL_CREATE_URL_NAME()),
+    path('services/<int:pk>/update/', cviews.ServiceUpdate.as_view(), name=cmodels.Service.LOCAL_UPDATE_URL_NAME()),
+    path('services/<int:pk>/delete/', cviews.ServiceDelete.as_view(), name=cmodels.Service.LOCAL_DELETE_URL_NAME()),
+    path('services/<int:pk>/', cviews.ServiceDetails.as_view(), name=cmodels.Service.LOCAL_DETAILS_URL_NAME()),
+
+    path('Contract/<int:contract_pk>/services/', cviews.ContractServiceList.as_view(), name='contract_service_list_url_name'),
+    path('Contract/<int:contract_pk>/service/create/', cviews.ContractServiceCreate.as_view(), name='contract_service_create_url_name'),
+    path('Contract/<int:contract_pk>/service/update/<int:pk>/', cviews.ContractServiceUpdate.as_view(),
+         name='contract_service_update_url_name'),
+    path('Contract/<int:contract_pk>/service/delete/<int:pk>/', cviews.ContractServiceDelete.as_view(),
+         name='contract_service_delete_url_name'),
+    path('Contract/<int:contract_pk>/service/<int:pk>/', cviews.ContractServiceDetails.as_view(),
+         name='contract_service_detail_url_name'),
+
 ]

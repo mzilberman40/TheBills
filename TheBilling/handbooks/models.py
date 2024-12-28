@@ -1,24 +1,19 @@
 from django.db import models
-from django.urls import reverse
+# from django.urls import reverse
 from django_extensions.db.models import ActivatorModel, TimeStampedModel
-from pytils.translit import slugify as ru_slugify
-from django_extensions.db.fields import AutoSlugField
+# from pytils.translit import slugify as ru_slugify
+# from django_extensions.db.fields import AutoSlugField
 from django.contrib.auth import get_user_model
-
 from library.my_model import MyModel
 
-
 User = get_user_model()
-
 
 class LegalForm(MyModel):
     short_name = models.SlugField(max_length=32, unique=True, allow_unicode=True)
     full_name = models.CharField(max_length=256, unique=True)
     description = models.CharField(max_length=1024, blank=True)
 
-    details_url_name = 'handbooks:legal_form_details_url_name'
-    update_url_name = 'handbooks:legal_form_update_url_name'
-    delete_url_name = 'handbooks:legal_form_delete_url_name'
+    NAME_SPACE = 'handbooks'
 
     class Meta:
         verbose_name = "LegalForm"
@@ -49,9 +44,7 @@ class Country(MyModel):
     rus_name = models.CharField(max_length=128, unique=True)     # data.name
     rus_name_official = models.CharField(max_length=512, unique=True)    # value
 
-    details_url_name = 'handbooks:country_details_url_name'
-    update_url_name = 'handbooks:country_update_url_name'
-    delete_url_name = 'handbooks:country_delete_url_name'
+    NAME_SPACE = 'handbooks'
 
     class Meta:
         verbose_name = "Country"
@@ -67,9 +60,7 @@ class Currency(MyModel):
     name = models.CharField(max_length=64, unique=True)
     code = models.CharField(max_length=5, unique=True)
 
-    details_url_name = 'handbooks:currency_details_url_name'
-    update_url_name = 'handbooks:currency_update_url_name'
-    delete_url_name = 'handbooks:currency_delete_url_name'
+    NAME_SPACE = 'handbooks'
 
     class Meta:
         verbose_name = "Currency"
@@ -84,9 +75,7 @@ class ResourceGroup(MyModel):
     name = models.CharField(max_length=120, unique=True)
     description = models.CharField(max_length=1024, blank=True)
 
-    details_url_name = 'handbooks:res_group_details_url_name'
-    update_url_name = 'handbooks:res_group_update_url_name'
-    delete_url_name = 'handbooks:res_group_delete_url_name'
+    NAME_SPACE = 'handbooks'
 
     class Meta:
         verbose_name = "Resource Group"
@@ -96,15 +85,12 @@ class ResourceGroup(MyModel):
     def __str__(self):
         return f"{self.name}"
 
-
 class ResourceType(MyModel):
     rtype = models.CharField(max_length=120, unique=True, verbose_name="ResourceType")
     group = models.ForeignKey(ResourceGroup, on_delete=models.RESTRICT, related_name='rtypes')
     description = models.TextField(max_length=1024, blank=True)
 
-    details_url_name = 'handbooks:resource_type_details_url_name'
-    update_url_name = 'handbooks:resource_type_update_url_name'
-    delete_url_name = 'handbooks:resource_type_delete_url_name'
+    NAME_SPACE = 'handbooks'
 
     class Meta:
         verbose_name = "ResourceType"

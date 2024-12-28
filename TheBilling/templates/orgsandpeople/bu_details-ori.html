@@ -36,27 +36,18 @@
     </i>
       <div class="btn-group" role="group">
 
+        <a href="{% url businessunit.accounts.model.list_url_name businessunit.pk %}" class="btn btn-info">Accounts</a>
+        <a href="{% url businessunit.resources.model.list_url_name businessunit.pk %}" class="btn btn-info">Resources</a>
+        <a href="{% url businessunit.phone_numbers.model.list_url_name businessunit.pk %}" class="btn btn-info">Phones</a>
+        <a href="{% url businessunit.telegram_data.model.list_url_name businessunit.pk %}" class="btn btn-info">Telegrams</a>
+        <a href="{% url businessunit.emails.model.list_url_name businessunit.pk %}" class="btn btn-info"> Emails</a>
+        <a href="{% url businessunit.scontracts.model.list_url_name businessunit.pk %}" class="btn btn-info">Contracts</a>
+
         <a href="{{ redirect_url }}" class="btn btn-light">Back to the list</a>
-        {% if edit_button %}
-            {% if fkey %}
-                <a href="{% url update_url_name pk=object.pk fkey=fvalue %}" class="btn btn-sm btn-warning">Edit </a>
-            {% else %}
-                <a href="{% url update_url_name pk=object.pk %}" class="btn btn-sm btn-warning">Edit </a>
-            {% endif %}
-        {% endif %}
-
-        {% if delete_button %}
-            {% if fkey %}
-                <a href="{% url delete_url_name pk=object.pk fkey=fvalue %}" class="btn btn-sm btn-danger">Delete </a>
-            {% else %}
-                <a href="{% url delete_url_name pk=object.pk %}" class="btn btn-sm btn-danger">Delete</a>
-            {% endif %}
-        {% endif %}
-      </div>
+        <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
+        <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
 
       </div>
-
-
   </div>
   <div class="card-footer text-body-secondary">
      <table class="table table-borderless">

@@ -35,8 +35,8 @@
     <br>
     </i>
       <div class="btn-group" role="group">
-
         <a href="{{ redirect_url }}" class="btn btn-light">Back to the list</a>
+
         {% if edit_button %}
             {% if fkey %}
                 <a href="{% url update_url_name pk=object.pk fkey=fvalue %}" class="btn btn-sm btn-warning">Edit </a>
@@ -52,8 +52,6 @@
                 <a href="{% url delete_url_name pk=object.pk %}" class="btn btn-sm btn-danger">Delete</a>
             {% endif %}
         {% endif %}
-      </div>
-
       </div>
 
 

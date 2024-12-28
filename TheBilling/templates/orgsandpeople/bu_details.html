@@ -36,12 +36,19 @@
     </i>
       <div class="btn-group" role="group">
 
-        <a href="{% url 'orgsandpeople:bu_accounts_url_name' businessunit.pk %}" class="btn btn-info">View & edit Accounts</a>
+        <a href="{% url 'orgsandpeople:bu_accounts_url_name' fkey=object.pk %}" class="btn btn-info"> Accounts</a>
+        <a href="{% url 'orgsandpeople:bu_resources_url_name' fkey=object.pk %}" class="btn btn-info"> Resources</a>
+        <a href="{% url 'orgsandpeople:bu_contracts_url_name' fkey=object.pk %}" class="btn btn-info"> Contracts</a>
+
+        <a href="{% url 'orgsandpeople:bu_emails_url_name' fkey=object.pk %}" class="btn btn-info"> Emails</a>
+        <a href="{% url 'orgsandpeople:bu_telegrams_url_name' fkey=object.pk %}" class="btn btn-info"> Telegrams</a>
+        <a href="{% url 'orgsandpeople:bu_phones_url_name' fkey=object.pk %}" class="btn btn-info"> Phones</a>
+
 
         <a href="{{ redirect_url }}" class="btn btn-light">Back to the list</a>
-        <a href="{{ object.do_update }}" class="btn btn-sm btn-warning">Edit </a>
-        <a href="{{ object.do_delete }}" class="btn btn-sm btn-danger">Delete</a>
-        <a href="{% url 'orgsandpeople:bu_resources_url_name' businessunit.pk %}" class="btn btn-info">View & edit Resources</a>
+        <a href="{% url update_url_name pk=object.pk %}" class="btn btn-sm btn-warning">Edit </a>
+        <a href="{% url delete_url_name pk=object.pk %}" class="btn btn-sm btn-danger">Delete</a>
+
       </div>
   </div>
   <div class="card-footer text-body-secondary">

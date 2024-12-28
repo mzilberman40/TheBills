@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 
-ParamBase = namedtuple('ParamBase', ['field', 'key'])
+ParamBase = namedtuple('ParamBase', ['field_name', 'key'])
 class Param(ParamBase):
     def __bool__(self):
-        return not (self.field is None and self.key is None)
+        return bool(self.field_name and self.key)

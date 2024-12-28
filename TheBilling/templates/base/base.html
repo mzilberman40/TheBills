@@ -36,12 +36,27 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Commerce
+                            </a>
+
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'commerce:Project_list_url_name' %}"> Projects </a></li>
+                                <li><a class="dropdown-item" href="{% url 'commerce:Contract_list_url_name' %}"> Contracts </a></li>
+                                <li><a class="dropdown-item" href="{% url 'commerce:Service_list_url_name' %}"> Services </a></li>
+
+
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Orgs&People
                             </a>
 
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:bu_list_url_name' %}">Business Units</a></li>
-                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:bank_list_url_name' %}">Banks</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:BusinessUnit_list_url_name' %}">Business Units</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:Bank_list_url_name' %}">Banks</a></li>
+                                <li><a class="dropdown-item" href="{% url 'orgsandpeople:Email_list_url_name' %}">Emails</a></li>
 
                             </ul>
                         </li>
@@ -52,11 +67,11 @@
                             </a>
 
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'handbooks:currencies_list_url_name' %}">Currencies</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:legal_forms_list_url_name' %}">LegalForms</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:countries_list_url_name' %}">Countries</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:res_group_list_url_name' %}">ResourceGroups</a></li>
-                                <li><a class="dropdown-item" href="{% url 'handbooks:resource_type_list_url_name' %}">ResourceTypes</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:Currency_list_url_name' %}">Currencies</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:LegalForm_list_url_name' %}">LegalForms</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:Country_list_url_name' %}">Countries</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:ResourceGroup_list_url_name' %}">ResourceGroups</a></li>
+                                <li><a class="dropdown-item" href="{% url 'handbooks:ResourceType_list_url_name' %}">ResourceTypes</a></li>
 
                             </ul>
 
@@ -65,7 +80,7 @@
 
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Auth(<b>{{ request.user }}</b>)
+                                Auth({{ request.user|truncatechars:7 }})
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 {% if request.user.is_authenticated %}
@@ -89,16 +104,16 @@
 
                     {% if show_query %}
                     <form action="{{ redirect_url }}" class="d-flex me-auto mt-2">
-                        <input class="form-control me-2 " value="{{search_query}}" type="search" placeholder="Search"
+                        <input class="form-control form-control-sm me-1 " value="{{search_query}}" type="search" placeholder="Search"
                         aria-label="Search" name="query">
-                        <button class="btn btn-outline-success" type="submit">Search</button>
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Search</button>
                     </form>
                     {% endif %}
 
                     {% if nav_custom_button.show and nav_custom_button.func %}
                       <div class="d-lg-flex col-lg-2 justify-content-lg-end">
                           <a href="{{ nav_custom_button.func }}"
-                             class="btn btn-primary">
+                             class="btn btn-sm btn-secondary">
                               {{ nav_custom_button.name }}
                           </a>
                       </div>

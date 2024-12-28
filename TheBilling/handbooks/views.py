@@ -15,18 +15,18 @@ class Handbooks(LoginRequiredMixin):
 
 class LegalForms(Handbooks):
     model = LegalForm
-    # form_model = LegalFormForm
+    # print(model.__dict__)
     form_class = LegalFormForm
     fields = None
     title = "Legal Forms"
-    create_url_name = 'handbooks:legal_form_create_url_name'
-    update_url_name = 'handbooks:legal_form_update_url_name'
-    delete_url_name = 'handbooks:legal_form_delete_url_name'
-    list_url_name = 'handbooks:legal_forms_list_url_name'
+    create_url_name = model.CREATE_URL_NAME
+    update_url_name = model.UPDATE_URL_NAME
+    delete_url_name = model.DELETE_URL_NAME
+    list_url_name = model.LIST_URL_NAME
+    details_url_name = model.DETAILS_URL_NAME
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
-
 
 class LegalFormsList(LegalForms, ObjectsListMixin):
     context_object_name = "legal_forms"
@@ -35,17 +35,14 @@ class LegalFormsList(LegalForms, ObjectsListMixin):
     query_fields = ['short_name', 'full_name']
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
-
 class LegalFormDetails(LegalForms, ObjectDetailsMixin):
     title = f"Legal Form"
     fields_to_header = ['id', 'short_name', 'full_name']
     fields_to_main = ['description']
     fields_to_footer = ['time_create', 'time_update', 'owner']
 
-
 class LegalFormCreate(LegalForms, ObjectCreateMixin):
     title = "Legal Form Create"
-
 
 class LegalFormUpdate(LegalForms, ObjectUpdateMixin):
     title = "Updating legal form"
@@ -57,10 +54,11 @@ class ResourceGroups(Handbooks):
     model = ResourceGroup
     form_class = ResourceGroupForm
     title = "Resource Group"
-    create_url_name = 'handbooks:res_group_create_url_name'
-    update_url_name = 'handbooks:res_group_update_url_name'
-    delete_url_name = 'handbooks:res_group_delete_url_name'
-    list_url_name = 'handbooks:res_group_list_url_name'
+    create_url_name = model.CREATE_URL_NAME
+    update_url_name = model.UPDATE_URL_NAME
+    delete_url_name = model.DELETE_URL_NAME
+    details_url_name = model.DETAILS_URL_NAME
+    list_url_name = model.LIST_URL_NAME
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
@@ -78,14 +76,11 @@ class ResourceGroupDetails(ResourceGroups, ObjectDetailsMixin):
     fields_to_main = ['description']
     fields_to_footer = ['time_create', 'time_update', 'owner']
 
-
 class ResourceGroupCreate(ResourceGroups, ObjectCreateMixin):
     title = "Resource Group Create"
 
-
 class ResourceGroupUpdate(ResourceGroups, ObjectUpdateMixin):
     title = "Updating Resource Group"
-
 
 class ResourceGroupDelete(ResourceGroups, ObjectDeleteMixin):
     title = "Deleting Resource Group"
@@ -98,15 +93,15 @@ class Countries(Handbooks):
     form_class = CountryForm
 
     title = "Countries"
-    create_url_name = 'handbooks:country_create_url_name'
-    update_url_name = 'handbooks:country_update_url_name'
-    delete_url_name = 'handbooks:country_delete_url_name'
-    list_url_name = 'handbooks:countries_list_url_name'
+    create_url_name = model.CREATE_URL_NAME
+    update_url_name = model.UPDATE_URL_NAME
+    delete_url_name = model.DELETE_URL_NAME
+    details_url_name = model.DETAILS_URL_NAME
+
+    list_url_name = model.LIST_URL_NAME
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
-
-
 
 class CountriesList(Countries, ObjectsListMixin):
     fields_to_show = ['iso3166', 'eng_name', 'rus_name', 'alfa2']
@@ -117,7 +112,6 @@ class CountriesList(Countries, ObjectsListMixin):
     delete_button = True
     nav_custom_button = {'name': 'NewItem', 'show': True}
 
-
 class CountryDetails(Countries, ObjectDetailsMixin):
     title = "Country Details"
     fields_to_header = ['iso3166', 'alfa2', 'alfa3']
@@ -125,7 +119,6 @@ class CountryDetails(Countries, ObjectDetailsMixin):
     fields_to_footer = ['time_create', 'time_update', 'owner']
     edit_button = False
     delete_button = False
-
 
 class CountryCreate(Countries, ObjectCreateMixin):
     title = "Create country"
@@ -148,9 +141,7 @@ class CountryCreate(Countries, ObjectCreateMixin):
             'object_create_url_name': self.create_url_name
         }
         context.update(self.additional_context)
-
         return render(request, self.template_name, context=context)
-
 
 class CountryDelete(Countries, ObjectDeleteMixin):
     pass
@@ -159,19 +150,17 @@ class CountryDelete(Countries, ObjectDeleteMixin):
 class Currencies(Handbooks):
     model = Currency
     objects_per_page = 10
-    form_model = CurrencyForm
     form_class = CurrencyForm
-
     title = "Currencies"
-    create_url_name = 'handbooks:currency_create_url_name'
-    update_url_name = 'handbooks:currency_update_url_name'
-    delete_url_name = 'handbooks:currency_delete_url_name'
-    list_url_name = 'handbooks:currencies_list_url_name'
+    create_url_name = model.CREATE_URL_NAME
+    update_url_name = model.UPDATE_URL_NAME
+    delete_url_name = model.DELETE_URL_NAME
+    details_url_name = model.DETAILS_URL_NAME
+
+    list_url_name = model.LIST_URL_NAME
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
-
-
 
 class CurrenciesList(Currencies, ObjectsListMixin):
     fields_to_show = ['numeric', 'name', 'code']
@@ -201,7 +190,7 @@ class CurrencyCreate(Currencies, ObjectCreateMixin):
         data = request.POST.copy()
         name = request.POST['name']
         data.update(code2currency(name))
-        bound_form = self.form_model(data)
+        bound_form = self.form_class(data)
 
         if bound_form.is_valid():
             bound_form.save()
@@ -220,19 +209,18 @@ class CurrencyDelete(Currencies, ObjectDeleteMixin):
 
 class ResourceTypes(Handbooks):
     model = ResourceType
-    form_model = ResourceTypeForm
     form_class = ResourceTypeForm
 
     title = "ResourceTypes"
-    create_url_name = 'handbooks:resource_type_create_url_name'
-    update_url_name = 'handbooks:resource_type_update_url_name'
-    delete_url_name = 'handbooks:resource_type_delete_url_name'
-    list_url_name = 'handbooks:resource_type_list_url_name'
+    create_url_name = model.CREATE_URL_NAME
+    update_url_name = model.UPDATE_URL_NAME
+    delete_url_name = model.DELETE_URL_NAME
+    details_url_name = model.DETAILS_URL_NAME
+
+    list_url_name = model.LIST_URL_NAME
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
-
-
 
 class ResourceTypeList(ResourceTypes, ObjectsListMixin):
     fields_to_show = ['rtype', 'group']
