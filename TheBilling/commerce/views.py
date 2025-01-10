@@ -72,7 +72,7 @@ class Contracts(Commerce):
 
 class ContractList(Contracts, ObjectsListMixin):
     fields_to_show = ['number', 'title', 'seller', 'buyer', 'project', 'status']
-    query_fields = ['title', 'number']
+    query_fields = ['title', 'number', 'seller__payment_name', 'buyer__payment_name']
     order_by = 'number'
     template_name = 'obj_list.html'
     nav_custom_button = {'name': 'NewItem', 'show': True}
@@ -146,6 +146,8 @@ class ContractServices(Commerce):
     update_url_name = 'commerce:contract_service_update_url_name'
     delete_url_name = 'commerce:contract_service_delete_url_name'
     details_url_name = 'commerce:contract_service_detail_url_name'
+    fk_param = Param(field_name='contract', key='fkey')
+
     # details_url_name = model.DETAILS_URL_NAME
     # update_url_name = model.UPDATE_URL_NAME
     # delete_url_name = model.DELETE_URL_NAME
@@ -154,7 +156,9 @@ class ContractServices(Commerce):
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
-    filter_param = Param('contract', 'contract_pk')
+    filter_param = fk_param
+    create_param = fk_param
+
 
 class ContractServiceList(ContractServices, ObjectsListMixin):
     fields_to_show = ['contract', 'service_name', 'resource', 'price', 'currency']

@@ -24,13 +24,13 @@ urlpatterns = [
     path('services/<int:pk>/delete/', cviews.ServiceDelete.as_view(), name=cmodels.Service.LOCAL_DELETE_URL_NAME()),
     path('services/<int:pk>/', cviews.ServiceDetails.as_view(), name=cmodels.Service.LOCAL_DETAILS_URL_NAME()),
 
-    path('Contract/<int:contract_pk>/services/', cviews.ContractServiceList.as_view(), name='contract_service_list_url_name'),
-    path('Contract/<int:contract_pk>/service/create/', cviews.ContractServiceCreate.as_view(), name='contract_service_create_url_name'),
-    path('Contract/<int:contract_pk>/service/update/<int:pk>/', cviews.ContractServiceUpdate.as_view(),
+    path('Contract/<int:fkey>/services/', cviews.ContractServiceList.as_view(), name='contract_service_list_url_name'),
+    path('Contract/<int:fkey>/service/create/', cviews.ContractServiceCreate.as_view(), name='contract_service_create_url_name'),
+    path('Contract/<int:fkey>/service/update/<int:pk>/', cviews.ContractServiceUpdate.as_view(),
          name='contract_service_update_url_name'),
-    path('Contract/<int:contract_pk>/service/delete/<int:pk>/', cviews.ContractServiceDelete.as_view(),
+    path('Contract/<int:fkey>/service/delete/<int:pk>/', cviews.ContractServiceDelete.as_view(),
          name='contract_service_delete_url_name'),
-    path('Contract/<int:contract_pk>/service/<int:pk>/', cviews.ContractServiceDetails.as_view(),
+    path('Contract/<int:fkey>/service/<int:pk>/', cviews.ContractServiceDetails.as_view(),
          name='contract_service_detail_url_name'),
 
 ]

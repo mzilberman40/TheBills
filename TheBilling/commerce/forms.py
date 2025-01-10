@@ -58,7 +58,7 @@ class ContractForm(forms.ModelForm):
             'start_date', 'end_date', 'status',
         ]
         widgets = {
-            'start_date': forms.DateInput(),
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
             'end_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
@@ -105,11 +105,11 @@ class ServiceForm(forms.ModelForm):
 
     class Meta:
         model = Service
-        fields = ['status', 'service_name', 'service_type', 'billing_frequency', 'start_date',
+        fields = ['status', 'service_type', 'service_name', 'billing_frequency', 'start_date',
                   'finish_date', 'price', 'currency', 'contract', 'resource', 'description']
         widgets = {
             'status': forms.Select(),
-            'service_name': forms.TextInput(),
+            'service_name': forms.Select(),
             'service_type': forms.Select(),
             'billing_frequency': forms.Select(),
             'start_date': forms.DateInput(attrs={'type': 'date'}),
@@ -121,18 +121,3 @@ class ServiceForm(forms.ModelForm):
             'description': forms.Textarea(),
             'is_active': forms.CheckboxInput(),
         }
-        # labels = {
-        #     'status': 'Status',
-        #     'service_name': 'Service Name',
-        #     'service_type': 'Service Type',
-        #     'billing_frequency': 'Billing Frequency',
-        #     'start_date': 'Start Date',
-        #     'finish_date': 'Finish Date',
-        #     'price': 'Price',
-        #     'currency': 'Currency',
-        #     'contract': 'Contract',
-        #     'resource': 'Resource',
-        #     'description': 'Description',
-        #     'is_active': 'Is Active?',
-        # }
-

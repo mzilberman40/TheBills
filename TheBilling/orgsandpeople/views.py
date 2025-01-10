@@ -3,8 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from commerce.forms import ResourceForm, ContractForm, ServiceForm
 from commerce.models import Resource, Contract, Service
 from library.Param import Param
-from orgsandpeople.forms import BankForm, BusinessUnitForm, AccountForm, PhoneNumberForm, TelegramDataForm, EmailForm
-from orgsandpeople.models import Bank, BusinessUnit, Account, PhoneNumber, TelegramData, Email
+from orgsandpeople.forms import BankForm, BusinessUnitForm, AccountForm, PhoneNumberForm, EmailForm
+from orgsandpeople.models import Bank, BusinessUnit, Account, PhoneNumber, Email
 from utils import (ObjectDetailsMixin, ObjectCreateMixin,
                    ObjectUpdateMixin, ObjectDeleteMixin, ObjectsListMixin)
 
@@ -53,9 +53,9 @@ class BusinessUnitDelete(BusinessUnits, ObjectDeleteMixin):
 class BusinessUnitDetails(BusinessUnits, ObjectDetailsMixin):
     template_name = 'orgsandpeople/bu_details.html'
     title = f"Business Unit Details"
-    fields_to_header = ['id', 'inn', 'slug', 'payment_name', 'special_status']
-    fields_to_main = ['legal_form', 'first_name', 'middle_name', 'last_name', 'full_name',
-                      'short_name', 'notes', 'address', 'e_mails', 'telegramid']
+    fields_to_header = ['id', 'inn', 'special_status', 'status', 'activate_date', 'deactivate_date']
+    fields_to_main = ['payment_name', 'slug', 'legal_form', 'first_name', 'middle_name', 'last_name', 'full_name',
+                      'short_name', 'notes', 'address', 'e_mails',]
     fields_to_footer = ['country', 'created', 'modified', 'user']
 
 
@@ -319,8 +319,8 @@ class BUPhoneList(Phones, ObjectsListMixin):
 class BUPhoneDetails(Phones, ObjectDetailsMixin):
     edit_button = True
     title = "Phone Details"
-    fields_to_header = ['id', 'bu']
-    fields_to_main = [  'phone_number', 'phone_type', 'is_for_call', 'is_for_SMS', 'is_for_whatsapp']
+    fields_to_header = ['id', 'bu', 'is_verified']
+    fields_to_main = [  'phone_number', 'phone_type', 'is_for_call', 'is_for_SMS', 'is_for_whatsapp', 'is_for_telegram']
     fields_to_footer = ['created_at', 'updated_at',]
 
 class BUPhoneCreate(Phones, ObjectCreateMixin):
@@ -357,8 +357,8 @@ class EmailList(Emails, ObjectsListMixin):
 class EmailDetails(Emails, ObjectDetailsMixin):
     template_name = 'obj_details.html'
     title = f"Email Details"
-    fields_to_header = ['id', 'email', 'bu']
-    fields_to_main = []
+    fields_to_header = ['id', 'bu', 'is_verified']
+    fields_to_main = ['email']
     fields_to_footer = ['email_type']
 
 class EmailCreate(Emails, ObjectCreateMixin):
@@ -396,7 +396,6 @@ class BUEmailList(BUEmails, ObjectsListMixin):
     query_fields = ['email']
     order_by = 'email'
     template_name = 'obj_list.html'
-    # template_name = 'orgsandpeople/email_list.html'
     edit_button = True
     delete_button = True
     view_button = True
@@ -404,8 +403,6 @@ class BUEmailList(BUEmails, ObjectsListMixin):
 
 class BUEmailDetails(BUEmails, ObjectDetailsMixin):
     edit_button = True
-    # template_name = 'orgsandpeople/email_details.html'
-
     title = "Email Details"
     fields_to_header = ['id', 'bu']
     fields_to_main = [  'email', 'email_type', ]
@@ -420,50 +417,50 @@ class BUEmailUpdate(BUEmails, ObjectUpdateMixin):
 class BUEmailDelete(BUEmails, ObjectDeleteMixin):
     pass
 
-
-class BUTelegramData(OrgsAndPeople):
-    model = TelegramData
-    form_class = TelegramDataForm
-    title = "Telegram accounts"
-    create_url_name = 'orgsandpeople:bu_telegram_create_url_name'
-    update_url_name = 'orgsandpeople:bu_telegram_update_url_name'
-    delete_url_name = 'orgsandpeople:bu_telegram_delete_url_name'
-    details_url_name = 'orgsandpeople:bu_telegram_detail_url_name'
-
-    list_url_name = 'orgsandpeople:bu_telegrams_url_name'
-    fk_param = Param(field_name='bu', key='fkey')
-
-    nav_custom_button_func = create_url_name
-    redirect_url_name = list_url_name
-    success_url_name = list_url_name
-    failure_url_name = list_url_name
-    filter_param = fk_param
-    redirect_param = fk_param
-    create_param = fk_param
-
-
-class BUTelegramDataList(BUTelegramData, ObjectsListMixin):
-    fields_to_show = ['tg_id', 'tg_type', 'bu']
-    query_fields = ['tg_id', 'tg_name', 'tg_type']
-    order_by = 'tg_id'
-    template_name = 'obj_list.html'
-    edit_button = True
-    delete_button = True
-    view_button = True
-    nav_custom_button = {'name': 'New Telega', 'show': True}
-
-class BUTelegramDataDetails(BUTelegramData, ObjectDetailsMixin):
-    edit_button = True
-    title = "Telegram account Details"
-    fields_to_header = ['id', 'bu']
-    fields_to_main = [  'tg_number', 'tg_type']
-    fields_to_footer = ['created_at', 'updated_at',]
-
-class BUTelegramDataCreate(BUTelegramData, ObjectCreateMixin):
-    title = "Create TG account"
-
-class BUTelegramDataUpdate(BUTelegramData, ObjectUpdateMixin):
-    title = "Updating TG account"
-
-class BUTelegramDataDelete(BUTelegramData, ObjectDeleteMixin):
-    pass
+#
+# class BUTelegramData(OrgsAndPeople):
+#     model = TelegramData
+#     form_class = TelegramDataForm
+#     title = "Telegram accounts"
+#     create_url_name = 'orgsandpeople:bu_telegram_create_url_name'
+#     update_url_name = 'orgsandpeople:bu_telegram_update_url_name'
+#     delete_url_name = 'orgsandpeople:bu_telegram_delete_url_name'
+#     details_url_name = 'orgsandpeople:bu_telegram_detail_url_name'
+#
+#     list_url_name = 'orgsandpeople:bu_telegrams_url_name'
+#     fk_param = Param(field_name='bu', key='fkey')
+#
+#     nav_custom_button_func = create_url_name
+#     redirect_url_name = list_url_name
+#     success_url_name = list_url_name
+#     failure_url_name = list_url_name
+#     filter_param = fk_param
+#     redirect_param = fk_param
+#     create_param = fk_param
+#
+#
+# class BUTelegramDataList(BUTelegramData, ObjectsListMixin):
+#     fields_to_show = ['tg_id', 'tg_type', 'bu']
+#     query_fields = ['tg_id', 'tg_name', 'tg_type']
+#     order_by = 'tg_id'
+#     template_name = 'obj_list.html'
+#     edit_button = True
+#     delete_button = True
+#     view_button = True
+#     nav_custom_button = {'name': 'New Telega', 'show': True}
+#
+# class BUTelegramDataDetails(BUTelegramData, ObjectDetailsMixin):
+#     edit_button = True
+#     title = "Telegram account Details"
+#     fields_to_header = ['id', 'bu']
+#     fields_to_main = [  'tg_number', 'tg_type']
+#     fields_to_footer = ['created_at', 'updated_at',]
+#
+# class BUTelegramDataCreate(BUTelegramData, ObjectCreateMixin):
+#     title = "Create TG account"
+#
+# class BUTelegramDataUpdate(BUTelegramData, ObjectUpdateMixin):
+#     title = "Updating TG account"
+#
+# class BUTelegramDataDelete(BUTelegramData, ObjectDeleteMixin):
+#     pass

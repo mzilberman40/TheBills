@@ -52,14 +52,14 @@ urlpatterns = [
          name='bu_phone_delete_url_name'),
     path('BU/<int:fkey>/phone/<int:pk>/', oview.BUPhoneDetails.as_view(), name='bu_phone_detail_url_name'),
 
-
-    path('BU/<int:fkey>/tgs/', oview.BUTelegramDataList.as_view(), name='bu_telegrams_url_name'),
-    path('BU/<int:fkey>/tg/create/', oview.BUTelegramDataCreate.as_view(), name='bu_telegram_create_url_name'),
-    path('BU/<int:fkey>/tg/update/<int:pk>/', oview.BUTelegramDataUpdate.as_view(),
-         name='bu_telegram_update_url_name'),
-    path('BU/<int:fkey>/tg/delete/<int:pk>/', oview.BUTelegramDataDelete.as_view(),
-         name='bu_telegram_delete_url_name'),
-    path('BU/<int:fkey>/tg/<int:pk>/', oview.BUTelegramDataDetails.as_view(), name='bu_telegram_detail_url_name'),
+    #
+    # path('BU/<int:fkey>/tgs/', oview.BUTelegramDataList.as_view(), name='bu_telegrams_url_name'),
+    # path('BU/<int:fkey>/tg/create/', oview.BUTelegramDataCreate.as_view(), name='bu_telegram_create_url_name'),
+    # path('BU/<int:fkey>/tg/update/<int:pk>/', oview.BUTelegramDataUpdate.as_view(),
+    #      name='bu_telegram_update_url_name'),
+    # path('BU/<int:fkey>/tg/delete/<int:pk>/', oview.BUTelegramDataDelete.as_view(),
+    #      name='bu_telegram_delete_url_name'),
+    # path('BU/<int:fkey>/tg/<int:pk>/', oview.BUTelegramDataDetails.as_view(), name='bu_telegram_detail_url_name'),
 
     path('BU/<int:fkey>/emails/', oview.BUEmailList.as_view(), name='bu_emails_url_name'),
     path('BU/<int:fkey>/email/create/', oview.BUEmailCreate.as_view(), name='bu_email_create_url_name'),

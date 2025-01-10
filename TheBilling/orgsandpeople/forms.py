@@ -6,7 +6,7 @@ from django.core.validators import validate_email, MaxLengthValidator
 from django.utils.text import slugify
 
 from library.mydecorators import tracer
-from orgsandpeople.models import Email, BusinessUnit, Bank, Account, PhoneNumber, TelegramData
+from orgsandpeople.models import Email, BusinessUnit, Bank, Account, PhoneNumber
 from handbooks.models import LegalForm, Country
 
 DEBUG = 0
@@ -49,6 +49,7 @@ class EmailForm(forms.ModelForm):
     class Meta:
         model = Email
         fields = ['email', 'email_type', 'bu']
+        exclude= ['verified']
         widgets = {
             'email': forms.EmailInput(attrs={
                 'placeholder': 'Enter Email'
@@ -62,47 +63,47 @@ class EmailForm(forms.ModelForm):
             'email_type': 'Email Type',
         }
 
-
-class TelegramDataForm(forms.ModelForm):
-    """
-    Form to create or update Telegram data for a user.
-    """
-
-    class Meta:
-        model = TelegramData
-        fields = '__all__'
-        exclude = ['bu']
-        widgets = {
-            'tg_id': forms.NumberInput(attrs={
-                'placeholder': 'Enter Telegram ID'
-            }),
-            'tg_username': forms.TextInput(attrs={
-                'placeholder': 'Enter Telegram Username (e.g., johndoe123)'
-            }),
-            'is_bot': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
-        labels = {
-            'tg_id': 'Telegram ID',
-            'tg_type': 'Telegram Type',
-            'tg_username': 'Telegram Username',
-            'is_bot': 'Is Bot',
-        }
-        help_texts = {
-            'tg_id': 'Unique numeric ID assigned by Telegram.',
-            'tg_username': 'Username without @ (e.g., johndoe123).',
-            'is_bot': 'Check if the account is a bot.',
-        }
-
-    def clean_telegram_username(self):
-        """
-        Custom validation for Telegram username.
-        """
-        telegram_username = self.cleaned_data.get('tg_username')
-        if telegram_username and not telegram_username.isalnum() and "_" not in telegram_username:
-            raise forms.ValidationError(
-                "Telegram username can only contain letters, numbers, and underscores."
-            )
-        return telegram_username
+#
+# class TelegramDataForm(forms.ModelForm):
+#     """
+#     Form to create or update Telegram data for a user.
+#     """
+#
+#     class Meta:
+#         model = TelegramData
+#         fields = '__all__'
+#         # exclude = ['bu']
+#         widgets = {
+#             'tg_id': forms.NumberInput(attrs={
+#                 'placeholder': 'Enter Telegram ID'
+#             }),
+#             'tg_username': forms.TextInput(attrs={
+#                 'placeholder': 'Enter Telegram Username (e.g., johndoe123)'
+#             }),
+#             'is_bot': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+#         }
+#         labels = {
+#             'tg_id': 'Telegram ID',
+#             'tg_type': 'Telegram Type',
+#             'tg_username': 'Telegram Username',
+#             'is_bot': 'Is Bot',
+#         }
+#         help_texts = {
+#             'tg_id': 'Unique numeric ID assigned by Telegram.',
+#             'tg_username': 'Username without @ (e.g., johndoe123).',
+#             'is_bot': 'Check if the account is a bot.',
+#         }
+#
+#     def clean_telegram_username(self):
+#         """
+#         Custom validation for Telegram username.
+#         """
+#         telegram_username = self.cleaned_data.get('tg_username')
+#         if telegram_username and not telegram_username.isalnum() and "_" not in telegram_username:
+#             raise forms.ValidationError(
+#                 "Telegram username can only contain letters, numbers, and underscores."
+#             )
+#         return telegram_username
 
 
 class PhoneNumberForm(forms.ModelForm):
@@ -112,17 +113,18 @@ class PhoneNumberForm(forms.ModelForm):
     class Meta:
         model = PhoneNumber
         fields = '__all__'
-        exclude= ['bu']
+        exclude= ['verified']
         widgets = {
             'phone_number': forms.TextInput(attrs={
                 'placeholder': 'Enter phone number (e.g., +123456789)'
             }),
             'is_for_call': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_for_whatsapp': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_for_SMC': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
+            'is_for_SMS': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_for_Telegram': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
 
+            # 'verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
 
 
 class BankForm(forms.ModelForm):

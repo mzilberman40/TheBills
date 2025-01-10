@@ -16,6 +16,7 @@ class LegalForm(MyModel):
     NAME_SPACE = 'handbooks'
 
     class Meta:
+        app_label = 'handbooks'
         verbose_name = "LegalForm"
         verbose_name_plural = "LegalForms"
         ordering = ('short_name',)
@@ -47,6 +48,7 @@ class Country(MyModel):
     NAME_SPACE = 'handbooks'
 
     class Meta:
+        app_label = 'handbooks'
         verbose_name = "Country"
         verbose_name_plural = "Countries"
         ordering = ('eng_name',)
@@ -63,6 +65,7 @@ class Currency(MyModel):
     NAME_SPACE = 'handbooks'
 
     class Meta:
+        app_label = 'handbooks'
         verbose_name = "Currency"
         verbose_name_plural = "Currencies"
         ordering = ('name',)
@@ -78,6 +81,7 @@ class ResourceGroup(MyModel):
     NAME_SPACE = 'handbooks'
 
     class Meta:
+        app_label = 'handbooks'
         verbose_name = "Resource Group"
         verbose_name_plural = "Resource Groups"
         ordering = ('name',)
@@ -93,9 +97,25 @@ class ResourceType(MyModel):
     NAME_SPACE = 'handbooks'
 
     class Meta:
+        app_label = 'handbooks'
         verbose_name = "ResourceType"
         verbose_name_plural = "ResourceTypes"
         ordering = ('rtype',)
 
     def __str__(self):
         return f"{self.rtype}"
+
+class ServiceName(MyModel):
+    name = models.CharField(max_length=120, unique=True)
+    description = models.CharField(max_length=1024, blank=True)
+
+    NAME_SPACE = 'handbooks'
+
+    class Meta:
+        app_label = 'handbooks'
+        verbose_name = "Service Name"
+        verbose_name_plural = "Service Names"
+        ordering = ('name',)
+
+    def __str__(self):
+        return f"{self.name}"

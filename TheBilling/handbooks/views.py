@@ -2,8 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from tools.from_moneyed import code2currency
 from tools.name2country import name2country
-from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceTypeForm
-from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType
+from handbooks.forms import LegalFormForm, CountryForm, CurrencyForm, ResourceGroupForm, ResourceTypeForm, \
+    ServiceNameForm
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType, ServiceName
 from utils import (ObjectDetailsMixin, ObjectCreateMixin, ObjectUpdateMixin,
                    ObjectDeleteMixin, ObjectsListMixin)
 
@@ -248,4 +249,47 @@ class ResourceTypeUpdate(ResourceTypes, ObjectUpdateMixin):
     title = "Updating Resource Type"
 
 class ResourceTypeDelete(ResourceTypes, ObjectDeleteMixin):
+    pass
+
+class ServiceNames(Handbooks):
+    model = ServiceName
+    form_class = ServiceNameForm
+
+    title = "Service Names"
+    create_url_name = model.CREATE_URL_NAME
+    update_url_name = model.UPDATE_URL_NAME
+    delete_url_name = model.DELETE_URL_NAME
+    details_url_name = model.DETAILS_URL_NAME
+
+    list_url_name = model.LIST_URL_NAME
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+
+class ServiceNameList(ServiceNames, ObjectsListMixin):
+    fields_to_show = ['name', 'description']
+    query_fields = ['name']
+    order_by = 'name'
+    template_name = 'obj_list.html'
+    edit_button = True
+    delete_button = True
+    nav_custom_button = {
+        'name': 'NewItem',
+        'show': True,
+        'func': ServiceNames.create_url_name,
+    }
+
+class ServiceNameDetails(ServiceNames, ObjectDetailsMixin):
+    title = "Service Name Details"
+    fields_to_header = ['id', 'name']
+    fields_to_main = ['description']
+    fields_to_footer = []
+
+class ServiceNameCreate(ServiceNames, ObjectCreateMixin):
+    title = "Service Name Create"
+
+class ServiceNameUpdate(ServiceNames, ObjectUpdateMixin):
+    title = "Updating Service Name"
+
+class ServiceNameDelete(ServiceNames, ObjectDeleteMixin):
     pass

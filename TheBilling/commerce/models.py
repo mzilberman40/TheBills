@@ -6,7 +6,7 @@ from django_extensions.db.models import TitleSlugDescriptionModel, TimeStampedMo
 
 from django.utils.timezone import now  # For handling start_time
 
-from handbooks.models import ResourceType, Currency
+from handbooks.models import ResourceType, Currency, ServiceName
 from library.my_model import MyModel
 from orgsandpeople.models import BusinessUnit
 
@@ -19,6 +19,7 @@ class Project(MyModel):
     beneficiary = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='projects')
 
     class Meta:
+        app_label = 'commerce'
         verbose_name = "Project"
         verbose_name_plural = "Projects"
         ordering = ('title',)
@@ -52,12 +53,10 @@ class Resource(TimeStampedModel, MyModel):
     user = models.ForeignKey(User, verbose_name='user', on_delete=models.PROTECT)
 
     class Meta:
+        app_label = 'commerce'
         verbose_name = "Resource"
         verbose_name_plural = "Resources"
         ordering = ('name',)
-
-    # def __str__(self):
-    #     return f"{self.name}, {self.rtype}"
 
     def __str__(self):
         return self.name
@@ -88,6 +87,7 @@ class Contract(TimeStampedModel, MyModel):
     user = models.ForeignKey(User, verbose_name='User', on_delete=models.PROTECT)
 
     class Meta:
+        app_label = 'commerce'
         verbose_name = "Contract"
         verbose_name_plural = "Contracts"
         ordering = ('number', 'title',)
@@ -125,6 +125,7 @@ class ServicePriceHistory(models.Model):
         verbose_name = "Service Price History"
         verbose_name_plural = "Service Price Histories"
         ordering = ['-effective_date', '-changed_at']
+        app_label = 'commerce'
 
     def __str__(self):
         return f"Price change for {self.service.service_name}: {self.new_price} effective {self.effective_date}"
@@ -150,8 +151,13 @@ class Service(MyModel):
         ('paused', 'Paused'),
         ('finished', 'Finished'),
     ]
+    # service_name = models.CharField(max_length=255, verbose_name="Service Name")
 
-    service_name = models.CharField(max_length=255, verbose_name="Service Name")
+    service_name = models.ForeignKey(ServiceName,
+        on_delete=models.PROTECT,
+        verbose_name="Service Name",
+        related_name="services"
+    )
     service_type = models.CharField(max_length=50, choices=SERVICE_TYPE_CHOICES, verbose_name="Service Type")
     billing_frequency = models.CharField(
         max_length=50,
@@ -267,5 +273,6 @@ class Service(MyModel):
         verbose_name = "Service"
         verbose_name_plural = "Services"
         ordering = ('service_name',)
+        app_label = 'commerce'
 
     NAME_SPACE = 'commerce'

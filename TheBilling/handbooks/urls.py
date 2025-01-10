@@ -35,4 +35,14 @@ urlpatterns = [
     path('resources/<int:pk>/update/', hview.ResourceTypeUpdate.as_view(), name=hmodels.ResourceType.LOCAL_UPDATE_URL_NAME()),
     path('resources/<int:pk>/delete/', hview.ResourceTypeDelete.as_view(), name=hmodels.ResourceType.LOCAL_DELETE_URL_NAME()),
     path('resources/<int:pk>/', hview.ResourceTypeDetails.as_view(), name=hmodels.ResourceType.LOCAL_DETAILS_URL_NAME()),
+
+    path('service_names/', hview.ServiceNameList.as_view(), name=hmodels.ServiceName.LOCAL_LIST_URL_NAME()),
+    path('service_names/create/', hview.ServiceNameCreate.as_view(), name=hmodels.ServiceName.LOCAL_CREATE_URL_NAME()),
+    path('service_names/<int:pk>/update/', hview.ServiceNameUpdate.as_view(),
+         name=hmodels.ServiceName.LOCAL_UPDATE_URL_NAME()),
+    path('service_names/<int:pk>/delete/', hview.ServiceNameDelete.as_view(),
+         name=hmodels.ServiceName.LOCAL_DELETE_URL_NAME()),
+    path('service_names/<int:pk>/', hview.ServiceNameDetails.as_view(),
+         name=hmodels.ServiceName.LOCAL_DETAILS_URL_NAME()),
+
 ]

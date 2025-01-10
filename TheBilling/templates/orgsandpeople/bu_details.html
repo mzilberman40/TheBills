@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<div class="card text-center">
+<div class="card text-left">
   <div class="card-header">
       <table class="table table-borderless">
           <tbody>
@@ -41,7 +41,6 @@
         <a href="{% url 'orgsandpeople:bu_contracts_url_name' fkey=object.pk %}" class="btn btn-info"> Contracts</a>
 
         <a href="{% url 'orgsandpeople:bu_emails_url_name' fkey=object.pk %}" class="btn btn-info"> Emails</a>
-        <a href="{% url 'orgsandpeople:bu_telegrams_url_name' fkey=object.pk %}" class="btn btn-info"> Telegrams</a>
         <a href="{% url 'orgsandpeople:bu_phones_url_name' fkey=object.pk %}" class="btn btn-info"> Phones</a>
 
 

@@ -1,19 +1,19 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, validate_email, MaxLengthValidator, RegexValidator
+from django.core.validators import validate_email, RegexValidator
 from django.db import models
 from django.db.models import Q
 
-from django.urls import reverse
+# from django.urls import reverse
 from django_extensions.db.models import ActivatorModel, TimeStampedModel
 from django_extensions.db.fields import AutoSlugField
 from pytils.translit import slugify as ru_slugify
 
-from library.Param import Param
+# from library.Param import Param
 from library.my_model import MyModel
 from handbooks.models import Country, Currency, ResourceGroup
 
 from django.contrib.auth import get_user_model
-from library.mydecorators import tracer
+# from library.mydecorators import tracer
 
 
 User = get_user_model()
@@ -81,6 +81,7 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, MyModel):
     class Meta:
         verbose_name = "BusinessUnit"
         verbose_name_plural = "BusinessUnits"
+        app_label = 'orgsandpeople'
 
         constraints = [
             models.CheckConstraint(
@@ -100,16 +101,22 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, MyModel):
         return ','.join(str(e) for e in Email.objects.filter(bu=self))
 
 
-class Email(MyModel):
+class Email(ActivatorModel, MyModel):
     email = models.EmailField(unique=True)
     bu = models.ForeignKey('BusinessUnit', on_delete=models.CASCADE, related_name='emails')
     email_type = models.SlugField(max_length=10, null=True, blank=True)
+    verified = models.BooleanField(
+        default=False,
+        verbose_name="Verified",
+        help_text="Indicates if the email has been verified."
+    )
 
     NAME_SPACE = 'orgsandpeople'
 
     class Meta:
         verbose_name = "Email"
         verbose_name_plural = "Emails"
+        app_label = 'orgsandpeople'
 
     def __str__(self):
         return f"{self.email} ({self.email_type})" if self.email_type else self.email
@@ -134,49 +141,50 @@ class Email(MyModel):
         super(Email, self).save(*args, **kwargs)
 
 
-class TelegramData(models.Model):
-    """
-    Model to store Telegram data for a user.
-    """
-    bu = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='telegram_data')
-    tg_id = models.BigIntegerField(primary_key=True, unique=True, verbose_name="Telegram ID",
-        help_text="Unique Telegram User ID."
-    )
-    tg_type = models.SlugField(max_length=32, null=True, blank=True)
-    tg_username = models.CharField(max_length=32, null=True, blank=True,
-        validators=[
-            RegexValidator(
-                regex=r'^[a-zA-Z0-9_]{5,32}$',
-                message="Telegram username must be 5-32 characters long and contain only letters, numbers, and underscores."
-            )
-        ],
-        verbose_name="Telegram Username",
-        help_text="Username of the user in Telegram."
-    )
-    is_bot = models.BooleanField(
-        default=False,
-        verbose_name="Is Bot",
-        help_text="Indicates whether the Telegram account is a bot."
-    )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+# class TelegramData(models.Model):
+#     """
+#     Model to store Telegram data for a user.
+#     """
+#     bu = models.ForeignKey(BusinessUnit, on_delete=models.PROTECT, related_name='telegram_data')
+#     tg_id = models.BigIntegerField(primary_key=True, unique=True, verbose_name="Telegram ID",
+#         help_text="Unique Telegram User ID."
+#     )
+#     tg_type = models.SlugField(max_length=32, null=True, blank=True)
+#     tg_username = models.CharField(max_length=32, null=True, blank=True,
+#         validators=[
+#             RegexValidator(
+#                 regex=r'^[a-zA-Z0-9_]{5,32}$',
+#                 message="Telegram username must be 5-32 characters long and contain only letters, numbers, and underscores."
+#             )
+#         ],
+#         verbose_name="Telegram Username",
+#         help_text="Username of the user in Telegram."
+#     )
+#     is_bot = models.BooleanField(
+#         default=False,
+#         verbose_name="Is Bot",
+#         help_text="Indicates whether the Telegram account is a bot."
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+#     updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+#
+#     NAME_SPACE = 'orgsandpeople'
+#
+#     # DETAILS_URL_NAME = 'orgsandpeople:bu_telegram_url_name'
+#     # UPDATE_URL_NAME = 'orgsandpeople:bu_telegram_update_url_name'
+#     # DELETE_URL_NAME = 'orgsandpeople:bu_telegram_delete_url_name'
+#     # LIST_URL_NAME = 'orgsandpeople:bu_telegrams_url_name'
+#
+#     class Meta:
+#        app_label = 'orgsandpeople'
+#         verbose_name = "Telegram Data"
+#         verbose_name_plural = "Telegram Data"
+#         ordering = ['-created_at']
+#
+#     def __str__(self):
+#         return f"{self.bu.short_name}'s Telegram Data"
 
-    NAME_SPACE = 'orgsandpeople'
-
-    # DETAILS_URL_NAME = 'orgsandpeople:bu_telegram_url_name'
-    # UPDATE_URL_NAME = 'orgsandpeople:bu_telegram_update_url_name'
-    # DELETE_URL_NAME = 'orgsandpeople:bu_telegram_delete_url_name'
-    # LIST_URL_NAME = 'orgsandpeople:bu_telegrams_url_name'
-
-    class Meta:
-        verbose_name = "Telegram Data"
-        verbose_name_plural = "Telegram Data"
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.bu.short_name}'s Telegram Data"
-
-class PhoneNumber(models.Model):
+class PhoneNumber(ActivatorModel, MyModel):
     """
     Model to store Phone numbers for a user.
     """
@@ -194,8 +202,10 @@ class PhoneNumber(models.Model):
     )
     phone_type = models.SlugField(max_length=32, null=True, blank=True)
     is_for_call = models.BooleanField(default=True, verbose_name="Is For-Call")
-    is_for_SMC = models.BooleanField(default=False, verbose_name="Is For-SMS")
+    is_for_SMS = models.BooleanField(default=False, verbose_name="Is For-SMS")
     is_for_whatsapp = models.BooleanField(default=False, verbose_name="Is For-WhatsApp")
+    is_for_telegram = models.BooleanField(default=False, verbose_name="Is For-Telegram")
+
     verified = models.BooleanField(
         default=False,
         verbose_name="Verified",
@@ -212,6 +222,7 @@ class PhoneNumber(models.Model):
     # LIST_URL_NAME = 'orgsandpeople:bu_phones_url_name'
 
     class Meta:
+        app_label = 'orgsandpeople'
         verbose_name = "Phone Number"
         verbose_name_plural = "Phone Numbers"
         ordering = ['-created_at']
@@ -219,7 +230,7 @@ class PhoneNumber(models.Model):
     def __str__(self):
         return f"{self.phone_number} (Primary: {self.phone_type})"
 
-class Account(ActivatorModel, models.Model):
+class Account(ActivatorModel, MyModel):
     name = models.CharField(max_length=32)
     business_unit = models.ForeignKey('orgsandpeople.BusinessUnit',
                                       on_delete=models.CASCADE,
@@ -259,6 +270,7 @@ class Account(ActivatorModel, models.Model):
     #     raise NotImplementedError
 
     class Meta:
+        app_label = 'orgsandpeople'
         constraints = [
             models.UniqueConstraint(
                 fields=['bank', 'account_number'],

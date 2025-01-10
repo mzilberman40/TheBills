@@ -2,7 +2,7 @@ from django import forms
 import moneyed
 # from django.core.exceptions import ValidationError
 
-from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType
+from handbooks.models import LegalForm, Country, Currency, ResourceGroup, ResourceType, ServiceName
 # from tools.texts import clear_text
 import tools.from_pycountry as fp
 from config import CCountries
@@ -164,3 +164,20 @@ class ResourceTypeForm(forms.ModelForm):
                 'placeholder': 'Group'
             }),
         }
+
+class ServiceNameForm(forms.ModelForm):
+
+    class Meta:
+        model = ServiceName
+        fields = '__all__'
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Name',
+            }),
+            'description': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Description'
+            }),
+        }
+

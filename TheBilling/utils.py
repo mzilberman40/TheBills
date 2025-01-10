@@ -97,6 +97,7 @@ class ObjectsListMixin(Objects, View):
         search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
         if search_query and self.redirect_url_name:
             z = [Q((f'{qq}__icontains', search_query)) for qq in self.query_fields]
+            print(z)
             q = functools.reduce(lambda a, b: a | b, z)
             queryset = queryset.filter(q)
 
@@ -139,7 +140,7 @@ class ObjectsListMixin(Objects, View):
             'nav_custom_button': self.nav_custom_button,
         }
         context.update(self.additional_context)
-        print("Context for list:", context)
+        # print("Context for list:", context)
 
         return render(request, self.template_name, context=context)
 
@@ -186,7 +187,7 @@ class ObjectDetailsMixin(Objects, View):
         }
         context.update(kwargs)
         context.update(self.additional_context)
-        print("Context for details:", context)
+        # print("Context for details:", context)
 
         return render(request, self.template_name, context=context)
 
@@ -199,7 +200,7 @@ class ObjectCreateMixin(Objects, View):
     create_param = None
 
     def get(self, request, **kwargs):
-        print(f"Create method kwargs: {kwargs}")
+        # print(f"Create method kwargs: {kwargs}")
         form = self.form_class()
         if self.create_param:
             field_name = self.create_param.field_name
@@ -208,7 +209,7 @@ class ObjectCreateMixin(Objects, View):
                 self.fields_to_exclude.append(field_name)
 
         fields_to_fill = self.fields_to_fill or form.fields.keys()
-        print(fields_to_fill)
+        # print(fields_to_fill)
         filter_fields(form, fields_to_fill, self.fields_to_exclude)
 
         context = {
@@ -228,7 +229,7 @@ class ObjectCreateMixin(Objects, View):
         if self.filter_param:
             field_name = self.filter_param.field_name
             field_value = kwargs.get(self.filter_param.key, None)
-            print(f"POST method kwargs: {field_name}, {field_value}")
+            # print(f"POST method kwargs: {field_name}, {field_value}")
             data[field_name] = field_value
 
         self.success_url = reverse_lazy(self.success_url_name, kwargs=kwargs)
