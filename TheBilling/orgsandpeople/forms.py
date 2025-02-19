@@ -121,7 +121,9 @@ class PhoneNumberForm(forms.ModelForm):
             'is_for_call': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_for_whatsapp': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_for_SMS': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_for_Telegram': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_for_telegram': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'activate_date': forms.DateInput(attrs={'type': 'date'}),
+            'deactivate_date': forms.DateInput(attrs={'type': 'date'}),
 
             # 'verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

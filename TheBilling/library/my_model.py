@@ -1,7 +1,4 @@
 from django.db import models
-from django.urls import reverse
-from typing import ClassVar
-
 from library.Param import Param
 
 
@@ -60,22 +57,22 @@ class MyModel(models.Model):
     def UPDATE_URL_NAME(cls):
         return f"{cls.NAME_SPACE}:{cls.LOCAL_UPDATE_URL_NAME()}"
 
-    def get_absolute_url(self):
-        """Returns the absolute URL, dynamically handling ForeignKey if provided."""
-
-        if self.FK_PARAM:
-            if self.FK_DETAILS_URL_NAME():
-                # Use ForeignKey-specific URL if key is provided
-                return reverse(self.FK_DETAILS_URL_NAME(),
-                               kwargs={self.FK_PARAM.key: getattr(self, self.FK_PARAM.field_name).pk, 'pk': self.pk})
-
-            raise NotImplementedError(f"{self.FK_DETAILS_URL_NAME()} must be defined in the subclass.")
-
-        if self.DETAILS_URL_NAME():
-            # Use global URL otherwise
-            return reverse(self.DETAILS_URL_NAME(), kwargs={'pk': self.pk})
-
-        raise NotImplementedError(f"{self.DETAILS_URL_NAME()} must be defined in the subclass.")
+    # def get_absolute_url(self):
+    #     """Returns the absolute URL, dynamically handling ForeignKey if provided."""
+    #
+    #     if self.FK_PARAM:
+    #         if self.FK_DETAILS_URL_NAME():
+    #             # Use ForeignKey-specific URL if key is provided
+    #             return reverse(self.FK_DETAILS_URL_NAME(),
+    #                            kwargs={self.FK_PARAM.key: getattr(self, self.FK_PARAM.field_name).pk, 'pk': self.pk})
+    #
+    #         raise NotImplementedError(f"{self.FK_DETAILS_URL_NAME()} must be defined in the subclass.")
+    #
+    #     if self.DETAILS_URL_NAME():
+    #         # Use global URL otherwise
+    #         return reverse(self.DETAILS_URL_NAME(), kwargs={'pk': self.pk})
+    #
+    #     raise NotImplementedError(f"{self.DETAILS_URL_NAME()} must be defined in the subclass.")
     #
     # def do_update(self, **kwargs):
     #     """Returns the update URL, dynamically handling ForeignKey if provided."""

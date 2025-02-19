@@ -86,7 +86,7 @@ class ContractDetails(Contracts, ObjectDetailsMixin):
     title = f"Contract Details"
     fields_to_header = ['id', 'title', 'number', 'seller', 'buyer', 'project',]
     fields_to_main = ['description']
-    fields_to_footer = ['status', 'start_date', 'end_date', 'user', 'create_time', 'update_time']
+    fields_to_footer = ['status', 'start_date', 'end_date', 'user', 'created', 'modified']
 
 class ContractCreate(Contracts, ObjectCreateMixin):
     title = "Contract Create"
@@ -122,6 +122,7 @@ class ServiceList(Services, ObjectsListMixin):
     delete_button = True
 
 class ServiceDetails(Services, ObjectDetailsMixin):
+    template_name = 'commerce/service_details.html'
     title = f"Service Details"
     fields_to_header = ['id', 'contract', 'service_name', 'service_type', 'status']
     fields_to_main = ['billing_frequency', 'price', 'currency', 'resource', 'description']
@@ -138,6 +139,43 @@ class ServiceDelete(Services, ObjectDeleteMixin):
     title = "Deleting Service"
 
 
+class ServicePrices(Commerce):
+    model = ServicePrice
+    form_class = ServicePriceForm
+    title = "Service Prices"
+    create_url_name = 'commerce:service_price_create_url_name'
+    # update_url_name = 'commerce:service_price_update_url_name'
+    delete_url_name = 'commerce:service_price_delete_url_name'
+    details_url_name = model.DETAILS_URL_NAME
+    fk_param = Param(field_name='service', key='fkey')
+    filter_param = fk_param
+    redirect_param = fk_param
+    create_param = fk_param
+    list_url_name = 'commerce:service_price_list_url_name'
+    nav_custom_button_func = create_url_name
+    redirect_url_name = list_url_name
+    success_url_name = list_url_name
+
+class ServicePricesList(ServicePrices, ObjectsListMixin):
+    fields_to_show = ['created_at', 'user', 'price', 'currency', 'start_date', 'end_date']
+    query_fields = []
+    order_by = '-created_at'
+    template_name = 'commerce/service_price_list.html'
+    nav_custom_button = {'name': 'NewItem', 'show': True}
+    edit_button = False
+    view_button = False
+    delete_button = True
+
+class ServicePriceDelete(ServicePrices, ObjectDeleteMixin):
+    template_name = 'obj_delete.html'
+    title = "Deleting price"
+
+class ServicePriceCreate(ServicePrices, ObjectCreateMixin):
+    title = "ServicePrice Create"
+
+class ServicePriceUpdate(ServicePrices, ObjectUpdateMixin):
+    title = "Updating Price"
+
 class ContractServices(Commerce):
     model = Service
     form_class = ServiceForm
@@ -147,18 +185,14 @@ class ContractServices(Commerce):
     delete_url_name = 'commerce:contract_service_delete_url_name'
     details_url_name = 'commerce:contract_service_detail_url_name'
     fk_param = Param(field_name='contract', key='fkey')
-
-    # details_url_name = model.DETAILS_URL_NAME
-    # update_url_name = model.UPDATE_URL_NAME
-    # delete_url_name = model.DELETE_URL_NAME
-
     list_url_name = 'commerce:contract_service_list_url_name'
     nav_custom_button_func = create_url_name
     redirect_url_name = list_url_name
     success_url_name = list_url_name
     filter_param = fk_param
     create_param = fk_param
-
+    redirect_param = fk_param
+    fk_params = []
 
 class ContractServiceList(ContractServices, ObjectsListMixin):
     fields_to_show = ['contract', 'service_name', 'resource', 'price', 'currency']

@@ -20,6 +20,12 @@ def filter_fields(form, fields_to_show=None, fields_to_exclude=None):
     form.fields = {key: value for key, value in form.fields.items()
                    if key in fields_to_show and key not in fields_to_exclude}
 
+def get_queryset(model, fk_params):
+    queryset = model.objects.all()
+    # for param in fk_params:
+    #     queryset.filter(**{filter_param.field_name: fk_value})
+
+
 
 class Objects:
     template_name = None
@@ -34,11 +40,13 @@ class Objects:
     redirect_url_name = None
     success_url_name = None
     fail_url_name = None
+    queryset = None
     fk_param = Param(field_name=None, key=None)
     redirect_param = Param(field_name=None, key=None)
     filter_param = Param(field_name=None, key=None)
     create_param = Param(field_name=None, key=None)
     update_param = Param(field_name=None, key=None)
+    fk_params = [fk_param]
     title = 'No title'
     comments = ''
     additional_context = {}
@@ -77,7 +85,7 @@ class ObjectsListMixin(Objects, View):
 
     def get(self, request, **kwargs):
         # print(kwargs)
-        queryset = self.model.objects.all()
+        queryset = self.queryset or self.model.objects.all()
         title = self.title
         self.nav_custom_button['func'] = reverse_lazy(self.nav_custom_button_func)
         # print(self.filter_param)
@@ -97,7 +105,7 @@ class ObjectsListMixin(Objects, View):
         search_query = slugify(request.GET.get('query', ''), allow_unicode=True)
         if search_query and self.redirect_url_name:
             z = [Q((f'{qq}__icontains', search_query)) for qq in self.query_fields]
-            print(z)
+            # print(z)
             q = functools.reduce(lambda a, b: a | b, z)
             queryset = queryset.filter(q)
 

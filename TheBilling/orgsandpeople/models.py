@@ -104,7 +104,7 @@ class BusinessUnit(TimeStampedModel, ActivatorModel, MyModel):
 class Email(ActivatorModel, MyModel):
     email = models.EmailField(unique=True)
     bu = models.ForeignKey('BusinessUnit', on_delete=models.CASCADE, related_name='emails')
-    email_type = models.SlugField(max_length=10, null=True, blank=True)
+    email_type = models.SlugField(max_length=64, null=True, blank=True)
     verified = models.BooleanField(
         default=False,
         verbose_name="Verified",

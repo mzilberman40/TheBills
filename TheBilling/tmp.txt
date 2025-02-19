@@ -1,0 +1,1 @@
+While choosing resource in ServiceForm I want to see in selector only  resources with status 'available'

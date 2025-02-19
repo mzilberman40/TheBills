@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -103,32 +105,25 @@ class Contract(TimeStampedModel, MyModel):
             raise ValidationError("End date must be after start date.")
 
 
-class ServicePriceHistory(models.Model):
-    service = models.ForeignKey(
-        'Service',
-        on_delete=models.CASCADE,
-        related_name='price_history',
-        verbose_name="Service"
-    )
-    new_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="New Price")
-    effective_date = models.DateField(verbose_name="Effective Date")
-    changed_at = models.DateTimeField(default=now, verbose_name="Changed At")
-    changed_by = models.ForeignKey(
-        User,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        verbose_name="Changed By"
-    )
+class ServicePrice(MyModel):
+    service = models.ForeignKey('Service', related_name='prices', on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, verbose_name="Currency")
+    start_date = models.DateField()
+    end_date = models.DateField(default=date.fromisoformat("2999-12-31"))
+    user = models.ForeignKey(User, on_delete=models.PROTECT)  # Tracks the user
+    created_at = models.DateTimeField(auto_now_add=True)  # Timestamp for when the price was changed
+
 
     class Meta:
+        ordering = ['created_at']
+        app_label = 'commerce'
         verbose_name = "Service Price History"
         verbose_name_plural = "Service Price Histories"
-        ordering = ['-effective_date', '-changed_at']
-        app_label = 'commerce'
 
     def __str__(self):
-        return f"Price change for {self.service.service_name}: {self.new_price} effective {self.effective_date}"
+        return (f"Price change for {self.service.service_name}: "
+                f"{self.price}: {self.start_date} - {self.end_date}")
 
     NAME_SPACE = 'commerce'
 
@@ -168,13 +163,7 @@ class Service(MyModel):
     )
     start_date = models.DateField(null=True, blank=True, verbose_name="Start Date")
     finish_date = models.DateField(null=True, blank=True, verbose_name="Finish Date")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Price")
-    currency = models.ForeignKey(
-        Currency,
-        on_delete=models.PROTECT,
-        verbose_name="Currency",
-        related_name="services"
-    )
+
     contract = models.ForeignKey(
         'Contract',
         on_delete=models.PROTECT,
@@ -188,7 +177,7 @@ class Service(MyModel):
         blank=True,
         verbose_name="Linked Resource",
         related_name="services",
-        limit_choices_to={'current_status': 'available'}
+        # limit_choices_to={'current_status': 'available'}
     )
     description = models.TextField(null=True, blank=True, verbose_name="Description")
     user = models.ForeignKey(User, verbose_name='Owner', on_delete=models.PROTECT)
@@ -199,6 +188,16 @@ class Service(MyModel):
         max_length=20,
         choices=STATUS_CHOICES,
     )
+
+    @property
+    def price(self):
+        p = self.get_price(now())
+        return p.price if p else None
+
+    @property
+    def currency(self):
+        p = self.get_price(now())
+        return p.currency if p else None
 
     def clean(self):
         """
@@ -219,11 +218,11 @@ class Service(MyModel):
             if self.billing_frequency:
                 raise ValidationError("Billing frequency is not applicable for one-time services.")
 
-        if self.resource:
-            if self.resource.current_status not in ['available']:
-                raise ValidationError(
-                    f"The resource '{self.resource.name}' cannot be bound because its current status is '{self.resource.get_current_status_display()}'."
-                )
+        # if self.resource:
+        #     if self.resource.current_status not in ['available']:
+        #         raise ValidationError(
+        #             f"The resource '{self.resource.name}' cannot be bound because its current status is '{self.resource.get_current_status_display()}'."
+        #         )
 
     def save(self, *args, **kwargs):
         """
@@ -249,30 +248,66 @@ class Service(MyModel):
         self.resource.save()
         self.save()
 
-    def update_price(self, new_price, effective_date, user=None):
+    def update_price(self, new_price, user, start_date=None, end_date=None):
         """
-        Update the price of the service and record the change in the price history.
-        The effective date determines when the new price becomes active.
+        Adds a new price record for the service.
+        The update_price method is designed to add a new price record for a service without modifying or cancelling any
+        existing price records, even if the new record overlaps with previous ones.
+        This method ensures historical data integrity and allows for flexible price management.
+
+        Parameters:
+        new_price (Decimal): The price value to add.
+        user (User): The user making the change.
+        start_date (Date, optional): When the price becomes effective. Defaults to today.
+        end_date (Date, optional): When the price ends. Defaults to "2999-12-31".
+
+        Raises:
+        ValueError: If end_date is earlier than start_date.
         """
-        # Create a history record
-        ServicePriceHistory.objects.create(
+        start_date = start_date or date.today()
+        end_date = end_date or date.fromisoformat("2999-12-31")
+
+        # Ensure that end_date >= start_date
+        if end_date < start_date:
+            raise ValueError("The start date cannot be before the end date.")
+
+        # Create a new price record without modifying existing ones
+        ServicePrice.objects.create(
             service=self,
-            new_price=new_price,
-            effective_date=effective_date,
+            price=new_price,
+            start_date=start_date,
+            end_date=end_date,
             changed_by=user
         )
-        # Update the current price only if the effective date is today or earlier
-        if effective_date <= now().date():
-            self.price = new_price
-            self.save()
+
+    def get_price(self, query_date=None):
+        """
+        Retrieves the latest price of the service for a specific date.
+
+        Parameters:
+        query_date (Date, optional): The date to query. Defaults to today.
+
+        Returns:
+        Decimal: The latest price active on the given date, or None if no price is found.
+        """
+        query_date = query_date or date.today()
+
+        # Retrieve the most recent matching price record
+        price_record = self.prices.filter(
+            start_date__lte=query_date,
+            end_date__gte=query_date
+        ).order_by('-id').first()  # Or use '-changed_at' if that field is available
+
+        # Return the price or None if no record exists
+        return price_record if price_record else None
 
     def __str__(self):
-        return self.service_name
+        return self.service_name.name
 
     class Meta:
         verbose_name = "Service"
         verbose_name_plural = "Services"
-        ordering = ('service_name',)
+        ordering = ('service_name', 'start_date')
         app_label = 'commerce'
 
     NAME_SPACE = 'commerce'

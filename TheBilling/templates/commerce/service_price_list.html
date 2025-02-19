@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+
+{% block page_title %} {{ title }}{% endblock %}
+
+{% block page_header %}{{ title }}:{% endblock %}
+
+{% block content %}
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+
+                    {% for field in fields %}
+                    <th scope="col">{{ field }}</th>
+                    {% endfor %}
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in page_object.object_list %}
+
+                    <tr>
+                        {% for value in obj.addons %}
+
+                            <td>{{ value  }}</td>
+                        {% endfor %}
+
+                        <td>
+                         <div class="btn-group" role="group">
+                            {% if view_button %}
+                                {% if fkey %}
+                                    <a href="{% url details_url_name pk=obj.pk fkey=fvalue %}" class="btn btn-sm btn-info">View </a>
+                                {% else %}
+                                    <a href="{% url details_url_name pk=obj.pk %}" class="btn btn-sm btn-info">View </a>
+                                {% endif %}
+                             {% endif %}
+
+                            {% if edit_button %}
+                                {% if fkey %}
+                                    <a href="{% url update_url_name pk=obj.pk fkey=fvalue %}" class="btn btn-sm btn-warning">Edit </a>
+                                {% else %}
+                                    <a href="{% url update_url_name pk=obj.pk %}" class="btn btn-sm btn-warning">Edit </a>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if delete_button %}
+                                {% if fkey %}
+                                    <a href="{% url delete_url_name pk=obj.pk fkey=fvalue %}" class="btn btn-sm btn-danger">Delete</a>
+                                {% else %}
+                                    <a href="{% url delete_url_name pk=obj.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                                {% endif %}
+
+                            {% endif %}
+                         </div>
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

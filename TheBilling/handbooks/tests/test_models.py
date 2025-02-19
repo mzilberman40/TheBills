@@ -29,7 +29,7 @@ class ModelTests(TestCase):
 
         self.assertEqual(d['full_name'], lf.full_name)
 
-    def test_resource_group(self):
+    def test_create_resource_group(self):
         """Test creating a resource group is successful """
 
         name = "МояФорма"
@@ -61,7 +61,7 @@ class ModelTests(TestCase):
         self.assertEqual(description, rn.description)
         self.assertEqual(rg, rn.group)
 
-    def test_currency(self):
+    def test_create_currency(self):
         """Test creating a currency is successful """
 
         code = "USD"
@@ -72,7 +72,7 @@ class ModelTests(TestCase):
         self.assertEqual(data['code'], cur.code)
         self.assertEqual(data['numeric'], cur.numeric)
 
-    def test_country(self):
+    def test_create_country(self):
         """Test creating a country is successful """
         eng_name = "Israel"
         data = name2country(eng_name)
